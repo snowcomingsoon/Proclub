@@ -10,7 +10,7 @@ import {
 import {groupByNight, summarizeNight} from '../app/src/lib/matches.js';
 import {adaniNote, classifyProfile} from '../app/src/lib/adani-quotes.js';
 
-const data = JSON.parse(readFileSync(new URL('../data/data.json', import.meta.url)));
+const data = JSON.parse(readFileSync(new URL('./fixtures/data.json', import.meta.url)));
 const all = buildAll(data);
 const idx = metricsIndex(all);
 const club = analyzeClub(data, undefined, all);

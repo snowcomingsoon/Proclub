@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import {readFileSync} from 'node:fs';
 import {buildAll, roleFor, analyzeClub, appearancesFor} from '../shared/metrics.mjs';
 import {commentFor} from '../shared/commentary.mjs';
-const data = JSON.parse(readFileSync(new URL('../data/data.json', import.meta.url)));
+const data = JSON.parse(readFileSync(new URL('./fixtures/data.json', import.meta.url)));
 const all = buildAll(data);
 
 test('metriche calcolate per tutti i Pro', () => {

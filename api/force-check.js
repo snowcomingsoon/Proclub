@@ -1,6 +1,6 @@
 const crypto = require('node:crypto');
 
-const REPO = 'lorenzocorazzi-wq/Proclub';
+const REPO = 'snowcomingsoon/Proclub';
 const WORKFLOW = 'update-data.yml';
 
 function sameSecret(a, b) {

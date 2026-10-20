@@ -33,6 +33,8 @@ async function ea(endpoint, params) {
     ea('clubs/matches', {platform: PLATFORM, clubIds: CLUB_ID, matchType: 'friendlyMatch', maxResultCount: 10}).catch(optional('friendlyMatch')),
     ea('clubs/matches', {platform: PLATFORM, clubIds: CLUB_ID, matchType: 'playoffMatch', maxResultCount: 10}).catch(optional('playoffMatch')),
   ]);
+  const newest = (list) => (list.length ? new Date(Math.max(...list.map(m => m.timestamp)) * 1000).toISOString() : 'nessuna');
+  console.log(`EA: campionato ${leagueMatches.length} (ultima ${newest(leagueMatches)}), amichevoli ${friendlyMatches.length} (ultima ${newest(friendlyMatches)}), spareggi ${playoffMatches.length} (ultima ${newest(playoffMatches)}); club ${club[0]?.gamesPlayed} partite`);
   const matches = [...new Map([...leagueMatches.map(m => ({...m, sourceMatchType: 'leagueMatch'})), ...friendlyMatches.map(m => ({...m, sourceMatchType: 'friendlyMatch'})), ...playoffMatches.map(m => ({...m, sourceMatchType: 'playoffMatch'}))].map(m => [String(m.matchId), m])).values()].sort((a, b) => b.timestamp - a.timestamp);
   validate({club, members, matches}, CLUB_ID);
   const {history, fresh} = mergeHistory(old.matchHistory, matches);

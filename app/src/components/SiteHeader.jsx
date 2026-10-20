@@ -5,14 +5,11 @@ export function SiteHeader({ connection, view = 'home', contentReady }) {
   const [status, setStatus] = useState('');
   const [busy, setBusy] = useState(false);
   async function requestSync() {
-    const code = window.prompt('Codice amministratore:');
-    if (!code) return;
     setBusy(true);
     setStatus('Avvio controllo…');
     try {
       const result = await fetch('/api/force-check', {
         method: 'POST',
-        headers: { 'X-Sync-Key': code },
       });
       const body = await result.json();
       setStatus(result.ok ? 'Controllo avviato. I dati appariranno al termine della sincronizzazione.' : (body.error || 'Errore di sincronizzazione'));

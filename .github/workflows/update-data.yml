@@ -6,6 +6,7 @@ on:
       - 'scripts/update-data.js'
   schedule:
     - cron: '17 * * * *'
+    - cron: '*/20 17-23,0-1 * * *'
   workflow_dispatch:
 permissions:
   contents: write

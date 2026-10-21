@@ -24,19 +24,23 @@ function runsPerDay(cronLines) {
   return runs.sort((a, b) => a - b);
 }
 
-test('cadenza update-data: sera ogni 20 minuti (17:00-01:59 UTC), altrove una volta all\'ora al minuto 17', () => {
-  const lines = crons(wf('update-data.yml'));
-  assert.equal(lines.length, 2);
+test('cadenza update-data: avvio orario, rete di sicurezza serale e giro ripetuto fino al successivo', () => {
+  const t = wf('update-data.yml');
+  const lines = crons(t);
+  assert.deepEqual(lines, ['17 * * * *', '47 17-23,0,1 * * *']);
   const runs = runsPerDay(lines);
   assert.equal(new Set(runs).size, runs.length, 'nessun orario duplicato');
-  const evening = new Set([17, 18, 19, 20, 21, 22, 23, 0, 1]);
-  for (let h = 0; h < 24; h++) {
-    const inHour = runs.filter((r) => Math.floor(r / 60) === h).map((r) => r % 60);
-    assert.deepEqual(inHour, evening.has(h) ? [0, 20, 40] : [17], `ora UTC ${h}`);
-  }
-  assert.equal(runs.length, 9 * 3 + 15);
-  // 19-03 italiane in estate (CEST = UTC+2) e 18-02 in inverno (CET = UTC+1) sono coperte dalla finestra serale
-  for (const [offset, from, to] of [[2, 19, 3], [1, 18, 2]]) for (let local = from; local !== (to + 1) % 24; local = (local + 1) % 24) assert.ok(evening.has((local - offset + 24) % 24), `ora locale ${local} (UTC+${offset})`);
+  assert.equal(runs.length, 24 + 9);
+  assert.match(t, /timeout-minutes: 75/);
+  assert.match(t, /actions: write/);
+  assert.match(t, /gh workflow run update-data\.yml/);
+  assert.match(t, /steps\.collect\.outputs\.chain == '1'/);
+  const sh = fs.readFileSync(path.join(ROOT, 'scripts', 'collect-loop.sh'), 'utf8');
+  // finestra serale 17:00-01:59 UTC = 19-03 italiane in estate (CEST) e 18-02 in inverno (CET)
+  assert.match(sh, /\[ "\$hour" -ge 17 \] \|\| \[ "\$hour" -le 1 \]/);
+  assert.match(sh, /duration=3000/);
+  assert.match(sh, /INTERVAL="\$\{LOOP_INTERVAL:-180\}"/);
+  assert.match(sh, /schedule/);
 });
 test('update-data: concurrency invariata, push con retry, artifact, azioni senza Node 20', () => {
   const t = wf('update-data.yml');

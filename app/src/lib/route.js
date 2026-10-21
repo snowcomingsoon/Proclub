@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
  */
 export function parseHash(hash) {
   const raw = (hash || '').replace(/^#/, '');
+  if (raw === '/costellazione' || raw === '/costellazione/') return { view: 'constellation', name: null };
   if (raw === '/statistiche' || raw === '/statistiche/')
     return { view: 'stats', name: null };
   if (raw.startsWith('/pro/')) {

@@ -13,6 +13,8 @@ import { useRoute } from './lib/route.js';
 import { toNumber } from './lib/stats.js';
 import { useClubData } from './lib/useClubData.js';
 
+const Constellation = lazy(() => import('./components/Constellation.jsx').then(m => ({default: m.Constellation})));
+
 const BelowFold = lazy(() => import('./components/BelowFold.jsx'));
 const SiteFooter = lazy(() =>
   import('./components/SiteFooter.jsx').then((module) => ({
@@ -66,7 +68,7 @@ function App() {
   }, [view, route.name]);
   useEffect(() => {
     document.title =
-      view === 'stats'
+      view === 'constellation' ? 'Costellazione — BILLOCCHI CLUB' : view === 'stats'
         ? 'Statistiche — BILLOCCHI CLUB'
         : view === 'player'
           ? `${data.members.members.find((m) => m.name.toLowerCase() === route.name.toLowerCase())?.name} — BILLOCCHI CLUB`
@@ -84,7 +86,7 @@ function App() {
         view={view}
         contentReady={belowReady}
       />
-      {view === 'stats' ? (
+      {view === 'constellation' ? (<main><Suspense fallback={<p role="status" style={{padding:40}}>Accensione della costellazione…</p>}><Constellation data={data}/></Suspense></main>) : view === 'stats' ? (
         <main className="pg-main">
           <Suspense fallback={null}>
             <StatsPage data={data} />
@@ -98,6 +100,7 @@ function App() {
         </main>
       ) : (
       <main id="top">
+        <a className="constellation-entry" href="#/costellazione"><span className="constellation-entry-symbol" aria-hidden="true">✦</span><span><b>LA COSTELLAZIONE DEL CLUB</b><small>Scopri chi entra nella tua orbita. Esplora i legami tra i Pro.</small></span><strong aria-hidden="true">↗</strong></a>
         <DayAfter
           data={data}
           members={data.members.members}

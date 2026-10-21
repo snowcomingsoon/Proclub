@@ -818,3 +818,5 @@
 }
 
 .pg-ref-label { paint-order: stroke; stroke: var(--panel, #101f19); stroke-width: 4px; stroke-linejoin: round; }
+
+.constellation-entry{display:flex;align-items:center;gap:18px;margin:20px auto;padding:19px 24px;max-width:1480px;border:1px solid #4c623b;border-radius:14px;background:radial-gradient(ellipse at 10% 50%,#537b262a,transparent 65%),#101c16;color:#d4f497;text-decoration:none}.constellation-entry-symbol{font-size:35px;color:#c9f779}.constellation-entry>span:nth-child(2){flex:1}.constellation-entry b{font:700 22px/1.2 "Barlow Condensed",sans-serif;letter-spacing:.035em}.constellation-entry small{display:block;font-size:11px;color:#a0b396;margin-top:5px}.constellation-entry>strong{font-size:27px}.constellation-entry:hover{border-color:#cefc70;background-color:#1b2d1a}.constellation-entry:focus-visible{outline:2px solid #cefc70;outline-offset:4px}@media(max-width:600px){.constellation-entry{margin:14px 12px;padding:15px;gap:12px}.constellation-entry b{font-size:18px}.constellation-entry small{font-size:10px;line-height:1.5}.constellation-entry-symbol{font-size:28px}}

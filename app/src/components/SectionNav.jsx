@@ -34,6 +34,7 @@ const SECTIONS = [
 
 /** Viste a pagina intera (routing su hash): voci accanto alle sezioni. */
 const PAGES = [
+  {id: 'costellazione', label: '✦ Costellazione', href: '#/costellazione', view: 'constellation'},
   {
     id: 'statistiche',
     label: 'Statistiche',
@@ -144,7 +145,7 @@ export function SectionNav({ view = 'home', contentReady }) {
     };
   }, [view, contentReady]);
   const currentId =
-    view === 'home' ? activeId : view === 'stats' ? 'statistiche' : null;
+    view === 'home' ? activeId : view === 'stats' ? 'statistiche' : view === 'constellation' ? 'costellazione' : null;
   useEffect(() => {
     const nav = navRef.current;
     const link = nav?.querySelector('a[aria-current]');

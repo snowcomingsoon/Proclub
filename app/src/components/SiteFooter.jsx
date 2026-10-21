@@ -1,5 +1,7 @@
 import { ArrowUpRight } from 'lucide-react';
+import { collectionStatusOf } from '../lib/adapter.js';
 import { CLUB_ID, EA_CLUBS_URL } from '../lib/constants.js';
+import { lostMatchesNote, stallNotice } from '../lib/health.js';
 
 const FRESH_LABELS = {
   club: 'club',
@@ -22,7 +24,10 @@ function describeSync({ connection, freshKeys, lastSync, capturedAt }) {
   return `Ultima rilevazione EA: ${formatDateTime(capturedAt)}. Il server EA limita la connessione diretta; i dati vengono sincronizzati periodicamente.`;
 }
 
-export function SiteFooter({ connection, data, freshKeys, lastSync }) {
+export function SiteFooter({ connection, data, freshKeys, lastSync, health }) {
+  const status = collectionStatusOf(health, data);
+  const stall = stallNotice(health);
+  const lost = lostMatchesNote(health);
   return (
     <footer>
       <img
@@ -46,13 +51,15 @@ export function SiteFooter({ connection, data, freshKeys, lastSync }) {
           capturedAt: data.capturedAt,
         })}
       </p>
-      {data.collectionStatus&&<p role="status">
-        Controllo archivio: {data.collectionStatus.complete?'nessuna nuova discrepanza rilevata':'raccolta da verificare, recupero automatico in corso'}.
-        {' '}Ultimo controllo: {formatDateTime(data.collectionStatus.checkedAt)}.
-        {Date.now()-Date.parse(data.collectionStatus.checkedAt)>45*60*1000&&' Il controllo è in ritardo da oltre 45 minuti.'}
-        {data.collectionStatus.issues?.length>0&&<details><summary>Dettagli della copertura</summary><ul>{data.collectionStatus.issues.map(i=><li key={i.key}>{i.name||'Archivio'}: {i.kind==='missing_appearances'?`${i.missing} nuove presenze senza tabellino completo`:i.kind==='missing_matches'?`${i.missing} nuove partite da riconciliare`:i.kind==='counter_regression'?'contatore EA diminuito: verifica necessaria':i.kind==='unverified_player'?'identità da verificare nei tabellini':i.kind==='incomplete_match_details'?`${i.count} tabellini incompleti`:'dati da verificare'}</li>)}</ul></details>}
-        <br/>Il controllo riguarda le nuove gare dal {formatDateTime(data.collectionStatus.startedAt)}. Lo storico precedente può essere incompleto.
+      {status&&<p role="status">
+        Controllo archivio: {status.complete?'nessuna nuova discrepanza rilevata':'raccolta da verificare, recupero automatico in corso'}.
+        {' '}Ultimo controllo EA: {formatDateTime(status.checkedAt)}.
+        {!stall&&Date.now()-Date.parse(status.checkedAt)>45*60*1000&&' Il controllo è in ritardo da oltre 45 minuti.'}
+        {status.issues?.length>0&&<details><summary>Dettagli della copertura</summary><ul>{status.issues.map(i=><li key={i.key}>{i.name||'Archivio'}: {i.kind==='missing_appearances'?`${i.missing} nuove presenze senza tabellino completo`:i.kind==='missing_matches'?`${i.missing} nuove partite da riconciliare`:i.kind==='counter_regression'?'contatore EA diminuito: verifica necessaria':i.kind==='unverified_player'?'identità da verificare nei tabellini':i.kind==='incomplete_match_details'?`${i.count} tabellini incompleti`:'dati da verificare'}</li>)}</ul></details>}
+        {status.startedAt&&<><br/>Il controllo riguarda le nuove gare dal {formatDateTime(status.startedAt)}. Lo storico precedente può essere incompleto.</>}
       </p>}
+      {lost&&<p>{lost}</p>}
+      {stall&&<p role="status">{stall}</p>}
       <a
         href={`${EA_CLUBS_URL}/overview?clubId=${CLUB_ID}&platform=common-gen5`}
         target="_blank"

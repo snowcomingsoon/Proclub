@@ -64,3 +64,15 @@ export function pairTitle(pair) {
   if (pair.n >= 20) return 'LEGAME STELLARE';
   return 'STESSA ORBITA';
 }
+
+/** Site estimate of shared performance, not direct interactions or causal lift. */
+export function pairChemistry(p) {
+  const clamp = x => Math.max(0, Math.min(1,x));
+  const rated = p.a.rated + p.b.rated;
+  const rating = rated ? ((p.a.rating || 0)*p.a.rated + (p.b.rating || 0)*p.b.rated)/rated : null;
+  const attack = clamp((p.goals + p.assists * .7) / Math.max(1,p.n) / 3);
+  const performance = rating == null ? null : clamp((rating - 5)/4);
+  const results = clamp(p.ppg/3);
+  const raw = performance == null ? (attack*.35 + results*.2)/.55 : performance*.45 + attack*.35 + results*.2;
+  return Math.round(100 * raw * (.5 + .5*Math.min(p.n/20,1)));
+}

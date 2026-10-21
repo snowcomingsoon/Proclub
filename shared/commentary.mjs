@@ -1,4 +1,4 @@
-import {ROLE_INFO, roleFor, reliabilityFor} from './metrics.mjs';
+import {ROLE_INFO, roleFor, reliabilityFor, posLabel, nightRoles, metricsForRole, OFF_METRIC_ROLES, PRO_POS_LABEL} from './metrics.mjs';
 
 const f1 = v => (v == null || !Number.isFinite(v) ? '—' : v.toFixed(1));
 const f2 = v => (v == null || !Number.isFinite(v) ? '—' : v.toFixed(2));
@@ -9,7 +9,7 @@ const pick = (m, variants) => variants[hash(m.name) % variants.length];
 /* Ruolo e soglie: se il Pro e` stato costruito a mano (test) si ricava dal campo `position`. */
 function roleOf(m) {
   const role = m.role || roleFor(m.playedPos || m.position, m.proPos);
-  return {role, ...ROLE_INFO[role]};
+  return {role, ...ROLE_INFO[role], label: m.roleLabel || ROLE_INFO[role].label};
 }
 
 /* Soglie di lavoro sul contributo offensivo (gol+assist a partita, stagionale), per ruolo. */
@@ -25,27 +25,34 @@ function negatives(m) {
   if (g < 3) return n;
   const rl = R.label;
   const cons = R.group === 'cons';
-  const off = R.group === 'off' && R.role !== 'ESTERNO' ? true : R.group === 'off';
+  // Pro polivalente: le medie stagionali EA sono miste di ruoli, le accuse di ruolo nascono solo dal campione recente nel ruolo
+  const mixed = !!m.mixed;
+  const scope = mixed && m.roleScope ? m.roleScope : '';
+  const roleN = m.roleSample || 0;
+  const offN = m.offSample != null ? m.offSample : (m.sample || 0);
+  const titolare = mixed ? 'titolare' : `${rl} titolare`;
 
   // --- Voto
   if (m.rating) {
     if (m.rating < 6.5) add(10, 'rating', pick(m, [
-      `Media EA ${f2(m.rating)} in ${g} presenze: insufficiente. Per un ${rl} titolare è un rendimento sotto il minimo accettabile.`,
-      `${f2(m.rating)} di media EA: bocciatura netta. Un ${rl} fermo a questi livelli non sta sostenendo la squadra.`]), `Media EA ${f2(m.rating)} in ${g} presenze`);
-    else if (m.rating < 7) add(7, 'rating', `Media EA ${f2(m.rating)}: appena oltre la sufficienza. Da ${rl} significa tenere il posto senza mai spostare l'inerzia della gara.`, `Media EA ${f2(m.rating)}`);
-    else if (m.rating < 7.5) add(4, 'rating', m.peers && m.peers.ratingRank
+      `Media EA ${f2(m.rating)} in ${g} presenze: insufficiente. Per un ${titolare} è un rendimento sotto il minimo accettabile.`,
+      `${f2(m.rating)} di media EA: bocciatura netta. Un ${mixed ? 'titolare' : rl} fermo a questi livelli non sta sostenendo la squadra.`]), `Media EA ${f2(m.rating)} in ${g} presenze`);
+    else if (m.rating < 7) add(7, 'rating', `Media EA ${f2(m.rating)}: appena oltre la sufficienza. ${mixed ? 'Per un titolare' : `Da ${rl}`} significa tenere il posto senza mai spostare l'inerzia della gara.`, `Media EA ${f2(m.rating)}`);
+    else if (m.rating < 7.5) add(4, 'rating', m.peers && !mixed && m.peers.ratingRank
       ? `Media EA ${f2(m.rating)}: ${m.peers.ratingRank}° su ${m.peers.n} del reparto (mediana ${f2(m.peers.medianRating)}). Rendimento ordinario per un ${rl}, utile ma non determinante.`
-      : `Media EA ${f2(m.rating)} in ${g} presenze da ${rl}: rendimento ordinario, lontano dalla fascia alta${m.ratingVsClubMedian != null ? ` (${m.ratingVsClubMedian >= 0 ? '+' : ''}${f2(m.ratingVsClubMedian)} sulla mediana del club)` : ''}.`,
-      m.peers && m.peers.ratingRank ? `${m.peers.ratingRank}° su ${m.peers.n} pari reparto per media (${f2(m.rating)})` : `Media EA ${f2(m.rating)}`);
+      : `Media EA ${f2(m.rating)} in ${g} presenze${mixed ? ' tra ruoli diversi' : ` da ${rl}`}: rendimento ordinario, lontano dalla fascia alta${m.ratingVsClubMedian != null ? ` (${m.ratingVsClubMedian >= 0 ? '+' : ''}${f2(m.ratingVsClubMedian)} sulla mediana del club)` : ''}.`,
+      m.peers && !mixed && m.peers.ratingRank ? `${m.peers.ratingRank}° su ${m.peers.n} pari reparto per media (${f2(m.rating)})` : `Media EA ${f2(m.rating)}`);
   }
-  if (m.peers && m.peers.ratingRank === m.peers.n && g >= 8) add(7, 'peers', `Ultimo dei ${m.peers.n} del reparto per media EA (${f2(m.rating)} contro mediana ${f2(m.peers.medianRating)}): a pari ruolo il club ha alternative migliori.`, `Ultimo su ${m.peers.n} pari reparto per media (${f2(m.rating)}, mediana ${f2(m.peers.medianRating)})`);
+  if (m.peers && !mixed && m.peers.ratingRank === m.peers.n && g >= 8) add(7, 'peers', `Ultimo dei ${m.peers.n} del reparto per media EA (${f2(m.rating)} contro mediana ${f2(m.peers.medianRating)}): a pari ruolo il club ha alternative migliori.`, `Ultimo su ${m.peers.n} pari reparto per media (${f2(m.rating)}, mediana ${f2(m.peers.medianRating)})`);
   else if (m.ratingVsClubMedian != null && m.ratingVsClubMedian <= -0.4 && g >= 8) add(7, 'peers', `${f1(Math.abs(m.ratingVsClubMedian))} punti sotto la mediana dei titolari del club: qualcuno, a parità di impiego, rende di più.`, `${f2(m.ratingVsClubMedian)} dalla mediana del club`);
 
   // --- Passaggi: parametro dipendente dal ruolo
-  const pp = m.passPct;
+  // polivalente: percentuale dal solo campione nel ruolo (almeno 3 gare e 30 passaggi); la media stagionale non vale per il ruolo
+  const roleOk = mixed && roleN >= 3 && (m.rolePassAtt || 0) >= 30 && m.recentPassPct != null;
+  const pp = mixed ? (roleOk ? m.recentPassPct : null) : m.passPct;
   if (pp != null) {
-    const failed = m.passFailedPerGame, att = m.passAttPerGame;
-    const vol = att != null ? ` su circa ${r0(att)} tentati a gara` : '';
+    const failed = mixed ? m.recentPassFailedPerGame : m.passFailedPerGame, att = mixed ? m.recentPassAttPerGame : m.passAttPerGame;
+    const vol = (mixed ? ` ${scope}` : '') + (att != null ? ` su circa ${r0(att)} tentati a gara` : '');
     const proofP = `${r0(pp)}% passaggi${failed != null ? `, ~${f1(failed)} sbagliati a gara` : ''}`;
     if (cons && pp < R.passMin) {
       const coachByRole = {
@@ -56,7 +63,7 @@ function negatives(m) {
       };
       add(pp < 70 ? 10 : 9, 'pass', pick(m, [
         `Passaggi al ${r0(pp)}%${vol}: per un ${rl}, che gioca i passaggi più semplici del campo, è un dato troppo basso. Non è un alibi di ruolo, è un limite tecnico.`,
-        `${r0(pp)}% di passaggi riusciti da ${rl}: un dato che non può permettersi: i suoi passaggi sono di norma meno rischiosi di quelli di chi gioca tra le linee. Regala possesso${failed != null ? ` (~${f1(failed)} errori a gara)` : ''}.`]), proofP, coachByRole[R.role] || coachByRole.CC);
+        `${r0(pp)}% di passaggi riusciti ${mixed ? scope : `da ${rl}`}: un dato che non può permettersi: i suoi passaggi sono di norma meno rischiosi di quelli di chi gioca tra le linee. Regala possesso${failed != null ? ` (~${f1(failed)} errori a gara)` : ''}.`]), proofP, coachByRole[R.role] || coachByRole.CC);
     } else if (!cons && pp < R.passMin) {
       const coachOff = R.role === 'ATT'
         ? `Quando ricevi spalle alla porta scarica di prima su chi inserisce, non forzare il filtrante: ${r0(pp)}% è troppo basso anche per una punta.`
@@ -66,34 +73,42 @@ function negatives(m) {
       add(4, 'pass', `${r0(pp)}% di passaggi su ~${r0(att)} a gara: il volume c'è, la pulizia è solo sufficiente per un ${rl}.`, `${r0(pp)}% su ~${r0(att)} passaggi a gara`,
         `Con ~${r0(att)} passaggi a gara il margine è nella scelta: ~${f1(Math.max(0.1, failed - att * 0.2))} errori in meno a partita migliorerebbero sensibilmente il ${r0(pp)}% attuale.`);
     }
-    if (m.recentPassPct != null && pp - m.recentPassPct >= 5 && (m.sample || 0) >= 6 && !(cons && pp < R.passMin)) add(5, 'pass2', `Precisione in calo: ${r0(m.recentPassPct)}% nelle ultime ${m.sample} gare contro ${r0(pp)}% di stagione.`, `Ultime ${m.sample} gare ${r0(m.recentPassPct)}% contro stagione ${r0(pp)}%`, `Ritrovare la pulizia di inizio stagione: ${r0(m.recentPassPct)}% nelle ultime ${m.sample} contro ${r0(pp)}%.`);
-    if (m.worstPassPct != null && m.worstPassPct < (cons ? 60 : 50) && (m.sample || 0) >= 6) add(4, 'pass2', `Una serata nera al passaggio: ${r0(m.worstPassPct)}% nella peggiore gara, il segno di quando perde il filo.`, `Peggior gara ${r0(m.worstPassPct)}% passaggi`);
+    if (!mixed && m.recentPassPct != null && pp - m.recentPassPct >= 5 && (m.sample || 0) >= 6 && !(cons && pp < R.passMin)) add(5, 'pass2', `Precisione in calo: ${r0(m.recentPassPct)}% nelle ultime ${m.sample} gare contro ${r0(pp)}% di stagione.`, `Ultime ${m.sample} gare ${r0(m.recentPassPct)}% contro stagione ${r0(pp)}%`, `Ritrovare la pulizia di inizio stagione: ${r0(m.recentPassPct)}% nelle ultime ${m.sample} contro ${r0(pp)}%.`);
+    if (m.worstPassPct != null && m.worstPassPct < (cons ? 60 : 50) && (mixed ? roleN >= 4 : (m.sample || 0) >= 6)) add(4, 'pass2', `Una serata nera al passaggio: ${r0(m.worstPassPct)}% nella peggiore gara, il segno di quando perde il filo.`, `Peggior gara ${r0(m.worstPassPct)}% passaggi`);
   }
-  if (cons && (R.role === 'CC' || R.role === 'MED') && g >= 8 && m.passAttPerGame != null && m.passAttPerGame < 20) add(4, 'involve', `Solo ~${r0(m.passAttPerGame)} passaggi a gara per un ${rl}: partecipa poco alla manovra.`, `~${r0(m.passAttPerGame)} passaggi tentati a gara`, `Offriti di più al portatore: ~${r0(m.passAttPerGame)} passaggi a gara sono pochi per chi deve collegare i reparti.`);
+  const attInv = mixed ? (roleOk ? m.recentPassAttPerGame : null) : m.passAttPerGame;
+  if (cons && (R.role === 'CC' || R.role === 'MED') && (mixed ? roleN >= 4 : g >= 8) && attInv != null && attInv < 20) add(4, 'involve', `Solo ~${r0(attInv)} passaggi a gara${mixed ? ` ${scope}` : ''} per un ${rl}: partecipa poco alla manovra.`, `~${r0(attInv)} passaggi tentati a gara`, `Offriti di più al portatore: ~${r0(attInv)} passaggi a gara sono pochi per chi deve collegare i reparti.`);
 
   // --- Contrasti / filtro (solo ruoli di filtro, confrontati col club: il tasso EA e` basso per tutti)
-  if ((R.role === 'CC' || R.role === 'MED' || R.role === 'DIF') && g >= 8 && m.tackPct != null && m.clubMedianTackPct != null && m.tackAttPerGame >= 4 && m.tackPct <= m.clubMedianTackPct - 8) {
-    add(5, 'tackle', `Contrasti riusciti: ${r0(m.tackPct)}% contro una mediana di club del ${r0(m.clubMedianTackPct)}%, con ${f1(m.tackAttPerGame)} tentativi a gara: entra spesso e spesso male.`, `${r0(m.tackPct)}% contrasti (mediana club ${r0(m.clubMedianTackPct)}%), ${f1(m.tackFailedPerGame)} falliti a gara`,
-      `Meno scivolate e più posizione: chiudi la linea di passaggio prima di entrare. ${f1(m.tackFailedPerGame)} contrasti falliti a gara sono avversari che saltano il primo filtro.`);
+  const tkOk = mixed ? roleN >= 4 && (m.roleTackAtt || 0) >= 12 : g >= 8;
+  const tkPct = mixed ? m.recentTackPct : m.tackPct, tkAtt = mixed ? m.roleTackAttPerGame : m.tackAttPerGame, tkFail = mixed ? m.roleTackFailedPerGame : m.tackFailedPerGame;
+  if ((R.role === 'CC' || R.role === 'MED' || R.role === 'DIF') && tkOk && tkPct != null && m.clubMedianTackPct != null && tkAtt >= 4 && tkPct <= m.clubMedianTackPct - 8) {
+    add(5, 'tackle', `Contrasti riusciti${mixed ? ` ${scope}` : ''}: ${r0(tkPct)}% contro una mediana di club del ${r0(m.clubMedianTackPct)}%, con ${f1(tkAtt)} tentativi a gara: entra spesso e spesso male.`, `${r0(tkPct)}% contrasti (mediana club ${r0(m.clubMedianTackPct)}%), ${f1(tkFail)} falliti a gara`,
+      `Meno scivolate e più posizione: chiudi la linea di passaggio prima di entrare. ${f1(tkFail)} contrasti falliti a gara sono avversari che saltano il primo filtro.`);
   }
-  if ((R.role === 'MED' || R.role === 'DIF') && g >= 8 && m.tackAttPerGame != null && m.tackAttPerGame < 2.5) add(5, 'tackle', `Solo ${f1(m.tackAttPerGame)} contrasti tentati a gara per un ${rl}: il filtro davanti alla difesa non c'è.`, `${f1(m.tackAttPerGame)} contrasti tentati a gara`);
+  if ((R.role === 'MED' || R.role === 'DIF') && tkOk && tkAtt != null && tkAtt < 2.5) add(5, 'tackle', `Solo ${f1(tkAtt)} contrasti tentati a gara${mixed ? ` ${scope}` : ''} per un ${rl}: il filtro davanti alla difesa non c'è.`, `${f1(tkAtt)} contrasti tentati a gara`);
 
   // --- Fase offensiva
-  const sampleGoals = m.goalsSample;
-  if (m.shotsTotal >= 8 && m.conversionPct != null && m.conversionPct < 20) {
-    const t = sampleGoals ? `${m.shotsTotal} tiri nelle ultime ${m.sample} gare, ${sampleGoals} gol: conversione ${r0(m.conversionPct)}%, ${f1(m.shotsPerGoal)} conclusioni per una rete.` : `${m.shotsTotal} tiri nelle ultime ${m.sample} gare senza segnare.`;
+  // metriche offensive: mai su presenze da difensore, mediano o portiere (m.offSample le limita al ruolo offensivo/di centrocampo)
+  const offRole = OFF_METRIC_ROLES.has(R.role);
+  const sampleGoals = m.offGoals != null ? m.offGoals : m.goalsSample;
+  if (offRole && m.shotsTotal >= 8 && m.conversionPct != null && m.conversionPct < 20) {
+    const t = sampleGoals ? `${m.shotsTotal} tiri nelle ultime ${offN} gare${mixed ? ` ${scope}` : ''}, ${sampleGoals} gol: conversione ${r0(m.conversionPct)}%, ${f1(m.shotsPerGoal)} conclusioni per una rete.` : `${m.shotsTotal} tiri nelle ultime ${offN} gare${mixed ? ` ${scope}` : ''} senza segnare.`;
     add(R.role === 'ATT' ? 7 : 6, 'finish', t, `${r0(m.conversionPct)}% conversione su ${m.shotsTotal} tiri`,
       `Scegli meglio la conclusione: ${m.shotsTotal} tiri per ${sampleGoals} gol dicono che il tiro dalla distanza o in pressione va tolto dal repertorio.`);
   }
-  if (R.role === 'ATT' && (m.sample || 0) >= 6 && m.shotsPerGame != null && m.shotsPerGame < 2.5) add(5, 'finish', `${f1(m.shotsPerGame)} tiri a gara per un attaccante: non si prende la conclusione.`, `${f1(m.shotsPerGame)} tiri a gara`, `Attacca l'area con più continuità: ${f1(m.shotsPerGame)} tiri a gara sono pochi per la punta.`);
+  if (R.role === 'ATT' && offN >= 6 && m.shotsPerGame != null && m.shotsPerGame < 2.5) add(5, 'finish', `${f1(m.shotsPerGame)} tiri a gara per un attaccante: non si prende la conclusione.`, `${f1(m.shotsPerGame)} tiri a gara`, `Attacca l'area con più continuità: ${f1(m.shotsPerGame)} tiri a gara sono pochi per la punta.`);
   const gaMin = GA_MIN[R.role];
-  if (gaMin && g >= 8 && m.gaPerGame != null && m.gaPerGame < gaMin) add(6, 'output', pick(m, [
+  if (mixed) {
+    // media G+A stagionale mista di ruoli: si usa solo il campione recente nel ruolo offensivo
+    if (gaMin && offRole && offN >= 6 && m.roleGaPerGame != null && m.roleGaPerGame < gaMin) add(6, 'output', `Gol più assist: ${f2(m.roleGaPerGame)} a gara ${scope}: per un ${rl} è un'incidenza offensiva insufficiente.`, `${f2(m.roleGaPerGame)} G+A a gara ${scope}`);
+  } else if (gaMin && g >= 8 && m.gaPerGame != null && m.gaPerGame < gaMin) add(6, 'output', pick(m, [
     `Gol più assist: ${f2(m.gaPerGame)} a gara. Per un ${rl} è un'incidenza offensiva insufficiente.`,
     `${m.goals} gol e ${m.assists} assist in ${g} gare (${f2(m.gaPerGame)} a gara): troppo poco per il peso offensivo che il ruolo richiede.`]), `${f2(m.gaPerGame)} G+A a gara`,
     `Più presenza tra le linee e inserimenti senza palla: ${m.goals} gol e ${m.assists} assist in ${g} gare non bastano per un ${rl}.`);
-  if (R.group === 'off' && m.dryStreak >= 3) add(6, 'streak', `${m.dryStreak} gare consecutive senza incidere nel tabellino.`, `${m.dryStreak} gare a secco`);
-  if (R.group === 'off' && m.blankShare != null && m.blankShare >= 60 && (m.sample || 0) >= 6) add(5, 'streak', `Nel ${r0(m.blankShare)}% delle ultime ${m.sample} gare non fa né gol né assist.`, `${r0(m.blankShare)}% gare senza G/A`);
-  if (R.role === 'ATT' && g >= 15 && m.assistsPerGame != null && m.assistsPerGame < 0.15) add(3, 'balance', `${m.assists} assist in ${g} gare: finalizza ma non fa giocare i compagni.`, `${m.assists} assist in ${g} gare`, `Quando la difesa si chiude sul tuo tiro serve l'ultimo passaggio: ${m.assists} assist in ${g} gare è un solo canale di gioco.`);
+  if (R.group === 'off' && offRole && m.dryStreak >= 3) add(6, 'streak', `${m.dryStreak} gare consecutive senza incidere nel tabellino${mixed ? ` ${scope}` : ''}.`, `${m.dryStreak} gare a secco`);
+  if (R.group === 'off' && offRole && m.blankShare != null && m.blankShare >= 60 && offN >= 6) add(5, 'streak', `Nel ${r0(m.blankShare)}% delle ultime ${offN} gare${mixed ? ` ${scope}` : ''} non fa né gol né assist.`, `${r0(m.blankShare)}% gare senza G/A`);
+  if (R.role === 'ATT' && !mixed && g >= 15 && m.assistsPerGame != null && m.assistsPerGame < 0.15) add(3, 'balance', `${m.assists} assist in ${g} gare: finalizza ma non fa giocare i compagni.`, `${m.assists} assist in ${g} gare`, `Quando la difesa si chiude sul tuo tiro serve l'ultimo passaggio: ${m.assists} assist in ${g} gare è un solo canale di gioco.`);
 
   // --- Costanza e forma
   if (stable && m.ratingStd != null && m.ratingStd >= 0.8) add(5, 'consistency', `Rendimento altalenante: deviazione ${f2(m.ratingStd)} sul voto, tra ${f1(m.ratingMin)} e ${f1(m.ratingMax)} nelle gare con almeno 45'.`, `Voto tra ${f1(m.ratingMin)} e ${f1(m.ratingMax)}, dev. ${f2(m.ratingStd)}`);
@@ -107,12 +122,12 @@ function negatives(m) {
     `Nelle gare bloccate prenditi responsabilità: ${f2(m.ratingNotWin)} di voto senza vittoria contro ${f2(m.ratingInWins)} quando si vince.`);
   else if (stable && m.nBigWin >= 2 && m.nClose >= 3 && m.ratingBigWin != null && m.ratingClose != null && m.ratingBigWin - m.ratingClose >= 0.8) add(5, 'context', `Rende quando la partita è già decisa: ${f2(m.ratingBigWin)} nelle vittorie larghe (${m.nBigWin}) contro ${f2(m.ratingClose)} nelle gare in bilico (${m.nClose}).`, `Voto ${f2(m.ratingBigWin)} in vittorie larghe, ${f2(m.ratingClose)} nelle gare in bilico`,
     `Pretendi lo stesso livello quando il risultato è in bilico: ${f2(m.ratingClose)} nelle ${m.nClose} gare decise da un gol, contro ${f2(m.ratingBigWin)} nelle vittorie larghe.`);
-  if (stable && cons && m.nLeaky >= 3 && m.ratingLeaky != null && m.ratingMean != null && m.ratingLeaky <= m.ratingMean - 0.5) add(5, 'context2', `Quando l'avversario segna 3 o più gol (${m.nLeaky} gare) il suo voto scende a ${f2(m.ratingLeaky)} contro ${f2(m.ratingMean)} di media: va in difficoltà quando la gara si apre.`, `Voto ${f2(m.ratingLeaky)} nelle ${m.nLeaky} gare con 3+ gol subiti`);
+  if (stable && cons && !mixed && m.nLeaky >= 3 && m.ratingLeaky != null && m.ratingMean != null && m.ratingLeaky <= m.ratingMean - 0.5) add(5, 'context2', `Quando l'avversario segna 3 o più gol (${m.nLeaky} gare) il suo voto scende a ${f2(m.ratingLeaky)} contro ${f2(m.ratingMean)} di media: va in difficoltà quando la gara si apre.`, `Voto ${f2(m.ratingLeaky)} nelle ${m.nLeaky} gare con 3+ gol subiti`);
 
   // --- Rendimento di squadra col Pro in campo (correlazione, non causa)
   if (m.nOff >= 3 && m.nOn >= 6 && m.concededPerGameOn != null && m.concededPerGameOff != null && m.concededPerGameOn >= m.concededPerGameOff + 0.7)
-    add(cons ? 7 : 3, 'defense', `Con lui in campo il club subisce ${f2(m.concededPerGameOn)} gol a gara contro ${f2(m.concededPerGameOff)} nelle ${m.nOff} gare senza di lui${cons ? ': per un ' + rl + ' è un dato che pesa' : ''}.`, `Gol subiti ${f2(m.concededPerGameOn)} a gara con lui, ${f2(m.concededPerGameOff)} senza (${m.nOff} gare)`,
-      cons ? `Copri di più lo spazio davanti alla linea: ${f2(m.concededPerGameOn)} gol subiti a gara con te in campo contro ${f2(m.concededPerGameOff)} senza.` : '');
+    add(cons && !mixed ? 7 : 3, 'defense', `Con lui in campo il club subisce ${f2(m.concededPerGameOn)} gol a gara contro ${f2(m.concededPerGameOff)} nelle ${m.nOff} gare senza di lui${cons && !mixed ? ': per un ' + rl + ' è un dato che pesa' : ''}.`, `Gol subiti ${f2(m.concededPerGameOn)} a gara con lui, ${f2(m.concededPerGameOff)} senza (${m.nOff} gare)`,
+      cons && !mixed ? `Copri di più lo spazio davanti alla linea: ${f2(m.concededPerGameOn)} gol subiti a gara con te in campo contro ${f2(m.concededPerGameOff)} senza.` : '');
   if (m.nOff >= 3 && m.nOn >= 6 && m.pointsPerGame != null && m.pointsPerGameOff != null && m.pointsPerGame <= m.pointsPerGameOff - 0.7) add(5, 'onoff', `Il club fa ${f2(m.pointsPerGame)} punti a gara con lui e ${f2(m.pointsPerGameOff)} senza (${m.nOff} gare): il risultato non gli dà ragione.`, `Punti a gara ${f2(m.pointsPerGame)} con, ${f2(m.pointsPerGameOff)} senza`);
 
   // --- Avatar vs rendimento, disciplina, portieri
@@ -128,13 +143,16 @@ function positives(m) {
   const R = roleOf(m);
   const g = m.games || 0;
   const stable = (m.sample || 0) >= 6;
-  if (m.rating > 8) add(9, 'rating', `Media EA ${f2(m.rating)} su ${g} presenze da ${R.label}: rendimento da riferimento tecnico del club, non un exploit.`, `Media EA ${f2(m.rating)} in ${g} presenze`);
-  if (m.peers && m.peers.ratingRank === 1) add(6, 'peers', `Primo dei ${m.peers.n} del reparto per media EA (mediana ${f2(m.peers.medianRating)}).`, `1° su ${m.peers.n} pari reparto per media`);
+  const mixed = !!m.mixed;
+  if (m.rating > 8) add(9, 'rating', `Media EA ${f2(m.rating)} su ${g} presenze${mixed ? ' tra ruoli diversi' : ` da ${R.label}`}: rendimento da riferimento tecnico del club, non un exploit.`, `Media EA ${f2(m.rating)} in ${g} presenze`);
+  if (m.peers && !mixed && m.peers.ratingRank === 1) add(6, 'peers', `Primo dei ${m.peers.n} del reparto per media EA (mediana ${f2(m.peers.medianRating)}).`, `1° su ${m.peers.n} pari reparto per media`);
   if (m.gaPerGame != null && m.gaPerGame >= 1.2) add(8, 'output', `${f2(m.gaPerGame)} tra gol e assist a gara (${m.goals} reti, ${m.assists} assist): incide su più di una rete a partita.`, `${f2(m.gaPerGame)} G+A a gara`);
   if (m.shareOfClubGA != null && m.shareOfClubGA >= 30) add(7, 'share', `Pesa il ${r0(m.shareOfClubGA)}% dei gol del club tra reti e assist.`, `${r0(m.shareOfClubGA)}% G+A del club`);
-  if (m.passPct != null) {
-    if (R.group === 'cons' && m.passPct >= 85 && m.passAttPerGame >= 25) add(8, 'pass', `${r0(m.passPct)}% di passaggi con ~${r0(m.passAttPerGame)} tentativi a gara: per un ${R.label} volume e pulizia insieme sono rari.`, `${r0(m.passPct)}% su ~${r0(m.passAttPerGame)} a gara`);
-    else if (R.group === 'off' && m.passPct >= 82 && m.passAttPerGame >= 18) add(7, 'pass', `${r0(m.passPct)}% di passaggi da ${R.label}, un ruolo che rischia più degli altri: buona qualità in zone strette.`, `${r0(m.passPct)}% passaggi da ${R.label}`);
+  const rOk = mixed ? (m.roleSample || 0) >= 3 && (m.rolePassAtt || 0) >= 30 && m.recentPassPct != null : m.passPct != null;
+  const ppos = mixed ? m.recentPassPct : m.passPct, attpos = mixed ? m.recentPassAttPerGame : m.passAttPerGame, where = mixed ? ` ${m.roleScope}` : '';
+  if (rOk) {
+    if (R.group === 'cons' && ppos >= 85 && attpos >= 25) add(8, 'pass', `${r0(ppos)}% di passaggi${where} con ~${r0(attpos)} tentativi a gara: per un ${R.label} volume e pulizia insieme sono rari.`, `${r0(ppos)}% su ~${r0(attpos)} a gara`);
+    else if (R.group === 'off' && ppos >= 82 && attpos >= 18) add(7, 'pass', `${r0(ppos)}% di passaggi da ${R.label}${mixed ? ` (${m.roleScope})` : ''}, un ruolo che rischia più degli altri: buona qualità in zone strette.`, `${r0(ppos)}% passaggi da ${R.label}`);
   }
   if (m.motmRate >= 20) add(6, 'mom', `${m.motm} premi uomo partita in ${g} gare (${r0(m.motmRate)}%).`, `${m.motm} MVP in ${g} gare`);
   if (stable && m.ratingStd != null && m.ratingStd <= 0.6 && (m.ratedGames || 0) >= 6) add(5, 'consistency', `Costanza: deviazione ${f2(m.ratingStd)} sul voto, peggior gara a ${f1(m.ratingMin)}.`, `Deviazione voti ${f2(m.ratingStd)}, minimo ${f1(m.ratingMin)}`);
@@ -142,7 +160,7 @@ function positives(m) {
   if (stable && m.nClose >= 4 && m.ratingClose != null && m.ratingClose >= 7.5) add(5, 'context', `Regge nelle gare in bilico: ${f2(m.ratingClose)} di media in ${m.nClose} gare decise da un gol o pari.`, `Voto ${f2(m.ratingClose)} in ${m.nClose} gare in bilico`);
   if (m.nOff >= 3 && m.nOn >= 6 && m.concededPerGameOn != null && m.concededPerGameOff != null && m.concededPerGameOn <= m.concededPerGameOff - 0.4) add(5, 'defense', `Con lui in campo il club subisce ${f2(m.concededPerGameOn)} gol a gara, ${f2(m.concededPerGameOff)} senza (${m.nOff} gare).`, `Gol subiti ${f2(m.concededPerGameOn)} con, ${f2(m.concededPerGameOff)} senza`);
   if (stable && m.formVsSeason != null && m.formVsSeason >= 0.4) add(5, 'form', `In crescita: ${f2(m.form5)} nelle ultime 5 contro ${f2(m.rating)} di media stagionale.`, `Ultime 5: ${f2(m.form5)}`);
-  if (m.conversionPct >= 35 && m.shotsTotal >= 8) add(6, 'finish', `Conversione al ${r0(m.conversionPct)}% su ${m.shotsTotal} tiri: cinico sotto porta.`, `${r0(m.conversionPct)}% conversione su ${m.shotsTotal} tiri`);
+  if (OFF_METRIC_ROLES.has(R.role) && m.conversionPct >= 35 && m.shotsTotal >= 8) add(6, 'finish', `Conversione al ${r0(m.conversionPct)}% su ${m.shotsTotal} tiri${mixed ? ` ${m.roleScope}` : ''}: cinico sotto porta.`, `${r0(m.conversionPct)}% conversione su ${m.shotsTotal} tiri`);
   return p.sort((a, b) => b.sev - a.sev);
 }
 
@@ -150,13 +168,14 @@ function positives(m) {
 function weakestSpot(m) {
   const R = roleOf(m);
   const c = [];
+  const mixed = !!m.mixed;
   if (m.ratingMin != null && m.ratedGames >= 4) c.push({text: `Il limite resta la continuità: nella peggiore gara il voto è sceso a ${f1(m.ratingMin)}.`, proof: `Peggior gara ${f1(m.ratingMin)}`, coach: `Evitare i cali: la peggiore gara recente è a ${f1(m.ratingMin)}, contro una media di ${f2(m.rating)}.`});
-  if (m.passFailedPerGame != null) c.push({text: R.group === 'off'
+  if (!mixed && m.passFailedPerGame != null) c.push({text: R.group === 'off'
       ? `Nessuna lacuna conclamata nei numeri; il margine di lavoro è nel palleggio: ${r0(m.passPct)}% (~${f1(m.passFailedPerGame)} errori a gara), accettabile per un ${R.label} ma migliorabile.`
       : `Il limite tecnico sono ancora ~${f1(m.passFailedPerGame)} passaggi sbagliati a gara (${r0(m.passPct)}% di precisione).`, proof: `~${f1(m.passFailedPerGame)} passaggi sbagliati a gara`,
     coach: R.group === 'off' ? `Meno palloni persi in zona avanzata: ${r0(m.passPct)}% al passaggio, ~${f1(m.passFailedPerGame)} errori a gara.` : `Ridurre i ~${f1(m.passFailedPerGame)} passaggi persi a gara: a questo livello il margine di crescita è nella pulizia.`});
-  if (m.tackPct != null) c.push({text: `Il fondamentale meno solido è il contrasto: riuscito al ${r0(m.tackPct)}%.`, proof: `${r0(m.tackPct)}% contrasti`, coach: `Lavorare sul tempo di intervento: contrasti riusciti al ${r0(m.tackPct)}%.`});
-  c.push({text: `Il margine di crescita resta nella fase che non emerge dai numeri EA, perché passaggi progressivi e posizione media non sono disponibili.`, proof: `Dati EA assenti: passaggi progressivi, posizione`, coach: `Verificare a video il lavoro senza palla del ${R.label}: i dati EA non lo misurano.`});
+  if (!mixed && m.tackPct != null) c.push({text: `Il fondamentale meno solido è il contrasto: riuscito al ${r0(m.tackPct)}%.`, proof: `${r0(m.tackPct)}% contrasti`, coach: `Lavorare sul tempo di intervento: contrasti riusciti al ${r0(m.tackPct)}%.`});
+  c.push({text: `Il margine di crescita resta nella fase che non emerge dai numeri EA, perché passaggi progressivi e posizione media non sono disponibili.`, proof: `Dati EA assenti: passaggi progressivi, posizione`, coach: mixed ? `Verificare a video il lavoro senza palla ${m.roleScope || 'nel ruolo attuale'}: i dati EA non lo misurano.` : `Verificare a video il lavoro senza palla del ${R.label}: i dati EA non lo misurano.`});
   return c[0];
 }
 
@@ -168,7 +187,8 @@ function caveatsFor(m) {
   if (g >= 3 && (m.sample || 0) < 6) c.push((m.sample || 0) === 0 ? 'Nessuna gara nello storico dettagliato: costanza, forma e contesto-gara non valutati.' : `Dettaglio per gara su ${m.sample} sole partite: costanza, forma e contesto-gara non valutati.`);
   if (m.cameos > 0) c.push(`${m.cameos} ${m.cameos === 1 ? 'presenza' : 'presenze'} sotto i 45' escluse dalle metriche di costanza e contesto.`);
   if (m.roleInferred && g >= 1) c.push('Ruolo dedotto dal codice avatar (nessuna gara nello storico dettagliato).');
-  if (m.roleMismatch) c.push(`Schierato da ${m.playedPos} ma avatar ${m.position}${m.proPosLabel ? ` (${m.proPosLabel})` : ''}: valutato come ${m.roleLabel || roleOf(m).label}.`);
+  if (m.mixed) c.push(`Ruoli diversi nelle ultime gare (${(m.roleMix || []).map(x => `${x.n} da ${x.label}`).join(', ')}): le medie EA di stagione sono miste di ruoli e i giudizi di ruolo nascono solo dalle gare ${m.roleScope || 'nel ruolo attuale'}.`);
+  else if (m.roleMismatch) c.push(`Schierato da ${m.playedPos} ma avatar ${m.position}${m.proPosLabel ? ` (${m.proPosLabel})` : ''}: valutato come ${m.roleLabel || roleOf(m).label}.`);
   if (m.rating && m.rating < 7 && m.nOff >= 3 && m.nOn >= 6 && m.pointsPerGame != null && m.pointsPerGameOff != null && m.pointsPerGame >= m.pointsPerGameOff + 0.5)
     c.push(`Attenuante di contesto: il club fa ${f2(m.pointsPerGame)} punti a gara con lui e ${f2(m.pointsPerGameOff)} senza (${m.nOff} gare); correlazione su campione piccolo, non cancella il dato tecnico.`);
   return c;
@@ -228,7 +248,7 @@ export function commentFor(m) {
 
   let verdict;
   if (m.rating < 6.5) verdict = 'Bocciato: oggi non è all\'altezza del livello richiesto dal club.';
-  else if (m.rating < 7) verdict = 'Rimandato: la sufficienza non basta, servono precisione e incidenza.';
+  else if (m.rating < 7) verdict = `Rimandato: la sufficienza non basta, servono precisione e ${R.group === 'cons' ? 'solidità' : 'incidenza'}.`;
   else if (m.rating < 7.5) verdict = 'Nella media: utile, mai decisivo. Migliorare è l\'unica strada.';
   else if (m.rating <= 8) verdict = 'Buono, ma ancora lontano dai migliori: manca il salto di qualità.';
   else verdict = 'Promosso: livello alto, da confermare partita dopo partita.';
@@ -236,4 +256,89 @@ export function commentFor(m) {
 
   const tier = m.rating > 8 ? 'elite' : m.rating >= 7.5 ? 'buono' : m.rating >= 7 ? 'medio' : m.rating >= 6.5 ? 'rimandato' : 'bocciato';
   return {tier, praise, charge, proof: proofs, verdict, negatives: neg, positives: pos, coachNote, confidence, role: R.role, caveats};
+}
+
+/* ---------------------------------------------------------------------------
+ * Fascicolo di serata: il Pro e` giudicato per il ruolo (o i ruoli) giocato in quella
+ * serata, con le attese di quel ruolo. `nightApps` = presenze della serata normalizzate
+ * (`appearancesFor(gareDellaSerata, nome)`). Chi gioca da difensore/mediano non viene mai
+ * giudicato per gol e incisivita`; le medie EA di stagione (miste di ruoli) restano solo
+ * come cornice del voto.
+ * ------------------------------------------------------------------------- */
+const gare = n => `${n} ${n === 1 ? 'gara' : 'gare'}`;
+const listIt = a => (a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} e ${a[a.length - 1]}`);
+const mean0 = a => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
+const joinText = (...parts) => parts.map(p => (p ? String(p).trim() : '')).filter(Boolean).join(' ');
+
+function nightItems(m, pos, pa, multiple, offensiveOk) {
+  const role = roleFor(pos, m.proPos), info = ROLE_INFO[role], label = posLabel(pos, m.proPos);
+  const out = [];
+  const n = pa.length;
+  const ctx = multiple ? `da ${label} in ${gare(n)}` : `da ${label} in serata`;
+  const add = (sev, area, text, proof, coach) => out.push({sev, area, text, proof, coach: coach || '', role, label, n});
+  const passAtt = pa.reduce((s, x) => s + x.passAtt, 0), passOk = pa.reduce((s, x) => s + x.passOk, 0);
+  const pp = passAtt ? Math.round(passOk / passAtt * 100) : null;
+  if (passAtt >= 15 && pp < info.passMin) add(info.group === 'cons' ? 8 : 6, 'pass', `Passaggi al ${pp}% ${ctx} (${passAtt - passOk} sbagliati su ${passAtt}): per questo ruolo la pulizia non c'è stata.`, `${pp}% passaggi ${ctx}`,
+    info.group === 'cons' ? `Da ${label} il primo passaggio deve essere sicuro: appoggio corto, niente verticali forzate (${pp}% in serata).` : `Nell'ultimo terzo scegli il passaggio che tiene il possesso: ${pp}% in serata.`);
+  const tkAtt = pa.reduce((s, x) => s + x.tackAtt, 0), tkOk = pa.reduce((s, x) => s + x.tackOk, 0);
+  if (tkAtt >= 4 && tkOk / tkAtt < 0.5) add(info.group === 'cons' ? 6 : 4, 'tackle', `${tkOk} contrasti riusciti su ${tkAtt} ${ctx}: entra spesso e il pallone resta all'avversario.`, `${tkOk}/${tkAtt} contrasti ${ctx}`, `Meno scivolate e più posizione: chiudi la linea di passaggio prima di entrare (${tkOk}/${tkAtt} in serata).`);
+  if (info.group === 'cons' && n >= 2) {
+    const conc = mean0(pa.map(x => x.ga)), cs = pa.filter(x => x.ga === 0).length;
+    if (conc >= 3) add(7, 'defense', `Con lui in campo ${ctx} il club ha subito ${f1(conc)} gol a gara (${n} gare, ${cs} a porta inviolata).`, `${f1(conc)} gol subiti a gara con lui ${ctx}, ${cs} porte inviolate su ${n}`, `Copri di più lo spazio davanti alla linea: ${f1(conc)} gol subiti a gara con te in campo in serata.`);
+  }
+  const rated = pa.map(x => x.rating).filter(Boolean);
+  const rm = mean0(rated);
+  if (rated.length && rm < 6.5) add(8, 'rating', `Voto medio ${f2(rm)} ${ctx}: serata insufficiente.`, `Voto medio ${f2(rm)} ${ctx}`);
+  if (rated.length >= 3 && Math.max(...rated) - Math.min(...rated) >= 1.5) add(5, 'consistency', `Voti tra ${f1(Math.min(...rated))} e ${f1(Math.max(...rated))} ${ctx}: serata instabile.`, `Voti tra ${f1(Math.min(...rated))} e ${f1(Math.max(...rated))} ${ctx}`);
+  const reds = pa.reduce((s, x) => s + (x.red || 0), 0);
+  if (reds) add(9, 'discipline', `${reds} ${reds === 1 ? 'espulsione' : 'espulsioni'} ${ctx}: lascia la squadra in inferiorità.`, `${reds} rossi ${ctx}`);
+  // gol e incisivita`: solo per i ruoli offensivi (mai per difensore, mediano, portiere)
+  if (offensiveOk && ['ATT', 'TRQ', 'MEZ_OFF', 'ESTERNO'].includes(role)) {
+    const shots = pa.reduce((s, x) => s + x.shots, 0), goals = pa.reduce((s, x) => s + x.goals, 0), ga = goals + pa.reduce((s, x) => s + x.assists, 0);
+    if (shots >= 3 && goals / shots < 0.3) add(6, 'finish', `${goals} gol su ${shots} tiri ${ctx}: conclusioni sprecate.`, `${goals} gol su ${shots} tiri ${ctx}`);
+    if (n >= 3 && !ga) add(6, 'streak', `Nessun gol né assist nelle ${gare(n)} ${ctx}.`, `${n} gare senza G/A ${ctx}`);
+  }
+  const facts = [`${gare(n)} da ${label}`];
+  if (passAtt) facts.push(`passaggi ${pp}% (${passOk}/${passAtt})`);
+  if (tkAtt) facts.push(`contrasti ${tkOk}/${tkAtt}`);
+  if (rm != null) facts.push(`voto medio ${f2(rm)}`);
+  if (info.group === 'cons') { const cs = pa.filter(x => x.ga === 0).length; facts.push(`${f1(mean0(pa.map(x => x.ga)))} gol subiti a gara con lui in campo, ${cs} ${cs === 1 ? 'porta inviolata' : 'porte inviolate'}`); }
+  return {items: out, fact: facts.join(', '), role, label, n};
+}
+
+export function commentForNight(m, nightApps) {
+  const apps = (nightApps || []).filter(Boolean);
+  if (!m) return null;
+  if (!apps.length) return commentFor(m);
+  const nr = nightRoles(m, apps);
+  const upTo = Math.max(...apps.map(x => x.timestamp || 0));
+  const mm = metricsForRole(m, nr.primary, upTo || undefined);
+  const base = commentFor(mm);
+  const nightRole = {pos: nr.primary, label: nr.label, mix: nr.mix, habitual: nr.habitual, habitualLabel: nr.habitualLabel, changed: nr.changed, multiple: nr.multiple};
+  const nightRoleText = nr.multiple
+    ? `serata tra ${listIt(nr.mix.map(x => x.label))}`
+    : nr.changed ? `serata da ${nr.label}` : '';
+  if (base.tier === 'campione_insufficiente') return {...base, nightRole, nightRoleText, nightMetrics: mm};
+
+  // gol e incisivita` si giudicano solo se il ruolo prevalente della serata e` offensivo, e solo sulle gare in quel ruolo
+  const offensiveNight = ['ATT', 'TRQ', 'MEZ_OFF', 'ESTERNO'].includes(roleFor(nr.primary, m.proPos));
+  const groups = nr.mix.map(x => nightItems(mm, x.pos, apps.filter(a => a.pos === x.pos), nr.multiple, offensiveNight && (x.pos === nr.primary || x.n >= 2)));
+  const items = groups.flatMap(g => g.items).sort((a, b) => b.sev - a.sev);
+  const worthy = new Set(['pass', 'tackle', 'defense', 'rating']);
+  let lead = '';
+  if (nr.multiple) lead = `In serata ha cambiato ruolo: ${listIt(nr.mix.map(x => `${gare(x.n)} da ${x.label}`))}${nr.habitualLabel ? ` (ruolo abituale: ${nr.habitualLabel})` : ''}.`;
+  else if (nr.changed) lead = `In serata ha giocato da ${nr.label} (${gare(nr.mix[0].n)}), non nel suo ruolo abituale da ${nr.habitualLabel}.`;
+  const pc = Number(m.proPos);
+  if (nr.primary === 'defender' && m.proPos != null && m.proPos !== '' && pc >= 9 && pc <= 19 && items.some(x => x.role === 'DIF' && worthy.has(x.area)))
+    lead = joinText(lead, `Adattato da difensore con un avatar da centrocampista (${PRO_POS_LABEL[pc]}): in serata i dati di ruolo non reggono.`);
+
+  const nightTexts = items.slice(0, 2).map(x => x.text);
+  const seasonNeg = uniqueByArea(base.negatives, 3);
+  let charge;
+  if (base.tier === 'elite') charge = joinText(lead, nightTexts[0], base.charge);
+  else charge = joinText(lead, nightTexts.join(' '), seasonNeg.slice(0, nightTexts.length ? 1 : 2).map(x => x.text).join(' ') || (!nightTexts.length ? base.charge : ''));
+  const proof = [...groups.map(g => `Serata: ${g.fact}`), ...items.slice(0, 2).map(x => x.proof), ...base.proof.slice(0, 2)];
+  const coachable = items.find(x => x.coach);
+  const coachNote = coachable ? (base.tier === 'elite' ? `Per restare a questo livello: ${coachable.coach.charAt(0).toLowerCase()}${coachable.coach.slice(1)}` : coachable.coach) : base.coachNote;
+  return {...base, charge: charge.trim(), proof, coachNote, nightRole, nightRoleText, nightMetrics: mm, nightItems: items};
 }

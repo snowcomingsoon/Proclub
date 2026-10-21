@@ -51,8 +51,11 @@ function buildKeyNumbers(metrics, member, all) {
     (other) =>
       other.family === metrics.family && other.games >= 5 && other.rating,
   );
+  // Pro polivalente: totali stagionali di ruoli diversi, nessun confronto con i pari ruolo
   const hasPeers =
-    peers.length >= 3 && peers.some((other) => other.name === metrics.name);
+    !metrics.mixed &&
+    peers.length >= 3 &&
+    peers.some((other) => other.name === metrics.name);
   const tacklesOf = (other) =>
     other.games ? other.tacklesPerGameValue : null;
   const peerValues = (read) =>
@@ -99,7 +102,9 @@ function buildKeyNumbers(metrics, member, all) {
       key: 'shots',
       label: 'Tiri a gara',
       value: metrics.shotsPerGame ?? null,
-      detail: metrics.sample ? `nelle ultime ${metrics.sample} gare` : '',
+      detail: metrics.offSample
+        ? `nelle ultime ${metrics.offSample} gare${metrics.mixed && metrics.roleScope ? ` ${metrics.roleScope}` : ''}`
+        : '',
       read: (o) => o.shotsPerGame,
       better: 'high',
       digits: 1,
@@ -304,9 +309,14 @@ export function PlayerPage({ data, name }) {
     .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
     .slice(0, 3);
   const hasOnOff = metrics.nOff > 0 && metrics.pointsPerGameOff != null;
-  const roleName = metrics.roleLabel
-    ? metrics.roleLabel.charAt(0).toUpperCase() + metrics.roleLabel.slice(1)
-    : '';
+  const roleName = metrics.mixed
+    ? 'Polivalente'
+    : metrics.roleLabel
+      ? metrics.roleLabel.charAt(0).toUpperCase() + metrics.roleLabel.slice(1)
+      : '';
+  const roleMixText = (metrics.roleMix || [])
+    .map((item) => `${item.n} da ${item.label}`)
+    .join(', ');
 
   return (
     <div className="pg pg-player">
@@ -328,7 +338,9 @@ export function PlayerPage({ data, name }) {
               <div>
                 <dt>Ruolo giocato</dt>
                 <dd>
-                  {roleName}
+                  {metrics.mixed
+                    ? `Ultime ${metrics.roleMix.reduce((sum, item) => sum + item.n, 0)} gare: ${roleMixText}`
+                    : roleName}
                   {metrics.proPosLabel ? ` · ${metrics.proPosLabel}` : ''}
                 </dd>
               </div>
@@ -454,6 +466,11 @@ export function PlayerPage({ data, name }) {
               <h2 id="pl-reading">
                 {strengths.length ? 'Cosa funziona, cosa no.' : 'Dove si perde terreno.'}
               </h2>
+              {metrics.mixed && metrics.roleScope && (
+                <p className="sub">
+                  {`Ruoli diversi nelle ultime gare: i giudizi di ruolo riguardano le gare ${metrics.roleScope}; le medie di stagione sono miste.`}
+                </p>
+              )}
             </div>
           </div>
           <div className={`pg-reading ${strengths.length ? 'is-double' : ''}`}>

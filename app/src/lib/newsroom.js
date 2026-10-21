@@ -67,7 +67,11 @@ export function buildTrialTitle(verdict, metrics) {
     bocciato: 'bocciato dai numeri.',
   };
   if (!verdict || !byTier[verdict.tier]) return 'Campione troppo corto per giudicare.';
-  const role = metrics?.proPosLabel ? ` · ${metrics.proPosLabel}` : '';
+  const role = verdict.nightRoleText
+    ? ` · ${verdict.nightRoleText}`
+    : metrics?.proPosLabel
+      ? ` · ${metrics.proPosLabel}`
+      : '';
   return `Stagione ${formatRating(metrics?.rating ?? null)}${role}: ${byTier[verdict.tier]}`;
 }
 
@@ -90,7 +94,9 @@ export function buildTrial(
       (proof = `${player.reds} espulsioni in ${player.games} presenze.`),
       (verdict =
         'La qualità va lasciata in campo. Il prossimo colpo di genio può risparmiarsi il cartellino.'))
-    : player.shots >= 3 && player.goals / player.shots < 0.3
+    : player.shots >= 3 &&
+        player.goals / player.shots < 0.3 &&
+        !(player.roles?.length && player.roles.every((role) => role === 'defender' || role === 'goalkeeper'))
       ? ((charge = pick([
           'Il portiere avversario sta valutando di mandargli un biglietto di ringraziamento.',
           'Tanta produzione al tiro. Il tabellino, però, non accetta preventivi.',

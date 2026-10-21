@@ -18,7 +18,7 @@ import { groupByNight } from '../app/src/lib/matches.js';
 import { lostMatchesNote, stallNotice } from '../app/src/lib/health.js';
 
 const fx = (rel) => JSON.parse(readFileSync(new URL(`./fixtures/public/${rel}`, import.meta.url), 'utf8'));
-const monolith = JSON.parse(readFileSync(new URL('../data/data.json', import.meta.url), 'utf8'));
+const monolith = JSON.parse(readFileSync(new URL('./fixtures/monolith.json', import.meta.url), 'utf8'));
 const summary = fx('summary.json');
 const history = fx('history.json');
 const insights = fx('insights.json');

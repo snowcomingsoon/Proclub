@@ -1,3 +1,4 @@
+import { EvolutionPanel } from './Evolution.jsx';
 import { useMemo } from 'react';
 import { analyzeClub, appearancesFor, buildAll } from '../../../shared/metrics.mjs';
 import { commentFor } from '../../../shared/commentary.mjs';
@@ -376,6 +377,7 @@ export function PlayerPage({ data, name }) {
         </div>
       </div>
 
+      <div className="content"><EvolutionPanel name={member.name}/></div>
       {!enough && (
         <section className="content pg-section pg-empty" aria-label="Campione">
           <p>{comment.charge}</p>

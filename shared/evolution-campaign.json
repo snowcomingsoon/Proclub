@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "activatedAt": 1792577044,
+  "players": {
+    "244455967": {
+      "id": "244455967",
+      "name": "rich87rich",
+      "role": "forward",
+      "metric": "goals",
+      "target": 2,
+      "vote": 7.2,
+      "start": 1792577044
+    },
+    "354389768": {
+      "id": "354389768",
+      "name": "garrus92",
+      "role": "midfielder",
+      "metric": "assists",
+      "target": 2,
+      "vote": 8.5,
+      "start": 1792577044
+    },
+    "371767401": {
+      "id": "371767401",
+      "name": "rghhgbvggg",
+      "role": "midfielder",
+      "metric": "assists",
+      "target": 2,
+      "vote": 7.9,
+      "start": 1792577044
+    },
+    "384997701": {
+      "id": "384997701",
+      "name": "We_Belen",
+      "role": "defender",
+      "metric": "tacklesmade",
+      "target": 6,
+      "vote": 7.7,
+      "start": 1792577044
+    },
+    "388221570": {
+      "id": "388221570",
+      "name": "scemo897",
+      "role": "midfielder",
+      "metric": "assists",
+      "target": 2,
+      "vote": 7.8,
+      "start": 1792577044
+    },
+    "812689150": {
+      "id": "812689150",
+      "name": "naji_3",
+      "role": "midfielder",
+      "metric": "assists",
+      "target": 2,
+      "vote": 7.6,
+      "start": 1792577044
+    },
+    "1779911578": {
+      "id": "1779911578",
+      "name": "H2K_simoID",
+      "role": "forward",
+      "metric": "goals",
+      "target": 3,
+      "vote": 7.9,
+      "start": 1792577044
+    },
+    "1798048136": {
+      "id": "1798048136",
+      "name": "Nyveex",
+      "role": "forward",
+      "metric": "goals",
+      "target": 2,
+      "vote": 7.5,
+      "start": 1792577044
+    },
+    "1002958051216": {
+      "id": "1002958051216",
+      "name": "Draigon000",
+      "role": "midfielder",
+      "metric": "assists",
+      "target": 2,
+      "vote": 7.2,
+      "start": 1792577044
+    }
+  }
+}

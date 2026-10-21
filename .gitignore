@@ -3,3 +3,4 @@ node_modules/
 app/dist/
 app/public/data.json
 app/public/archive.json
+app/public/data-public/

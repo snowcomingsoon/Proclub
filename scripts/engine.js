@@ -18,10 +18,13 @@ async function loadEngine() {
 
 const loadSession = () => import('../shared/session.mjs');
 
-/** "Versione" del motore: hash dei sorgenti di shared/ (cambia quando cambia la logica). */
+/**
+ * "Versione" del motore: sha1 (12 caratteri) di shared/metrics.mjs + shared/commentary.mjs concatenati, in questo ordine.
+ * Il front-end calcola lo stesso valore in fase di build (app/tools/engine-id.mjs): gli insight precalcolati sono usati solo se coincide.
+ */
 function engineVersion(dir = SHARED) {
   const hash = crypto.createHash('sha1');
-  for (const name of fs.readdirSync(dir).sort()) hash.update(name).update(fs.readFileSync(path.join(dir, name)));
+  for (const name of ['metrics.mjs', 'commentary.mjs']) hash.update(fs.readFileSync(path.join(dir, name)));
   return hash.digest('hex').slice(0, 12);
 }
 

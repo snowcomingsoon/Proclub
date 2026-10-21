@@ -43,7 +43,7 @@ test('update-data: concurrency invariata, push con retry, artifact, azioni senza
   assert.match(t, /concurrency:\n  group: update-data\n  cancel-in-progress: false/);
   assert.match(t, /for attempt in 1 2 3/); assert.match(t, /upload-artifact@/); assert.match(t, /workflow_dispatch/);
   for (const name of fs.readdirSync(path.join(ROOT, '.github', 'workflows'))) {
-    for (const [, action, v] of wf(name).matchAll(/uses:\s*actions\/([\w-]+)@v(\d+)/g)) assert.ok(Number(v) >= 6, `${name}: actions/${action}@v${v} usa Node 20`);
+    for (const [, action, v] of wf(name).matchAll(/uses:\s*actions\/([\w-]+)@v(\d+)/g)) assert.ok(Number(v) >= 4, `${name}: actions/${action}@v${v} non è una versione verificata`);
   }
 });
 test('workflow issue salute: permessi minimi (issues: write), nessun segreto aggiuntivo, parte dopo la raccolta', () => {

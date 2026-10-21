@@ -18,8 +18,12 @@ async function ea(endpoint,params,validate){
 function atomic(file,data){const temp=file+'.tmp';fs.writeFileSync(temp,JSON.stringify(data));fs.renameSync(temp,file);}
 (async()=>{
  const old=JSON.parse(fs.readFileSync(FILE,'utf8')),now=new Date().toISOString();
- const original=fs.existsSync(LEDGER)?JSON.parse(fs.readFileSync(LEDGER,'utf8')):initialize(old,CLUB_ID,now);
- let next={...old},failures={},summary,state=original,attempts=0;const fetched=new Map();
+ const saved=fs.existsSync(LEDGER)?JSON.parse(fs.readFileSync(LEDGER,'utf8')):null;
+ // A ledger from an older version, or none, is rebuilt from the FIRST fresh and consistent read of this run:
+ // anchoring it on stored counters that can lag behind the stored matches creates a deficit that never heals.
+ let original=saved&&saved.version===2?saved:null;
+ const norm=s=>String(s||'').trim().toLowerCase(),stale={};
+ let next={...old},failures={},summary,state=null,attempts=0;const fetched=new Map();
  const modes=['leagueMatch','friendlyMatch','playoffMatch'];
  for(let round=0;round<2;round++){
   attempts++;
@@ -33,22 +37,29 @@ function atomic(file,data){const temp=file+'.tmp';fs.writeFileSync(temp,JSON.str
   results.forEach((result,i)=>{
    const key=specs[i][0];
    if(result.status==='rejected'){failures[key]=String(result.reason.message||result.reason);return;}
-   delete failures[key];fetched.set(key,true);
+   delete failures[key];
+   // EA sometimes answers with a stale, lower counter: never overwrite newer stored stats with it.
+   if(key==='club'&&Number(result.value[0].gamesPlayed)<Math.max(Number(old.club?.[0]?.gamesPlayed)||0,original?.club?.highWater||0)){stale.club='contatore del club arretrato';return;}
+   if(key==='members'){const floor=new Map((old.members?.members||[]).map(m=>[norm(m.name),Number(m.gamesPlayed)||0]));for(const [id,p]of Object.entries(original?.players||{}))floor.set(norm(p.name),Math.max(floor.get(norm(p.name))||0,p.highWater));if(result.value.members.some(m=>Number(m.gamesPlayed)<(floor.get(norm(m.name))||0))){stale.members='contatori dei giocatori arretrati';return;}}
+   delete stale[key];fetched.set(key,true);
    if(key==='club'||key==='members')next[key]=result.value;
    else collected.push(...result.value.map(m=>({...m,sourceMatchType:key})));
   });
   const merged=mergeHistory(next.matchHistory||[],collected);next.matchHistory=merged.history;
   // Preserve recent results from a temporarily unavailable competition too.
   next.matches=mergeHistory(next.matches||[],collected).history.slice(0,30);
-  ({state,summary}=reconcile(original,next,CLUB_ID,new Date().toISOString()));
+  if(!original&&fetched.has('club')&&fetched.has('members')&&!stale.club&&!stale.members)original=initialize(next,CLUB_ID,new Date().toISOString());
+  if(original){delete failures.ledger;({state,summary}=reconcile(original,next,CLUB_ID,new Date().toISOString()));}
+  else{failures.ledger='riferimento iniziale non disponibile: letture EA mancanti o arretrate';const at=new Date().toISOString();summary={startedAt:at,checkedAt:at,issues:[],players:[],healthy:true};}
   // Save every successful response BEFORE a recovery attempt or eventual failure.
   if(fetched.size)next.capturedAt=new Date().toISOString();
-  next.collectionStatus={...summary,endpointFailures:{...failures},attempts,complete:!Object.keys(failures).length&&summary.healthy};
-  atomic(FILE,next);atomic(LEDGER,state);atomic(path.join(ROOT,'data','sync-status.json'),{checkedAt:summary.checkedAt,complete:next.collectionStatus.complete,failures:{...failures},integrity:summary,attempts});
+  next.collectionStatus={...summary,endpointFailures:{...failures},stale:{...stale},attempts,complete:!Object.keys(failures).length&&summary.healthy};
+  atomic(FILE,next);if(state)atomic(LEDGER,state);atomic(path.join(ROOT,'data','sync-status.json'),{checkedAt:summary.checkedAt,complete:next.collectionStatus.complete,failures:{...failures},stale:{...stale},integrity:summary,attempts});
   archiveMatches(path.join(ROOT,'data','archive'),next.matchHistory,CLUB_ID);
   if(next.collectionStatus.complete)break;
   if(round===0){console.warn('Raccolta incompleta: nuovo tentativo tra 15 secondi.');await wait(15000);}
  }
- console.log(JSON.stringify({attempts,failures,issues:summary.issues,newMatches:next.matchHistory.length-(old.matchHistory||[]).length}));
+ if(Object.keys(stale).length)console.warn('Letture EA arretrate ignorate:',JSON.stringify(stale));
+ console.log(JSON.stringify({attempts,failures,stale,issues:summary.issues,newMatches:next.matchHistory.length-(old.matchHistory||[]).length}));
  if(Object.keys(failures).length||summary.issues.length)process.exitCode=1;
 })().catch(e=>{console.error(e.message);process.exitCode=1;});

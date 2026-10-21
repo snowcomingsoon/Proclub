@@ -7,20 +7,22 @@ on:
       - 'scripts/**'
       - 'config/club.json'
   schedule:
-    # Sera ogni 20 minuti: 17:00-01:59 UTC = 19-03 in estate (CEST), 18-02 in inverno (CET).
-    - cron: '0,20,40 17-23,0,1 * * *'
-    # Nelle altre ore (02-16 UTC) una volta all'ora, al minuto 17.
-    - cron: '17 2-16 * * *'
+    # Ogni ora al minuto 17, più (nelle ore serali 17:00-01:59 UTC) un secondo avvio al minuto 47 come rete di sicurezza.
+    # Durante la serata ogni esecuzione resta attiva ~50 minuti e interroga EA ogni 3 minuti (scripts/collect-loop.sh),
+    # poi avvia la successiva: la raccolta non dipende dalla puntualità del cron di GitHub.
+    - cron: '17 * * * *'
+    - cron: '47 17-23,0,1 * * *'
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: update-data
   cancel-in-progress: false
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,7 +31,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node scripts/update-data.js
+      - name: Raccolta (un giro, o ripetuta durante la serata)
+        id: collect
+        run: bash scripts/collect-loop.sh
         env:
           # Opzionali: se i secret non esistono restano vuoti e le notifiche sono disattivate.
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
@@ -58,3 +62,9 @@ jobs:
             echo "Push fallito: snapshot conservato negli artifact del workflow."
             exit 1
           fi
+      - name: Avvia il giro successivo (serata)
+        if: ${{ always() && steps.collect.outputs.chain == '1' }}
+        continue-on-error: true
+        run: gh workflow run update-data.yml --ref main -R "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}

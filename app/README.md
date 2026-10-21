@@ -9,81 +9,16 @@ e poi reso leggibile; l'aspetto e il comportamento sono identici al sito live.
 ```bash
 cd app
 npm install
-npm run dev       # dev server con /api/* serviti in locale da ../data (vedi sotto)
+npm run dev       # dev server con /api/data servito da ../data/data.json
 npm run build     # build di produzione in app/dist
-npm run preview   # serve dist (anche /api/*, vedi vite.config.js)
-npm run lint
+npm run preview   # serve dist (anche /api/data, vedi vite.config.js)
 ```
 
-## Dati: API modulari, polling leggero, deploy disaccoppiati
-
-I dati arrivano **a runtime**, non dal build. La raccolta scrive file JSON in `data/public/`
-(repo pubblica); le funzioni Vercel in `api/` li leggono da
-`https://raw.githubusercontent.com/${DATA_REPO||'snowcomingsoon/Proclub'}/main/data/public/...`
-(timeout 4 s, nessun token) e, se GitHub non risponde, dai file inclusi nel deploy
-(`includeFiles: data/**`). Risposte con `ETag` (304 su `If-None-Match`) e
-`Cache-Control: public, s-maxage=60, stale-while-revalidate=600` (health: 30 s).
-
-| Endpoint | Contenuto |
-|---|---|
-| `/api/health` | salute della raccolta (`checkedAt`, `capturedAt`, `lostClubMatches`...), piccolo |
-| `/api/summary` | club, Pro, ultime partite, elenco serate |
-| `/api/night?day=YYYY-MM-DD` | partite complete di una serata (giorno validato, errori JSON) |
-| `/api/history` | tutte le partite complete |
-| `/api/insights` | commenti e analisi di squadra precalcolati (204 se assenti) |
-| `/api/archive` | archivio risultati (`data/archive/index.json`) |
-| `/api/data` | monolite `data/data.json` (compatibilità e rete di sicurezza) |
-
-Il front-end (`src/lib/useClubData.js`) all'avvio legge summary, history e insights in parallelo;
-poi **ogni 60 secondi e al focus solo `/api/health`**: se `capturedAt` è cambiato rilegge i dati
-(`?v=<capturedAt>` aggira la cache di bordo solo in quel caso; il browser rivalida con l'ETag).
-Se le API modulari non rispondono ricade su `/api/data` e infine sullo snapshot incorporato
-(`src/lib/fallback-data.json`), senza errori visibili. `src/lib/adapter.js` compone i dati nella
-forma `{club, members, matches, matchHistory, capturedAt, fresh}` attesa dai calcoli di `lib/`.
-
-**Insight precalcolati.** `insights.json` è usato (`data.insights`) solo se: `engine` coincide con
-l'identificativo del motore incorporato (`app/tools/engine-id.mjs`: sha1, 12 caratteri, di
-`shared/metrics.mjs` + `shared/commentary.mjs`), è stato costruito dopo la rilevazione
-(`builtAt` >= `capturedAt` meno 2 minuti) e l'elenco dei Pro coincide con quello del sito
-(solo `gamesPlayed > 0`). Altrimenti si ricalcola nel browser, con lo stesso testo
-(`test/app-data.test.mjs`). Il motore `shared/` resta nel bundle: Il giorno dopo e il Match studio
-usano le metriche per Pro (`buildAll`), che non sono negli insight.
-
-**Salute nel sito.** Il footer mostra "Ultimo controllo EA" (da `health.checkedAt`), le partite
-non restituite da EA (`lostClubMatches`, solo se > 0) e, se la raccolta è ferma da più di 3 ore tra
-le 19:00 e le 03:00 (o più di 12 ore negli altri momenti, ora italiana), una nota sobria
-(`src/lib/health.js`).
-
-In dev/preview gli stessi handler di `api/` sono serviti da `vite.config.js`, solo in locale:
-leggono `data/public/**` se esiste, altrimenti ricostruiscono tutto da `data/data.json`
-(`DATA_ROOT=<cartella>` per puntare a un'altra radice, es. le fixture).
-
-### Deploy: i commit di soli dati non ripubblicano il sito
-
-`vercel.json` ha `ignoreCommand: "bash app/tools/vercel-ignore.sh || exit 1"`: Vercel **salta il
-build solo se tutti i file cambiati nell'ultimo commit stanno in `data/`**. Ogni dubbio fa
-buildare: primo deploy o clone con un solo commit (nessun `HEAD^`), `git diff` in errore,
-nessun file cambiato, anche un solo file fuori da `data/`. Il sito vede comunque i dati nuovi,
-perché li legge a runtime da `/api/*`. Conseguenza: i file statici `public/data.json`,
-`public/archive.json` e lo snapshot incorporato restano all'ultimo deploy di codice (sono solo
-fallback). **Per disattivarlo**: togliere `ignoreCommand` da `vercel.json`.
-Provare lo script in locale: `bash app/tools/vercel-ignore.sh; echo $?` (0 = salta, 1 = builda).
-
-### Prebuild e fallback incorporati
-
-`npm run build` esegue `tools/prebuild.mjs`: copia, senza mai far fallire il build,
-`data/data.json` in `public/data.json`, l'archivio in `public/archive.json` (o `[]`) e, se esiste,
-`data/public/` in `public/data-public/`. Il sito funziona anche senza nessuno di questi file:
-preferisce le API e ha lo snapshot in `src/lib/fallback-data.json`.
-
-### Fixture e qualità
-
-- `node app/tools/make-fixtures.mjs` ricava `test/fixtures/public/*` (contratto dati) da `data/data.json`.
-- `npm run lint` (eslint, regole minime: errori reali e regole degli hook; in CI nel job `frontend`).
-- Controllo di tipo (`tsc --checkJs`): non attivato. Il codice di `src/` è per lo più JS senza JSDoc,
-  ereditato da un bundle ricostruito: il controllo darebbe centinaia di falsi positivi e aggiungerebbe
-  la dipendenza `typescript` (~20 MB) per un beneficio basso; le funzioni dell'adattatore sono invece
-  coperte da test (`test/app-data.test.mjs`).
+`/api/data` in produzione è la funzione Vercel `api/data.js` (radice del repo,
+legge `data/data.json`). In dev/preview lo stesso JSON è servito da un piccolo
+plugin in `vite.config.js`. `vercel.json` non è stato toccato: il deploy
+continua a pubblicare `site/` finché non si decide di puntare a `app/dist`
+(`outputDirectory` + build command).
 
 ## Struttura
 
@@ -96,8 +31,7 @@ src/styles.css        CSS originale (site/_next/static/css/index.*.css)
 src/App.jsx           composizione delle sezioni
 src/vendor/adani-scene.js   chunk three.js della scena 3D (importato in lazy da AdaniMini)
 src/lib/              dati e calcoli puri
-  useClubData.js        /api/summary+history+insights all'avvio, poi solo /api/health ogni 60 s + fallback
-  adapter.js health.js  contratto dati -> forma dei calcoli; note sulla salute della raccolta
+  useClubData.js        fetch /api/data (all'avvio, ogni 60 s, al focus) + fallback
   fallback-data.json    snapshot embedded usato prima della prima risposta
   data.js constants.js stats.js format.js positions.js matches.js
   newsroom.js           copertina, svolte, processo, trend del "Giorno dopo"

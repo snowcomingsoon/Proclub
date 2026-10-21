@@ -37,15 +37,3 @@ test('sessionDay coincide con la regola del sito (groupByNight) su tutte le part
     assert.equal(groupByNight([{matchId: String(t), timestamp: t, clubs: {70375: {}}}])[0].day, sessionDay(t), String(t));
   }
 });
-
-import {createHash} from 'node:crypto';
-import {createRequire} from 'node:module';
-test('la versione del motore coincide con quella calcolata dal front-end (sha1 di metrics + commentary)', async () => {
-  const require = createRequire(import.meta.url);
-  const {engineVersion} = require('../scripts/engine.js');
-  const {computeEngineId} = await import('../app/tools/engine-id.mjs');
-  assert.strictEqual(engineVersion(), computeEngineId());
-  const h = createHash('sha1');
-  for (const f of ['metrics.mjs', 'commentary.mjs']) h.update(readFileSync(new URL('../shared/' + f, import.meta.url)));
-  assert.strictEqual(engineVersion(), h.digest('hex').slice(0, 12));
-});

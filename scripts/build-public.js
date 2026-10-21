@@ -26,9 +26,7 @@ function groupNights(history, sessionDay, tz, nightEndsAtHour) {
 }
 
 /** Commenti da allenatore per ogni Pro attivo + analisi di squadra (senza il peso dei dati per-giocatore già in data). */
-function buildInsights(raw, now, engine, clubId, version) {
-  // Il sito mostra solo i Pro con presenze: gli insight devono nascere dallo stesso insieme di giocatori.
-  const data = {...raw, members: {...raw.members, members: (raw.members?.members || []).filter((m) => Number(m.gamesPlayed) > 0)}};
+function buildInsights(data, now, engine, clubId, version) {
   const all = engine.buildAll(data, clubId);
   const coach = {};
   for (const metrics of all.filter((m) => m.games > 0).sort((a, b) => a.name.localeCompare(b.name))) coach[metrics.name.toLowerCase()] = engine.commentFor(metrics);

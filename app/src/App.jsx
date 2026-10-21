@@ -46,7 +46,7 @@ const sortMembers = (members) =>
   );
 
 function App() {
-  const { data, connection, freshKeys, lastSync, refreshing, refresh, health } =
+  const { data, connection, freshKeys, lastSync, refreshing, refresh } =
     useClubData();
   const route = useRoute();
   const [belowReady, setBelowReady] = useState(false);
@@ -130,7 +130,6 @@ function App() {
         data={data}
         freshKeys={freshKeys}
         lastSync={lastSync}
-        health={health}
       />
       </Suspense>
     </div></EvolutionProvider>

@@ -9,7 +9,7 @@ import {
   buildTrials,
   buildTurningPoints,
 } from '../lib/newsroom.js';
-import { buildCoachComments } from '../lib/coach.js';
+import { buildNightComments } from '../lib/coach.js';
 import { getEditorialContext } from '../lib/editorial-ctx.js';
 import { notebookEditorial, verdictFor } from '../../../shared/editorial.mjs';
 import { buildSeasonProfile } from '../lib/season-profile.js';
@@ -27,7 +27,6 @@ import { TurningPoints } from './day-after/TurningPoints.jsx';
  * ai Pro, romanzo della stagione). `matches` è lo storico partite disponibile.
  */
 export function DayAfter({ members, matches, data }) {
-  const coach = useMemo(() => buildCoachComments(data), [data]);
   const editorial = useMemo(() => getEditorialContext(data), [data]);
   const nights = useMemo(() => groupByNight(matches), [matches]);
   const [nightChoice, setNightChoice] = useState('');
@@ -35,13 +34,17 @@ export function DayAfter({ members, matches, data }) {
   const [copyState, setCopyState] = useState('');
   const selectedNight =
     nights.find((night) => night.day === nightChoice) || nights[0];
+  const nightComments = useMemo(
+    () => buildNightComments(data, selectedNight?.games || [], editorial.all),
+    [data, editorial, selectedNight],
+  );
   const nightStats = useMemo(
     () => summarizeNight(selectedNight?.games || []),
     [selectedNight],
   );
   const trials = buildTrials(nightStats.players, selectedNight?.day || '').map(
     ({ player, trial }) => {
-      const verdict = coach.get(player.name.toLowerCase());
+      const verdict = nightComments.get(player.name.toLowerCase());
       return verdict
         ? {
             player,
@@ -55,7 +58,8 @@ export function DayAfter({ members, matches, data }) {
               charge: verdict.charge,
               proof: verdict.proof.join(' · '),
               verdict: verdictFor(
-                editorial.metricsByName.get(player.name.toLowerCase()),
+                verdict.nightMetrics ||
+                  editorial.metricsByName.get(player.name.toLowerCase()),
                 verdict,
               ),
               coachNote: verdict.coachNote,

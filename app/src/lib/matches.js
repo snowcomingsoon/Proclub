@@ -128,6 +128,10 @@ export function summarizeNight(matches) {
         roles: [
           ...new Set(record.appearances.map((appearance) => appearance.pos)),
         ],
+        roleCounts: record.appearances.reduce((counts, appearance) => {
+          counts[appearance.pos] = (counts[appearance.pos] || 0) + 1;
+          return counts;
+        }, {}),
         passPct: passAttempts
           ? Math.round((passes / passAttempts) * 100)
           : null,

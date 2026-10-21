@@ -170,8 +170,28 @@ const ADANI_QUOTES = [
 const hashString = (text) =>
   [...text].reduce((total, char) => (total * 31 + char.charCodeAt(0)) >>> 0, 7);
 
+/** Serata giocata soprattutto da difensore o portiere (ruolo prevalente dalle presenze della serata). */
+function isDefensiveNight(profile) {
+  const counts = profile.roleCounts;
+  if (!counts || !Object.keys(counts).length) return false;
+  const top = Math.max(...Object.values(counts));
+  const primary = Object.keys(counts).filter((pos) => counts[pos] === top);
+  return primary.every((pos) => pos === 'defender' || pos === 'goalkeeper');
+}
+
 /** Categoria di citazione adatta al profilo: roast, assist, goal, duel, quality o welcome. */
 export function classifyProfile(profile) {
+  // chi gioca in difesa non è letto per gol e incisività
+  if (profile.games && isDefensiveNight(profile)) {
+    return (profile.rating !== null && profile.rating < 6.5) ||
+      (profile.passPct !== null &&
+        profile.passPct !== undefined &&
+        profile.passPct < 70)
+      ? 'roast'
+      : (profile.tackles || 0) > 0 || (profile.saves || 0) > 0
+        ? 'duel'
+        : 'quality';
+  }
   return profile.games
     ? (profile.rating !== null && profile.rating < 6.5) ||
       (profile.passPct !== null &&
@@ -273,6 +293,11 @@ export function adaniNote(player) {
             ],
       )}`;
     case 'duel':
+      if (isDefensiveNight(player))
+        return `${line} ${pick([
+          'Il lavoro è dietro, tra contrasti e posizione: il voto medio dice quanto ha tenuto.',
+          'Un ruolo di tenuta si giudica da come regge la linea, non dal tabellino.',
+        ])}`;
       return `${line} ${pick([
         'Più lavoro che incisività: il sacrificio non si traduce ancora in numeri.',
         'Corre e contrasta, ma il tabellino resta quasi vuoto.',

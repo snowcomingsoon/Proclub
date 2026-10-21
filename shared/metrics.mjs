@@ -62,6 +62,108 @@ export function roleFor(playedPos, proPos) {
   return 'CC';
 }
 
+
+/* ---------------------------------------------------------------------------
+ * Ruolo di ogni presenza e giudizio per ruolo.
+ * Ogni presenza porta il proprio ruolo (`pos` EA -> `role`). Il giudizio e` riferito
+ * al ruolo GIOCATO di recente: serie corrente (>= 3 gare uguali) oppure `pos` piu`
+ * frequente nelle ultime RECENT_WINDOW presenze. Le metriche offensive si calcolano
+ * solo sulle presenze in ruoli offensivi o di centrocampo, quelle difensive sul ruolo
+ * giocato. Se il ruolo giudicato pesa meno del 70% dello storico dettagliato il Pro e`
+ * `mixed`: le medie stagionali EA (miste di ruoli) non reggono accuse da ruolo specifico
+ * e il giudizio usa solo il campione recente nel ruolo.
+ * ------------------------------------------------------------------------- */
+export const RECENT_WINDOW = 10;
+export const ROLE_SHARE_MIN = 0.7;
+/* Ruoli sui quali ha senso misurare tiri, gol e assist (per ciascuno valgono le sue soglie). */
+export const OFF_METRIC_ROLES = new Set(['ATT', 'TRQ', 'MEZ_OFF', 'ESTERNO', 'CC']);
+const codeOf = proPos => (proPos !== '' && proPos != null && Number.isFinite(Number(proPos)) ? Number(proPos) : null);
+
+/** Etichetta del ruolo realmente giocato (`pos` EA + codice avatar). */
+export function posLabel(pos, proPos) {
+  if (pos === 'goalkeeper') return 'portiere';
+  if (pos === 'forward') return 'attaccante';
+  if (pos === 'defender') return [2, 3, 7, 8].includes(codeOf(proPos)) ? 'terzino' : 'difensore centrale';
+  return ROLE_INFO[roleFor('midfielder', proPos)].label;
+}
+
+/** Ruolo da giudicare: serie corrente di almeno 3 gare, altrimenti il piu` frequente nella finestra recente. */
+export function judgedPosOf(a) {
+  if (!a.length) return null;
+  const last = a[a.length - 1].pos;
+  let run = 0;
+  for (let i = a.length - 1; i >= 0 && a[i].pos === last; i--) run++;
+  if (run >= 3) return last;
+  const win = a.slice(-RECENT_WINDOW), cnt = {};
+  win.forEach(x => { cnt[x.pos] = (cnt[x.pos] || 0) + 1; });
+  const top = Math.max(...Object.values(cnt));
+  for (let i = win.length - 1; i >= 0; i--) if (cnt[win[i].pos] === top) return win[i].pos;
+  return last;
+}
+
+/** Campi che dipendono dal ruolo giudicato `pos`, calcolati sulle sole presenze in quel ruolo. */
+export function roleView(a, pos, proPos) {
+  const role = roleFor(pos, proPos), info = ROLE_INFO[role];
+  const win = a.slice(-RECENT_WINDOW);
+  const inPos = a.filter(x => x.pos === pos);
+  const share = a.length ? inPos.length / a.length : 1;
+  const mixed = a.length >= 3 && share < ROLE_SHARE_MIN;
+  const ra = mixed ? win.filter(x => x.pos === pos) : inPos;
+  let run = 0;
+  for (let i = a.length - 1; i >= 0 && a[i].pos === pos; i--) run++;
+  const cnt = {};
+  win.forEach(x => { cnt[x.pos] = (cnt[x.pos] || 0) + 1; });
+  const roleMix = Object.entries(cnt).sort((x, y) => y[1] - x[1]).map(([p, n]) => ({pos: p, n, label: posLabel(p, proPos)}));
+  const label = posLabel(pos, proPos);
+  const roleScope = !mixed ? '' : run >= 2 ? `da ${label} nelle ultime ${run} gare` : `da ${label} in ${ra.length} delle ultime ${win.length} gare`;
+  const off = OFF_METRIC_ROLES.has(role) ? ra : [];
+  const blanks = off.filter(x => !x.goals && !x.assists).length;
+  let dry = 0;
+  if (off.length) for (let i = a.length - 1; i >= 0 && a[i].pos === pos && !a[i].goals && !a[i].assists; i--) dry++;
+  const full = ra.filter(x => x.minutes >= 45);
+  const passAtt = sum(ra, x => x.passAtt), passOk = sum(ra, x => x.passOk);
+  const tackAtt = sum(ra, x => x.tackAtt), tackOk = sum(ra, x => x.tackOk);
+  return {
+    playedPos: pos, role, roleLabel: label, roleGroup: info.group, roleFamily: info.family,
+    mixed, roleShare: share, roleSample: ra.length, roleRun: run, roleMix, roleScope,
+    offSample: off.length, offGoals: sum(off, x => x.goals), offAssists: sum(off, x => x.assists),
+    shotsTotal: sum(off, x => x.shots), shotsPerGame: off.length ? mean(off.map(x => x.shots)) : null,
+    conversionPct: pct(sum(off, x => x.goals), sum(off, x => x.shots)),
+    shotsPerGoal: per(sum(off, x => x.shots), sum(off, x => x.goals)),
+    roleGaPerGame: off.length ? mean(off.map(x => x.goals + x.assists)) : null,
+    blankGames: off.length ? blanks : 0, blankShare: off.length ? pct(blanks, off.length) : null, dryStreak: dry,
+    recentPassPct: pct(passOk, passAtt), rolePassAtt: passAtt,
+    recentPassAttPerGame: mean(ra.map(x => x.passAtt)), recentPassFailedPerGame: mean(ra.map(x => x.passAtt - x.passOk)),
+    worstPassPct: Math.min(...ra.filter(x => x.passAtt >= 12).map(x => pct(x.passOk, x.passAtt)), 100),
+    recentTackPct: pct(tackOk, tackAtt), roleTackAtt: tackAtt, roleTackAttPerGame: mean(ra.map(x => x.tackAtt)),
+    roleTackFailedPerGame: mean(ra.map(x => x.tackAtt - x.tackOk)),
+    roleConcededPerGame: mean(full.map(x => x.ga)), roleCleanSheets: full.filter(x => x.ga === 0).length, roleFull: full.length,
+    roleRating: mean(ra.map(x => x.rating).filter(Boolean)),
+  };
+}
+
+/** Metriche del Pro riferite a un ruolo diverso da quello giudicato (stessa stagione, stesso storico). */
+export function metricsForRole(m, pos, upTo) {
+  if (!m || !m.apps || !m.apps.length || !pos) return m;
+  const a = upTo != null ? m.apps.filter(x => x.timestamp <= upTo) : m.apps;
+  if (!a.length || pos === m.playedPos && upTo == null) return m;
+  return {...m, ...roleView(a, pos, m.proPos)};
+}
+
+/** Sintesi dei ruoli giocati in una serata (presenze normalizzate da `appearancesFor`). */
+export function nightRoles(m, nightApps) {
+  const cnt = {};
+  nightApps.forEach(x => { cnt[x.pos] = (cnt[x.pos] || 0) + 1; });
+  const proPos = m ? m.proPos : null;
+  const mix = Object.entries(cnt).sort((x, y) => y[1] - x[1]).map(([pos, n]) => ({pos, n, label: posLabel(pos, proPos)}));
+  const top = Math.max(...mix.map(x => x.n));
+  let primary = mix[0].pos;
+  for (let i = nightApps.length - 1; i >= 0; i--) if (cnt[nightApps[i].pos] === top) { primary = nightApps[i].pos; break; }
+  const habitual = m && m.seasonPos ? m.seasonPos : null;
+  return {mix, primary, label: posLabel(primary, proPos), habitual, habitualLabel: habitual ? posLabel(habitual, proPos) : null,
+    changed: !!habitual && (mix.length > 1 || primary !== habitual), multiple: mix.length > 1};
+}
+
 export function appearancesFor(history, name, clubId = CLUB_ID) {
   const out = [];
   for (const m of [...history].sort((a, b) => a.timestamp - b.timestamp)) {
@@ -121,17 +223,22 @@ export function computeMetrics(member, appearances, ctx = {}) {
   const passAtt = passPct ? Math.round(passMade / (passPct / 100)) : 0;
   const tackOk = num(member.tacklesMade), tackPct = num(member.tackleSuccessRate);
   const tackAtt = tackPct ? Math.round(tackOk / (tackPct / 100)) : 0;
-  const a = appearances;
+  const proPos = member.proPos !== undefined && member.proPos !== '' ? Number(member.proPos) : null;
+  const a = appearances.map(x => ({...x, role: roleFor(x.pos, proPos)}));
   const posCount = {};
   a.forEach(x => { posCount[x.pos] = (posCount[x.pos] || 0) + 1; });
-  const playedPos = a.length ? Object.entries(posCount).sort((x, y) => y[1] - x[1])[0][0] : null;
-  const proPos = member.proPos !== undefined && member.proPos !== '' ? Number(member.proPos) : null;
-  const role = roleFor(playedPos || member.favoritePosition, proPos);
+  const seasonPos = a.length ? Object.entries(posCount).sort((x, y) => y[1] - x[1])[0][0] : null;
+  const judgedPos = judgedPosOf(a);
+  const view = a.length ? roleView(a, judgedPos, proPos) : null;
+  const playedPos = judgedPos;
+  const role = view ? view.role : roleFor(member.favoritePosition, proPos);
   const info = ROLE_INFO[role];
+  const seasonRole = roleFor(seasonPos || member.favoritePosition, proPos);
   const m = {
     name: member.name, games: g, goals, assists, ga: goals + assists, rating, overall: num(member.proOverall),
     position: member.favoritePosition || '', proPos, proPosLabel: PRO_POS_LABEL[proPos] || null,
-    playedPos, role, roleLabel: info.label, roleGroup: info.group, family: info.family,
+    playedPos, role, roleLabel: view ? view.roleLabel : info.label, roleGroup: info.group, family: ROLE_INFO[seasonRole].family, roleFamily: info.family,
+    seasonPos, seasonRole, seasonRoleLabel: seasonPos ? posLabel(seasonPos, proPos) : ROLE_INFO[seasonRole].label, mixed: false, roleSample: 0, apps: a,
     roleInferred: !playedPos, roleMismatch: !!(playedPos && member.favoritePosition && playedPos !== member.favoritePosition),
     reliability: reliabilityFor(g), nOff: 0,
     presenceRate: ctx.clubGames ? pct(g, ctx.clubGames) : null,
@@ -166,15 +273,8 @@ export function computeMetrics(member, appearances, ctx = {}) {
     minutes: mins, cameos: a.length - full.length, fullGames: full.length,
     goalsPer90: per(sum(a, x => x.goals), mins, 90), assistsPer90: per(sum(a, x => x.assists), mins, 90),
     gaPer90: per(sum(a, x => x.goals + x.assists), mins, 90),
-    shotsPerGame: mean(a.map(x => x.shots)), shotsTotal: sum(a, x => x.shots), shotsPer90: per(sum(a, x => x.shots), mins, 90),
+    shotsPer90: per(sum(a, x => x.shots), mins, 90),
     goalsSample: sum(a, x => x.goals), assistsSample: sum(a, x => x.assists),
-    conversionPct: pct(sum(a, x => x.goals), sum(a, x => x.shots)),
-    shotsPerGoal: per(sum(a, x => x.shots), sum(a, x => x.goals)),
-    recentPassPct: pct(sum(a, x => x.passOk), sum(a, x => x.passAtt)),
-    recentPassAttPerGame: mean(a.map(x => x.passAtt)),
-    recentPassFailedPerGame: mean(a.map(x => x.passAtt - x.passOk)),
-    worstPassPct: Math.min(...a.filter(x => x.passAtt >= 12).map(x => pct(x.passOk, x.passAtt)), 100),
-    recentTackPct: pct(sum(a, x => x.tackOk), sum(a, x => x.tackAtt)),
     ratingMean: mean(ratings), ratingMedian: median(ratings), ratingStd: std(ratings),
     ratingMin: ratings.length ? Math.min(...ratings) : null, ratingMax: ratings.length ? Math.max(...ratings) : null,
     below65: ratings.filter(r => r < 6.5).length, below7: ratings.filter(r => r < 7).length, above8: ratings.filter(r => r >= 8).length,
@@ -186,8 +286,6 @@ export function computeMetrics(member, appearances, ctx = {}) {
     ratingNotWin: rOf([...draws, ...losses]), nWins: wins.length, nNotWin: draws.length + losses.length, nLosses: losses.length,
     ratingClose: rOf(close), nClose: close.length, ratingBigWin: rOf(big), nBigWin: big.length,
     ratingLeaky: rOf(leaky), nLeaky: leaky.length,
-    blankGames: a.filter(x => !x.goals && !x.assists).length,
-    blankShare: pct(a.filter(x => !x.goals && !x.assists).length, a.length),
     concededPerGameOn: mean(full.map(x => x.ga)), cleanSheetGames: full.filter(x => x.ga === 0).length, nOn: full.length,
     pointsPerGame: per(sum(full, x => pts(x.result)), full.length),
     clubWinPctWith: pct(wins.length, full.length),
@@ -216,9 +314,9 @@ export function computeMetrics(member, appearances, ctx = {}) {
       }
     }
   }
-  let streak = 0;
-  for (let i = a.length - 1; i >= 0 && !a[i].goals && !a[i].assists; i--) streak++;
-  m.dryStreak = streak;
+  // metriche per ruolo: offensive solo sulle presenze offensive/di centrocampo, difensive sul ruolo giocato
+  Object.assign(m, view);
+  m.clubGaPerGame = ctx.matches && ctx.matches.length ? mean(ctx.matches.map(x => x.ga)) : null;
   m.passFailedSeasonTotal = m.passFailedTotal;
   return m;
 }

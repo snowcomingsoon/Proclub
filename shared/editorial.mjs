@@ -5,7 +5,7 @@
  *  - i testi non spiegano mai il criterio: giudicano con i dati.
  * Niente xG, passaggi chiave o altri dati che EA non fornisce.
  * ------------------------------------------------------------------------- */
-import {ROLE_INFO, roleFor, CLUB_ID, MIN_ONOFF} from './metrics.mjs';
+import {ROLE_INFO, roleFor, CLUB_ID, MIN_ONOFF, OFF_METRIC_ROLES, posLabel, metricsForRole} from './metrics.mjs';
 import {commentFor, GA_MIN} from './commentary.mjs';
 
 const fin = v => v != null && Number.isFinite(v);
@@ -36,14 +36,42 @@ export function normalizeRaw(p) {
     name: p.playername, games: 1, rating: num(p.rating) > 0 ? num(p.rating) : null, ratedGames: num(p.rating) > 0 ? 1 : 0,
     goals: num(p.goals), assists: num(p.assists), shots: num(p.shots), passes, passAttempts,
     tackles: num(p.tacklesmade), tackleAttempts: num(p.tackleattempts), saves: num(p.saves), reds: num(p.redcards),
-    mvp: num(p.mom), roles: [p.pos], passPct: passAttempts ? Math.round(passes / passAttempts * 100) : null,
+    mvp: num(p.mom), roles: [p.pos], roleCounts: {[p.pos]: 1}, passPct: passAttempts ? Math.round(passes / passAttempts * 100) : null,
   };
 }
 
+/** Ruolo prevalente giocato nella serata (da `roleCounts`, altrimenti dai reparti elencati). */
+function nightPos(p, m) {
+  const rc = p.roleCounts && Object.keys(p.roleCounts).length ? p.roleCounts : null;
+  if (rc) {
+    const top = Math.max(...Object.values(rc));
+    const tied = Object.keys(rc).filter(k => rc[k] === top);
+    return tied.includes(m && m.playedPos) ? m.playedPos : tied[0];
+  }
+  return p.roles && p.roles.length ? p.roles[0] : (m && m.playedPos) || null;
+}
+
 function nightRole(p, m) {
-  const pos = p.roles && p.roles.length === 1 ? p.roles[0] : null;
-  const role = pos ? roleFor(pos, m ? m.proPos : null) : (m && m.role) || roleFor(p.roles && p.roles[0], null);
-  return {role, ...ROLE_INFO[role]};
+  const pos = nightPos(p, m);
+  const role = pos ? roleFor(pos, m ? m.proPos : null) : (m && m.role) || 'CC';
+  return {role, pos, ...ROLE_INFO[role], label: pos ? posLabel(pos, m ? m.proPos : null) : ROLE_INFO[role].label};
+}
+
+/** Ruolo/i della serata rispetto a quello abituale: {pos, label, changed, multiple, habitualLabel, mix}. */
+function nightRoleInfo(p, m) {
+  const R = nightRole(p, m);
+  const rc = p.roleCounts && Object.keys(p.roleCounts).length ? p.roleCounts : Object.fromEntries((p.roles || []).map(x => [x, 1]));
+  const mix = Object.entries(rc).sort((a, b) => b[1] - a[1]).map(([pos, n]) => ({pos, n, label: posLabel(pos, m ? m.proPos : null)}));
+  const habitual = m && m.seasonPos ? m.seasonPos : null;
+  const multiple = mix.length > 1;
+  return {...R, mix, multiple, habitual, habitualLabel: habitual ? posLabel(habitual, m ? m.proPos : null) : null, changed: !!habitual && (multiple || R.pos !== habitual)};
+}
+const listIt = a => (a.length < 2 ? a.join('') : `${a.slice(0, -1).join(', ')} e ${a[a.length - 1]}`);
+/** Frase sul ruolo giocato in serata, solo se diverso da quello abituale. */
+function nightRoleNote(ri) {
+  if (!ri || !ri.changed) return '';
+  if (ri.multiple) return `In serata ha cambiato ruolo: ${listIt(ri.mix.map(x => `${x.n} ${x.n === 1 ? 'gara' : 'gare'} da ${x.label}`))}${ri.habitualLabel ? ` (ruolo abituale: ${ri.habitualLabel})` : ''}.`;
+  return `In serata ha giocato da ${ri.label}${ri.habitualLabel ? `, non nel suo ruolo abituale da ${ri.habitualLabel}` : ''}.`;
 }
 
 /** Passaggi imprecisi per il ruolo (almeno 10 tentativi), altrimenti null. */
@@ -59,7 +87,7 @@ function nightLimits(p, m) {
   if (p.reds) L.push(`${p.reds} ${p.reds === 1 ? 'rosso' : 'rossi'}`);
   const pf = passFlag(p, m);
   if (pf) L.push(`${pf.pct}% di passaggi (${pf.failed} sbagliati su ${p.passAttempts})`);
-  if (p.shots >= 3 && p.goals / p.shots < 0.3) L.push(`${p.goals} gol su ${p.shots} tiri`);
+  if (p.shots >= 3 && p.goals / p.shots < 0.3 && OFF_METRIC_ROLES.has(nightRole(p, m).role) && nightRole(p, m).role !== 'CC') L.push(`${p.goals} gol su ${p.shots} tiri`);
   if (p.tackleAttempts >= 4 && p.tackles / p.tackleAttempts < 0.5) L.push(`${plural(p.tackles, 'contrasto riuscito', 'contrasti riusciti')} su ${p.tackleAttempts}`);
   return L;
 }
@@ -69,7 +97,7 @@ function limitSentence(p, m) {
   const L = nightLimits(p, m);
   if (L.length) return `Limiti della serata: ${L.slice(0, 2).join('; ')}.`;
   if (!m || m.games < 3 || !m.rating) return '';
-  const c = commentFor(m);
+  const c = commentFor(metricsForRole(m, nightRole(p, m).pos));
   if (m.rating > 8) return sentence(c.charge);
   return c.negatives[0] ? sentence(c.negatives[0].text) : '';
 }
@@ -97,6 +125,10 @@ const COVER_TITLES = {
     warm: n => [`${n}: il gol è il suo mestiere.`, `${n} fa la differenza dove si decide, in area.`, `${n} firma la serata con i gol.`, `${n} e la porta, un rapporto che non tradisce.`],
     sober: n => [`${n} segna, il resto della serata è un’altra storia.`, `${n} tiene a galla la serata con i gol.`, `Il gol ha la firma di ${n}, quasi nient’altro.`, `${n} timbra il cartellino davanti, poi la serata si ferma.`],
   },
+  goalAway: {
+    warm: n => [`${n} segna da dove non te lo aspetti.`, `${n} firma la serata partendo da dietro.`, `${n} trova la porta fuori dal copione.`],
+    sober: n => [`${n} segna, ma il suo compito era un altro.`, `Il gol è di ${n}, il resto della serata non fa notizia.`, `${n} timbra la rete, non la serata.`],
+  },
   assist: {
     warm: n => [`${n} è l’ultimo passaggio della serata.`, `${n} serve i compagni e la partita gira.`, `${n} apparecchia, la squadra incassa.`, `${n} rifinisce, e si vede.`],
     sober: n => [`${n} mette i compagni davanti alla porta, poco altro.`, `Gli assist sono di ${n}: il resto è ordinaria amministrazione.`, `${n} rifinisce, ma la serata chiede di più.`, `${n} serve bene, non basta a fare la serata.`],
@@ -111,17 +143,18 @@ const COVER_TITLES = {
   },
 };
 
-function coverDeck(p, craft, rec, seasonRating, seed) {
+function coverDeck(p, craft, rec, seasonRating, seed, ri) {
   const n = rec.games, res = `${rec.wins}V ${rec.draws}P ${rec.losses}S`;
   const nums = craft === 'assist' ? plural(p.assists, 'assist', 'assist') : craft === 'save' ? plural(p.saves, 'parata', 'parate') : craft === 'goal' ? `${plural(p.goals, 'gol', 'gol')}${p.assists ? ` e ${plural(p.assists, 'assist', 'assist')}` : ''}` : `${p.goals} gol e ${p.assists} assist`;
   const hook = {
+    goalAway: choose(seed, [`${p.name} trova la porta partendo da ${ri ? ri.label : 'dietro'}: ${nums}`, `Non è il suo reparto, ma ${p.name} firma ${nums}`]),
     goal: choose(seed, [`${p.name} è l’uomo che la porta la trova: ${nums} in ${plural(n, 'gara', 'gare')}`, `Davanti ha l’istinto che manca a molti: ${nums} firmati da ${p.name}`, `${p.name} cerca la porta e spesso la trova: ${nums}`]),
     assist: choose(seed, [`${p.name} ha la visione per mandare gli altri in porta: ${nums}`, `Il lavoro di rifinitura è di ${p.name}: ${nums}`, `${p.name} pensa il gioco prima degli altri: ${nums}`]),
     save: choose(seed, [`${p.name} chiude la porta quando serve: ${nums}`, `Tra i pali ${p.name} fa il suo mestiere: ${nums}`, `${p.name} risponde presente nei momenti caldi: ${nums}`]),
     overall: choose(seed, [`${p.name} è il più convincente di una serata che lo ha messo davanti agli altri`, `${p.name} chiude con il voto più alto del gruppo, in una notte senza fuoriclasse`, `${p.name} è il nome da segnare, per una volta, in una serata senza copione`]),
   }[craft];
   const tone = !seasonRating ? '' : seasonRating > 8 ? choose(seed, ['Non è un caso: lo fa da tutta la stagione.', 'La continuità, in lui, c’è.']) : seasonRating < 6.5 ? choose(seed, ['Una serata, però, non cambia il giudizio sulla sua stagione.', 'Resta da vedere se sa ripeterlo: finora la stagione dice altro.']) : choose(seed, ['Ma una serata non fa una stagione.', 'Il resto del suo rendimento è più ordinario di questa notte.', 'Da confermare: la stagione non racconta lo stesso giocatore.']);
-  return join(`${hook}.`, tone, `Serata chiusa sul ${res}.`);
+  return join(`${hook}.`, nightRoleNote(ri), tone, `Serata chiusa sul ${res}.`);
 }
 
 function coverClosing(rec, tp, seed) {
@@ -151,7 +184,9 @@ export function coverEditorial({day = '', record, winners = [], players = [], me
   const lm = leader ? metricOf(metricsByName, leader.name) : undefined;
   const sr = lm && lm.games >= 3 ? lm.rating : null;
   const warm = !!(sr && sr > 8 && leader.rating >= 8);
-  const craft = leader ? craftOf(leader) : 'overall';
+  const ri = leader ? nightRoleInfo(leader, lm) : null;
+  let craft = leader ? craftOf(leader) : 'overall';
+  if (craft === 'goal' && ri && !OFF_METRIC_ROLES.has(ri.role)) craft = 'goalAway';
   let title, deck;
   if (winners.length > 1) {
     const names = winners.map(w => w.name).join(' e ');
@@ -159,7 +194,7 @@ export function coverEditorial({day = '', record, winners = [], players = [], me
     deck = join(`${names} chiudono alla pari: nessuno fa il vuoto.`, `Serata chiusa sul ${record.wins}V ${record.draws}P ${record.losses}S.`);
   } else if (leader) {
     title = choose(seed, COVER_TITLES[craft][warm ? 'warm' : 'sober'](leader.name));
-    deck = coverDeck(leader, craft, record, sr, seed);
+    deck = coverDeck(leader, craft, record, sr, seed, ri);
   } else {
     title = 'La serata non ha un protagonista.';
     deck = `${plural(n, 'gara registrata', 'gare registrate')}, ${record.goals} gol fatti.`;
@@ -190,7 +225,7 @@ export function notebookEditorial({players, metricsByName, record}) {
   const flagged = players.map(p => ({p, f: passFlag(p, metricOf(metricsByName, p.name))})).filter(x => x.f);
   if (flagged.length) out.push(`Passaggi da rivedere: ${flagged.map(x => `${x.p.name} ${x.f.pct}%`).join(', ')}.`);
   else out.push('Sui passaggi nessuno ha sbagliato in modo vistoso.');
-  const shooter = players.filter(p => p.shots >= 3).sort((a, b) => b.shots - a.shots)[0];
+  const shooter = players.filter(p => p.shots >= 3 && OFF_METRIC_ROLES.has(nightRole(p, metricOf(metricsByName, p.name)).role)).sort((a, b) => b.shots - a.shots)[0];
   if (shooter) out.push(`${shooter.name}: ${shooter.goals} gol su ${shooter.shots} tiri${shooter.goals / shooter.shots < 0.3 ? ', conversione da migliorare' : ''}.`);
   const reds = players.filter(p => p.reds);
   if (reds.length) out.push(`Cartellini rossi: ${reds.map(p => `${p.name} (${p.reds})`).join(', ')}.`);
@@ -294,14 +329,16 @@ export function turningPointsEditorial(games, {clubId = CLUB_ID, metricsByName, 
 /** Verdetto sintetico variato per Pro, coerente con il giudizio del motore. */
 export function verdictFor(m, cm = commentFor(m)) {
   const tier = tierOf(m.rating), seed = hash(m.name), label = m.roleLabel, g = m.games;
+  const who = m.mixed ? 'titolare' : `${label} titolare`;
+  const cons = (ROLE_INFO[m.role] || {}).group === 'cons';
   const r = f2(m.rating), gap = f2(8 - m.rating);
   if (g < 3 || !m.rating) return cm.verdict;
   const verdicts = {
     elite: [cm.verdict],
     buono: [`Buono, ma ancora lontano dai migliori: manca il salto di qualità.`, `${r} di media vale la fiducia del club: titolare affidabile, non trascinatore.`, `Rendimento da titolare, senza i numeri del fuoriclasse.`],
     medio: [`Utile ma non decisivo: ${r} è una media da buon gregario.`, `Rendimento ordinario: ${r} basta per giocare, non per spostare le partite.`, `Né bocciato né promosso: ${r} è una media da comprimario.`],
-    rimandato: [`Rimandato: ${r} sfiora appena la sufficienza e non basta a un ${label} titolare.`, `Sufficienza risicata (${r}): servono precisione e incidenza.`, `${r} di media: il posto da titolare va riguadagnato partita per partita.`],
-    bocciato: [`Bocciato: ${r} è un rendimento insufficiente per un ${label} titolare.`, `Bocciatura netta: ${r} non sostiene il ruolo di ${label} titolare.`, `${r} in ${g} presenze: rendimento insufficiente.`],
+    rimandato: [`Rimandato: ${r} sfiora appena la sufficienza e non basta a un ${who}.`, `Sufficienza risicata (${r}): servono precisione e ${cons ? 'solidità' : 'incidenza'}.`, `${r} di media: il posto da titolare va riguadagnato partita per partita.`],
+    bocciato: [`Bocciato: ${r} è un rendimento insufficiente per un ${who}.`, `Bocciatura netta: ${r} non sostiene il ruolo di ${who}.`, `${r} in ${g} presenze: rendimento insufficiente.`],
   };
   return join(choose(seed, verdicts[tier]), g < 10 ? `Lettura provvisoria: ${g} presenze.` : '');
 }
@@ -324,18 +361,21 @@ export function novelEditorial(member, m, club) {
     };
   }
   const r = f2(m.rating);
+  const mixed = !!m.mixed;
+  const asLabel = mixed ? '' : ` da ${label}`;
   const titles = {
-    elite: [`${r}: livello alto, ma non senza limiti.`, `${r} da ${label}: riferimento tecnico con un difetto da correggere.`, `Livello alto da ${label} (${r}), margine ancora aperto.`],
-    buono: [`${r}: buono, ma non basta.`, `Titolare solido da ${label} (${r}), a un passo dai migliori.`, `Affidabile a ${r}, ancora lontano dall’eccellenza.`],
-    medio: [`${r}: utile, mai decisivo.`, `Rendimento ordinario da ${label} (${r}).`, `Nella media del club (${r}), senza incidere sul risultato.`],
-    rimandato: [`${r}: appena sufficiente.`, `Rimandato dai numeri (${r}).`, `Un ${label} a ${r} che tiene il posto, non la squadra.`],
-    bocciato: [`${r}: bocciato dai numeri.`, `Sotto il minimo per un ${label} titolare (${r}).`, `${r} di media: il rendimento non regge il ruolo.`],
+    elite: [`${r}: livello alto, ma non senza limiti.`, `${r}${asLabel}: riferimento tecnico con un difetto da correggere.`, `Livello alto${asLabel} (${r}), margine ancora aperto.`],
+    buono: [`${r}: buono, ma non basta.`, `Titolare solido${asLabel} (${r}), a un passo dai migliori.`, `Affidabile a ${r}, ancora lontano dall’eccellenza.`],
+    medio: [`${r}: utile, mai decisivo.`, `Rendimento ordinario${asLabel} (${r}).`, `Nella media del club (${r}), senza incidere sul risultato.`],
+    rimandato: [`${r}: appena sufficiente.`, `Rimandato dai numeri (${r}).`, mixed ? `A ${r} tiene il posto, non la squadra.` : `Un ${label} a ${r} che tiene il posto, non la squadra.`],
+    bocciato: [`${r}: bocciato dai numeri.`, mixed ? `Sotto il minimo per un titolare (${r}).` : `Sotto il minimo per un ${label} titolare (${r}).`, `${r} di media: il rendimento non regge il ruolo.`],
   };
   const title = choose(seed, titles[tier]);
   const verdictLine = verdictFor(m, cm);
   const R = ROLE_INFO[m.role];
+  const mixLine = mixed && m.roleMix && m.roleMix.length ? `nelle ultime ${m.roleMix.reduce((s, x) => s + x.n, 0)} gare ${listIt(m.roleMix.map(x => `${x.n} da ${x.label}`))}` : '';
   const intro = join(
-    `${name}, ${label}${m.proPosLabel ? ` (avatar ${m.proPosLabel})` : ''}: ${plural(g, 'presenza', 'presenze')}, ${m.goals} gol e ${m.assists} assist, media EA ${f2(m.rating)}.`,
+    `${name}, ${mixed ? `ruoli diversi${mixLine ? ` (${mixLine})` : ''}${m.proPosLabel ? `, avatar ${m.proPosLabel}` : ''}` : `${label}${m.proPosLabel ? ` (avatar ${m.proPosLabel})` : ''}`}: ${plural(g, 'presenza', 'presenze')}, ${m.goals} gol e ${m.assists} assist, media EA ${f2(m.rating)}.`,
     verdictLine, cm.praise, cm.praise ? `Limite: ${lc(sentence(cm.charge))}` : cm.proof[0] ? `Dato più pesante: ${lc(cm.proof[0])}.` : '');
   const sections = [];
 
@@ -343,22 +383,31 @@ export function novelEditorial(member, m, club) {
   const gaMin = GA_MIN[m.role];
   const tab = [`${f2(m.goalsPerGame)} gol e ${f2(m.assistsPerGame)} assist a gara (${plural(m.goals, 'rete', 'reti')}, ${plural(m.assists, 'assist', 'assist')} in ${g} presenze).`];
   if (fin(m.shareOfClubGA)) tab.push(`Tra reti e assist pesa ${ilp(m.shareOfClubGA)} dei gol del club (${ilp(m.shareOfClubGoals)} contando solo le reti).`);
-  if (gaMin) tab.push(m.gaPerGame >= gaMin
+  if (mixed) {
+    // medie stagionali miste di ruoli: il giudizio offensivo vale solo sul campione recente nel ruolo offensivo
+    if (gaMin && (m.offSample || 0) >= 6 && fin(m.roleGaPerGame)) tab.push(m.roleGaPerGame >= gaMin
+      ? `${m.roleScope.charAt(0).toUpperCase()}${m.roleScope.slice(1)}: ${f2(m.roleGaPerGame)} G+A a gara, incidenza adeguata al ruolo.`
+      : `${m.roleScope.charAt(0).toUpperCase()}${m.roleScope.slice(1)}: ${f2(m.roleGaPerGame)} G+A a gara, incidenza insufficiente per un ${label}.`);
+    else tab.push(`I totali stagionali sono di ruoli diversi: nelle gare ${m.roleScope || 'recenti'} il contributo offensivo non è il metro del giudizio.`);
+  } else if (gaMin) tab.push(m.gaPerGame >= gaMin
     ? `Con ${f2(m.gaPerGame)} G+A a gara l'incidenza offensiva è adeguata al ruolo di ${label}${tier === 'elite' ? ', con margine' : ': nulla di più'}.`
     : `Con ${f2(m.gaPerGame)} G+A a gara l'incidenza offensiva è insufficiente per un ${label}.`);
   else tab.push(`Da ${label} il contributo offensivo non è il metro principale del giudizio.`);
   if (club && club.dependence && club.dependence.name === name && fin(club.dependence.share)) tab.push(`È il capocannoniere del club: ${ilp(club.dependence.share)} dei gol stagionali (${club.dependence.goals} su ${club.season.gf}).`);
-  if (m.shotsTotal >= 8 && fin(m.conversionPct)) tab.push(`Nelle ultime ${m.sample} gare: ${m.goalsSample} gol su ${m.shotsTotal} tiri, conversione ${r0(m.conversionPct)}%.`);
-  if (m.dryStreak >= 3) tab.push(`Attualmente ${m.dryStreak} gare consecutive senza gol né assist.`);
+  if (m.shotsTotal >= 8 && fin(m.conversionPct)) tab.push(`Nelle ultime ${m.offSample ?? m.sample} gare${mixed ? ` ${m.roleScope}` : ''}: ${m.offGoals ?? m.goalsSample} gol su ${m.shotsTotal} tiri, conversione ${r0(m.conversionPct)}%.`);
+  if (m.dryStreak >= 3 && R.group === 'off') tab.push(`Attualmente ${m.dryStreak} gare consecutive senza gol né assist${mixed ? ` ${m.roleScope}` : ''}.`);
   sections.push({label: 'IL TABELLINO', text: tab.join(' ')});
 
   // IL PALLONE TRA I PIEDI
   if (m.passPct != null) {
     const pass = [`${r0(num(member.passesMade))} passaggi riusciti (${f1(num(member.passesMade) / g)} a gara), ${r0(m.passPct)}% secondo EA, circa ${f1(m.passFailedPerGame)} sbagliati a gara.`];
-    pass.push(m.passPct < R.passMin
+    if (mixed) {
+      if ((m.roleSample || 0) >= 3 && (m.rolePassAtt || 0) >= 30 && fin(m.recentPassPct)) pass.push(`Nelle gare ${m.roleScope}: ${r0(m.recentPassPct)}% di passaggi su ~${r0(m.recentPassAttPerGame)} a gara, ${m.recentPassPct < R.passMin ? `un dato troppo basso per un ${label}` : `nella norma per un ${label}`}.`);
+      else pass.push('La media stagionale è di ruoli diversi: nessun giudizio di ruolo sui passaggi finché il campione nel ruolo attuale è corto.');
+    } else pass.push(m.passPct < R.passMin
       ? `Per un ${label} è un dato troppo basso: il possesso regalato pesa.`
       : `Per un ${label} il dato è nella norma, senza altro da segnalare.`);
-    if (fin(m.recentPassPct) && (m.sample || 0) >= 6) pass.push(`Nelle ultime ${m.sample} gare il dato è ${r0(m.recentPassPct)}%${m.worstPassPct < 100 ? `, con un minimo del ${r0(m.worstPassPct)}% nella gara peggiore` : ''}.`);
+    if (!mixed && fin(m.recentPassPct) && (m.sample || 0) >= 6) pass.push(`Nelle ultime ${m.sample} gare il dato è ${r0(m.recentPassPct)}%${m.worstPassPct < 100 ? `, con un minimo del ${r0(m.worstPassPct)}% nella gara peggiore` : ''}.`);
     if (m.tackPct != null && m.tackAttPerGame >= 1) pass.push(`Contrasti riusciti ${alp(m.tackPct)}${fin(m.clubMedianTackPct) ? ` (mediana del club ${r0(m.clubMedianTackPct)}%)` : ''}, ${f1(m.tackAttPerGame)} tentativi a gara.`);
     sections.push({label: 'IL PALLONE TRA I PIEDI', text: pass.join(' ')});
   }
@@ -367,7 +416,7 @@ export function novelEditorial(member, m, club) {
   if (g >= 5) {
     const rend = [`Media EA ${f2(m.rating)} in ${g} presenze; ${plural(m.motm, 'premio uomo partita', 'premi uomo partita')} (${r0(m.motmRate)}% delle gare).`];
     if (m.motm && m.rating < 7) rend.push('I premi non compensano una media così bassa.');
-    if (m.peers && m.peers.ratingRank) rend.push(`Nel reparto: ${m.peers.ratingRank}° su ${m.peers.n} per media (mediana ${f2(m.peers.medianRating)}).`);
+    if (m.peers && !mixed && m.peers.ratingRank) rend.push(`Nel reparto: ${m.peers.ratingRank}° su ${m.peers.n} per media (mediana ${f2(m.peers.medianRating)}).`);
     else if (fin(m.ratingVsClubMedian)) rend.push(`${sign(m.ratingVsClubMedian)}${f2(m.ratingVsClubMedian)} rispetto alla mediana dei titolari del club.`);
     if (fin(m.ratingVsOverall) && m.overall) rend.push(m.ratingVsOverall <= -0.8
       ? `Overall ${m.overall}, rendimento ${f2(m.rating)}: l'avatar vale più di quanto il giocatore produca.`
@@ -394,14 +443,15 @@ export function novelEditorial(member, m, club) {
   if ((m.sample || 0) >= 6 && fin(m.form5)) fc.push(`Ultime 5 gare a ${f2(m.form5)} contro ${f2(m.rating)} di stagione${m.formVsSeason <= -0.4 ? ': forma sotto il proprio livello' : m.formVsSeason >= 0.4 ? ': forma sopra la propria media' : ': in linea'}.`);
   if ((m.sample || 0) >= 6 && m.nWins >= 3 && m.nNotWin >= 3 && fin(m.ratingNotWin)) fc.push(`Voto ${f2(m.ratingInWins)} nelle ${m.nWins} vittorie, ${f2(m.ratingNotWin)} nelle ${m.nNotWin} gare senza vittoria.`);
   if ((m.sample || 0) >= 6 && m.nBigWin >= 2 && m.nClose >= 3 && fin(m.ratingBigWin)) fc.push(`${f2(m.ratingBigWin)} nelle vittorie larghe, ${f2(m.ratingClose)} nelle ${m.nClose} gare in bilico.`);
-  if (m.roleMismatch) fc.push(`Schierato da ${m.playedPos} con avatar ${m.position}${m.proPosLabel ? ` (${m.proPosLabel})` : ''}: giudicato come ${label}.`);
+  if (mixed && m.roleMix && m.roleMix.length) fc.push(`Ruoli nelle ultime ${m.roleMix.reduce((s, x) => s + x.n, 0)} gare: ${listIt(m.roleMix.map(x => `${x.n} da ${x.label}`))}. I giudizi di ruolo si riferiscono al campione ${m.roleScope}, non alle medie di stagione.`);
+  else if (m.roleMismatch) fc.push(`Schierato da ${m.playedPos} con avatar ${m.position}${m.proPosLabel ? ` (${m.proPosLabel})` : ''}: giudicato come ${label}.`);
   if (fc.length) sections.push({label: 'FORMA E CONTESTO', text: fc.join(' ')});
 
   // LA PROSSIMA PAGINA
   if (g >= 10) {
     const targets = [];
-    if (m.passPct != null && m.passPct < R.passMin) targets.push(`Obiettivo misurabile: portare i passaggi dal ${r0(m.passPct)}% al ${R.passMin}% richiesto da un ${label}.`);
-    if (gaMin && m.gaPerGame < gaMin) targets.push(`Obiettivo: arrivare a ${gaMin} G+A a gara (oggi ${f2(m.gaPerGame)}).`);
+    if (!mixed && m.passPct != null && m.passPct < R.passMin) targets.push(`Obiettivo misurabile: portare i passaggi dal ${r0(m.passPct)}% al ${R.passMin}% richiesto da un ${label}.`);
+    if (!mixed && gaMin && m.gaPerGame < gaMin) targets.push(`Obiettivo: arrivare a ${gaMin} G+A a gara (oggi ${f2(m.gaPerGame)}).`);
     sections.push({label: 'LA PROSSIMA PAGINA', text: join(cm.coachNote, targets.join(' '))});
   }
   return {title, intro, sections, caveats: cm.caveats};
@@ -439,7 +489,7 @@ export function signalsEditorial(club, names) {
   if (ps) {
     const R = ROLE_INFO[ps.role];
     out.passer = join(`${r0(ps.passPct)}% di passaggi riusciti, ~${r0(ps.passAttPerGame)} tentati a gara, tra chi ha almeno 10 presenze.`,
-      `${ps.roleLabel.charAt(0).toUpperCase() + ps.roleLabel.slice(1)}: ${ps.passPct >= R.passMin ? 'precisione alta, ma il dato non misura il rischio preso' : 'precisione bassa persino per il migliore'}.`);
+      ps.mixed ? 'Totali di ruoli diversi: la precisione non misura il rischio preso.' : `${ps.roleLabel.charAt(0).toUpperCase() + ps.roleLabel.slice(1)}: ${ps.passPct >= R.passMin ? 'precisione alta, ma il dato non misura il rischio preso' : 'precisione bassa persino per il migliore'}.`);
   }
   return out;
 }

@@ -449,7 +449,7 @@ export function analyzeClub(data, clubId = CLUB_ID, precomputed) {
   if (n) lines.push(`Ultime ${n} gare: ${record.w}V ${record.d}P ${record.l}S, ${record.gf}-${record.ga} (${record.ppg.toFixed(2)} punti a gara); ${record.cleanSheets} porte inviolate e ${record.conceded3plus} gare con 3 o più gol subiti.`);
   if (season.games) lines.push(`Stagione EA: ${season.gfPerGame.toFixed(2)} gol fatti e ${season.gaPerGame.toFixed(2)} subiti a gara in ${season.games} partite.`);
   if (weakestUnit) lines.push(`Reparto con la media più bassa: ${dif(weakestUnit.family)} (${weakestUnit.rating.toFixed(2)} di media pesata sulle presenze).`);
-  if (weakestPlayer) lines.push(`Anello debole tra i titolari (≥8 presenze): ${weakestPlayer.name}, media ${weakestPlayer.rating.toFixed(1)}.`);
+  if (weakestPlayer) lines.push(`Media più bassa tra i titolari (≥8 presenze): ${weakestPlayer.name}, ${weakestPlayer.rating.toFixed(1)}: il margine di crescita più ampio.`);
   if (bestPairs[0]) lines.push(`Con ${bestPairs[0].a} e ${bestPairs[0].b} insieme il club ha totalizzato ${bestPairs[0].ppg.toFixed(2)} punti a gara in ${bestPairs[0].n} gare, ${bestPairs[0].ppgRest.toFixed(2)} nelle ${bestPairs[0].nRest} senza la coppia.`);
   if (worstPairs[0]) lines.push(`Con ${worstPairs[0].a} e ${worstPairs[0].b} insieme il club ha totalizzato ${worstPairs[0].ppg.toFixed(2)} punti a gara in ${worstPairs[0].n} gare, ${worstPairs[0].ppgRest.toFixed(2)} nelle ${worstPairs[0].nRest} senza la coppia.`);
   if (dependence && dependence.share != null) lines.push(`Dipendenza dal capocannoniere: ${dependence.name} ha il ${Math.round(dependence.share)}% dei gol stagionali del club (${dependence.goals} su ${season.gf}).`);

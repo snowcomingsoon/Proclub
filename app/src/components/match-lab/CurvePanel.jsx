@@ -145,26 +145,26 @@ export function CurvePanel({
         </div>
       </div>
       <div className="lab-story">
-        <span>IL PUNTO DA CORREGGERE</span>
+        <span>IL PUNTO DA CURARE</span>
         <h3>
           {formSummary.games
             ? formSummary.attempts >= 10 && toNumber(formSummary.pass) < passMin
-              ? 'Troppi palloni persi.'
+              ? 'La precisione può crescere.'
               : formSummary.shots >= 5 && formSummary.goals === 0
-                ? 'Tiri senza gol: spreco.'
+                ? 'Tiri senza gol: da rifinire.'
                 : ratingDelta !== null && ratingDelta < 0
                   ? 'Ultima gara sotto il proprio livello.'
-                  : 'Nessun difetto netto, ma niente di più.'
+                  : 'Nessun aspetto critico netto.'
             : 'Nessuna presenza da giudicare.'}
         </h3>
         <p>
           {formSummary.games
             ? formSummary.attempts >= 10 && toNumber(formSummary.pass) < passMin
-              ? `${formSummary.attempts - formSummary.passes} passaggi non riusciti su ${formSummary.attempts}: ${formSummary.pass}% di precisione. Il possesso regalato pesa più del voto.`
+              ? `${formSummary.attempts - formSummary.passes} passaggi non riusciti su ${formSummary.attempts}: ${formSummary.pass}% di precisione. Qualche appoggio più semplice può aiutare il possesso.`
               : formSummary.shots >= 5 && formSummary.goals === 0
-                ? `${formSummary.shots} tiri senza un gol nelle gare osservate: conclusioni da selezionare meglio. Dai dati non si deduce la qualità delle occasioni.`
+                ? `${formSummary.shots} tiri senza un gol nelle gare osservate: conclusioni da scegliere con più lucidità. Dai dati non si deduce la qualità delle occasioni.`
                 : ratingDelta !== null && ratingDelta < 0
-                  ? `Ultima gara ${Math.abs(ratingDelta).toFixed(1)} punti sotto la media delle precedenti (${formatNumber(formSummary.rating, 1)} di media EA in ${formSummary.games} presenze): un calo da spiegare.`
+                  ? `Ultima gara ${Math.abs(ratingDelta).toFixed(1)} punti sotto la media delle precedenti (${formatNumber(formSummary.rating, 1)} di media EA in ${formSummary.games} presenze): un calo da recuperare nella prossima gara.`
                   : `${formatNumber(formSummary.rating, 1)} di media EA in ${formSummary.games} presenze nel reparto: nessun difetto netto nei dati disponibili.`
             : 'Nessuna presenza consultabile.'}
         </p>

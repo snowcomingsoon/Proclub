@@ -102,7 +102,7 @@ test('romanzo: titolo e intro unici, nessuna regola, nessun capitolo con/senza s
     const text = [n.title, n.intro, ...n.sections.map(s => s.text)].join(' ');
     assert.doesNotMatch(text, BANNED, m.name);
     assert.doesNotMatch(text, RULES, m.name);
-    if (m.rating < 6.5) assert.match(text, /[Bb]occiat/, m.name);
+    if (m.rating < 6.5) assert.match(text, /sotto le attese/, m.name);
     assert.ok(n.sections.some(s => s.label === 'IL TABELLINO'));
     assert.ok(!n.sections.some(s => s.label === 'CON E SENZA DI LUI'), m.name);
     assert.doesNotMatch(text, /senza di lui|senza la coppia|insieme il club/, m.name);
@@ -151,16 +151,16 @@ test('match studio: verdetto, premi e note senza regole esplicite', () => {
     }
   }
   const bad = Object.values(data.matches[0].players[CLUB_ID]).find(p => p.playername === 'Draigon000');
-  assert.match(awardEditorial('pass', {...bad, passesmade: '16', passattempts: '24'}, idx), /basso/);
+  assert.match(awardEditorial('pass', {...bad, passesmade: '16', passattempts: '24'}, idx), /può crescere/);
 });
 
-test('verdetti variati per Pro, nessuna regola, bocciatura sotto 6.5', () => {
+test('verdetti variati per Pro, nessuna regola, "sotto le attese" sotto 6.5', () => {
   const regulars = all.filter(m => m.games >= 3 && m.rating);
   const verdicts = regulars.map(m => verdictFor(m));
   for (const [i, m] of regulars.entries()) {
     assert.doesNotMatch(verdicts[i], BANNED, m.name);
     assert.doesNotMatch(verdicts[i], RULES, m.name);
-    if (m.rating < 6.5) assert.match(verdicts[i], /[Bb]occiat/, m.name);
+    if (m.rating < 6.5) assert.match(verdicts[i], /sotto le attese/, m.name);
     if (m.rating <= 8) assert.doesNotMatch(verdicts[i], /Promosso/, m.name);
   }
   assert.strictEqual(new Set(verdicts).size, verdicts.length);

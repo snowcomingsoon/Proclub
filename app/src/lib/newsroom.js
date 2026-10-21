@@ -60,11 +60,11 @@ export function buildTurningPoints(games, ctx = {}) {
 /** Titolo del fascicolo, dal giudizio del motore e dalla media stagionale (non dai gol). */
 export function buildTrialTitle(verdict, metrics) {
   const byTier = {
-    elite: 'livello alto, con riserva.',
-    buono: 'buono, ma non basta.',
-    medio: 'utile, mai decisivo.',
-    rimandato: 'rimandato dai numeri.',
-    bocciato: 'bocciato dai numeri.',
+    elite: 'livello alto, da confermare.',
+    buono: 'buono, con spazio per crescere.',
+    medio: 'nella media, margine per incidere.',
+    rimandato: 'da migliorare.',
+    bocciato: 'stagione sotto le attese.',
   };
   if (!verdict || !byTier[verdict.tier]) return 'Campione troppo corto per giudicare.';
   const role = verdict.nightRoleText
@@ -75,7 +75,11 @@ export function buildTrialTitle(verdict, metrics) {
   return `Stagione ${formatRating(metrics?.rating ?? null)}${role}: ${byTier[verdict.tier]}`;
 }
 
-/** Elogio, accusa, prova e verdetto ironico per un Pro. */
+/**
+ * Elogio (solo oltre l'8 di media), rilievo, prova e verdetto per un Pro.
+ * È il testo di riserva, usato quando il motore non ha metriche per quel nome: tono misurato,
+ * un solo rilievo e una direzione di lavoro.
+ */
 export function buildTrial(
   player,
   salt,
@@ -85,69 +89,72 @@ export function buildTrial(
   const goalsPerGame = player.goals / Math.max(1, player.games);
   const missedPasses = Math.max(0, player.passAttempts - player.passes);
   const missedTackles = Math.max(0, player.tackleAttempts - player.tackles);
+  const forwardOnly =
+    player.roles?.length && player.roles.every((role) => role === 'forward');
+  const passMin = forwardOnly ? 65 : 75;
   let charge;
   let proof;
   let verdict;
   const pick = (options) => options[seed % options.length];
   player.reds
-    ? ((charge = `${player.reds} rossi. Ha prenotato la doccia prima degli altri.`),
+    ? ((charge = `${player.reds} ${player.reds === 1 ? 'rosso' : 'rossi'}: la disciplina è l’aspetto su cui lavorare.`),
       (proof = `${player.reds} espulsioni in ${player.games} presenze.`),
       (verdict =
-        'La qualità va lasciata in campo. Il prossimo colpo di genio può risparmiarsi il cartellino.'))
-    : player.shots >= 3 &&
+        'La qualità resta, gli interventi in ritardo vanno evitati nelle prossime gare.'))
+    : player.shots >= 5 &&
         player.goals / player.shots < 0.3 &&
         !(player.roles?.length && player.roles.every((role) => role === 'defender' || role === 'goalkeeper'))
       ? ((charge = pick([
-          'Il portiere avversario sta valutando di mandargli un biglietto di ringraziamento.',
-          'Tanta produzione al tiro. Il tabellino, però, non accetta preventivi.',
-          'La porta è un obiettivo, non un suggerimento geografico.',
-          'Il pallone vuole la rete. Lui, ogni tanto, gli concede un anno sabbatico.',
-          'Le conclusioni ci sono. Il killer instinct ha chiesto un permesso retribuito.',
-          'Il tabellino non assegna gol per entusiasmo: serve il colpo che chiude il discorso.',
+          'Il volume al tiro c’è: la conversione può crescere con conclusioni scelte meglio.',
+          'Tante conclusioni e poche reti: la finalizzazione è l’aspetto da affinare.',
+          'Davanti la porta è stata cercata spesso; manca ancora la rete che chiude il discorso.',
+          'Le occasioni non mancano, la precisione sotto porta può migliorare.',
+          'La conclusione è da rifinire: più lucidità nella scelta del tiro.',
+          'Il lavoro al tiro è visibile, ora si tratta di trasformarlo in reti.',
         ])),
         (proof = `${player.goals} gol su ${player.shots} tiri: conversione ${Math.round((player.goals / player.shots) * 100)}%. Non distingue tiri fuori, parati o bloccati.`),
         (verdict =
           player.assists >= 2
-            ? `La rifinitura lo difende (${player.assists} assist). La finalizzazione resta il prossimo esame.`
-            : 'Il volume è agli atti. Ora servono più reti per ogni tentativo.'))
+            ? `La rifinitura aiuta (${player.assists} assist). Nelle prossime gare l’obiettivo è la finalizzazione.`
+            : 'Il volume è agli atti. Nelle prossime gare l’obiettivo è più reti per ogni tentativo.'))
       : player.passAttempts >= 10 &&
           player.passPct !== null &&
-          player.passPct < 85
+          player.passPct < passMin - 3
         ? ((charge = pick([
-            'Il compagno chiede un pallone, non una promessa elettorale.',
-            'Il possesso non è una raccolta fondi per gli avversari.',
-            'La visione di gioco c’è. Ogni tanto i piedi leggono un altro copione.',
-            'Prima del passaggio della vita, facciamo riuscire quello della serata.',
-            'Nel fraseggio serve meno improvvisazione: il compagno non è un investigatore privato.',
-            'Il pallone non scotta. Si può tenere abbastanza a lungo da passarlo bene.',
+            'Nel fraseggio la precisione può crescere: qualche appoggio più semplice aiuta il possesso.',
+            'Il palleggio ha margine: scelte più sicure nei passaggi aiuterebbero la squadra.',
+            'La visione di gioco c’è; l’esecuzione dei passaggi può diventare più pulita.',
+            'La precisione al passaggio è l’aspetto da curare, con appoggi più semplici.',
+            'Qualche pallone perso di troppo: il lavoro è sulla pulizia della circolazione.',
+            'Nella circolazione c’è margine: meno rischio nei passaggi, più possesso.',
           ])),
           (proof = `${missedPasses} passaggi non riusciti su ${player.passAttempts}; precisione ${player.passPct}%.`),
           (verdict =
             player.goals + player.assists
-              ? `I ${player.goals + player.assists} gol + assist gli danno argomenti. La precisione deve raggiungere l’ambizione.`
-              : 'La partecipazione alla manovra è registrata. L’esecuzione va ripulita.'))
-        : player.tackleAttempts >= 4 &&
+              ? `I ${player.goals + player.assists} tra gol e assist sono un buon punto di partenza. Nelle prossime gare l’obiettivo è la precisione.`
+              : 'La partecipazione alla manovra è registrata. Nelle prossime gare l’obiettivo è ripulire l’esecuzione.'))
+        : player.tackleAttempts >= 8 &&
             player.tackles / player.tackleAttempts < 0.5
           ? ((charge = pick([
-              'La garra si sente. Il recupero del pallone, un po’ meno.',
-              'Ha presentato domanda per ogni duello. Troppi colloqui senza assunzione.',
-              'L’aggressività fa rumore; il pallone si riprende con un intervento riuscito.',
-              'Entrare nel contrasto è il primo capitolo. Uscirne col pallone sarebbe il finale preferito.',
+              'L’impegno nei duelli è evidente; l’efficacia del contrasto può crescere.',
+              'Tanti duelli cercati: il passo successivo è recuperare il pallone più spesso.',
+              'Si entra con decisione nel contrasto, con tempi di intervento da affinare.',
+              'Il lavoro nei duelli c’è, la riuscita può migliorare con più posizione.',
             ])),
             (proof = `${player.tackles} contrasti riusciti su ${player.tackleAttempts}; ${missedTackles} tentativi non riusciti.`),
             (verdict =
-              'La voglia di intervenire è agli atti. Il duello deve diventare più efficace, oltre che più rumoroso.'))
+              'La voglia di intervenire è agli atti. Nelle prossime gare l’obiettivo è un duello più efficace.'))
           : ((charge = pick([
-              'L’accusa non trova un difetto netto. Non è il momento di farsi costruire una statua.',
-              'Le cifre lo difendono. Il contratto da fenomeno resta da rinnovare alla prossima gara.',
-              'Per questa volta il tribunale resta senza munizioni. Il parcheggio dello stadio conserva il vecchio nome.',
-              'Nessuna criticità evidente da inchiodare ai numeri. La prossima partita riapre comunque il fascicolo.',
-              'Il tabellino non offre un bersaglio serio. Nessun difetto netto nei numeri.',
-              'Oggi niente condanna statistica. Il posto nell’Olimpo si conferma col prossimo pallone.',
+              'Nelle cifre della serata non emerge un aspetto da correggere in modo netto.',
+              'I numeri della serata non indicano criticità evidenti.',
+              'Nessun rilievo particolare nei dati di questa serata.',
+              'Serata senza aspetti critici nei numeri: il compito è ripeterla.',
+              'Il quadro dei numeri è ordinato, senza rilievi da segnalare.',
+              'Le cifre non segnalano nulla di particolare da correggere.',
             ])),
             (proof = `Media EA ${formatRating(player.rating)}, ${player.games} presenze, ${player.goals} gol e ${player.assists} assist.`),
             (verdict =
-              'Assolto sulle cifre di questa serata. La continuità si dimostra nelle prossime presenze.'));
+              'Serata senza rilievi sulle cifre. La continuità si dimostra nelle prossime presenze.'));
   return {
     title: player.saves
       ? 'Il custode del risultato.'
@@ -160,7 +167,8 @@ export function buildTrial(
             : player.tackles
               ? 'Il lavoro nei duelli.'
               : 'La manovra passa anche qui.',
-    praise: comments.positive,
+    // elogio solo oltre l'8 di media EA
+    praise: player.rating > 8 ? comments.positive : '',
     charge,
     proof,
     verdict,
@@ -184,7 +192,7 @@ export function buildTrials(players, salt) {
     usedCharges.has(trial.charge) &&
       (trial = {
         ...trial,
-        charge: `Il fascicolo di ${player.name}: ${trial.proof} La prossima partita può migliorare la risposta; per ora la statua resta in magazzino.`,
+        charge: `Il fascicolo di ${player.name}: ${trial.proof} La prossima partita è l’occasione per confermare o migliorare il quadro.`,
       });
     usedCharges.add(trial.charge);
     return {

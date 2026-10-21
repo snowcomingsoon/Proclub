@@ -17,10 +17,11 @@ test('nessun elogio sotto 8 di media', () => {
 test('elogio con media sopra 8', () => {
   for (const m of all) if (m.rating > 8 && m.games >= 3) assert.ok(commentFor(m).praise, m.name);
 });
-test('media sotto 6.5 bocciata', () => {
+test('media sotto 6.5: critica chiara ma garbata, nessun elogio', () => {
   const c = commentFor({name: 'x', games: 6, rating: 6.1, passPct: 67, passFailedPerGame: 9, position: 'midfielder', sample: 0});
-  assert.strictEqual(c.tier, 'bocciato');
-  assert.match(c.charge, /insufficiente|Passaggi|passaggi/);
+  assert.strictEqual(c.tier, 'bocciato'); // etichetta interna del livello, mai mostrata
+  assert.match(c.charge, /sotto il livello atteso|sotto le attese/);
+  assert.match(c.verdict, /sotto le attese/);
   assert.strictEqual(c.praise, null);
 });
 
@@ -28,6 +29,7 @@ test('media sotto 6.5 bocciata', () => {
 const base = {name: 'x', games: 30, rating: 7.2, position: 'midfielder', sample: 0, passAttPerGame: 30, passFailedPerGame: 7.5, cleanSheets: 0, goals: 3, assists: 3, gaPerGame: 0.2};
 const withPass = (role, passPct, extra = {}) => commentFor({...base, role, passPct, ...extra});
 const hasPassNeg = c => c.negatives.some(n => n.area === 'pass' && n.sev >= 7);
+const hasSoftPass = c => c.negatives.some(n => n.area === 'pass' && n.soft && n.sev <= 4);
 
 test('mappatura ruoli: proPos 14 = CC, 25 = ST, avatar punta a centrocampo = offensivo', () => {
   assert.strictEqual(roleFor('midfielder', 14), 'CC');
@@ -39,10 +41,15 @@ test('mappatura ruoli: proPos 14 = CC, 25 = ST, avatar punta a centrocampo = off
   assert.strictEqual(roleFor('goalkeeper', 0), 'POR');
   assert.strictEqual(roleFor(null, 25), 'ATT');
 });
-test('passaggi al 74%: negativi per difensore e mediano/CC, non per attaccante o centrocampista offensivo', () => {
-  assert.ok(hasPassNeg(withPass('DIF', 74)));
-  assert.ok(hasPassNeg(withPass('CC', 74)));
-  assert.ok(hasPassNeg(withPass('MED', 74)));
+test('passaggi al 74%: nota lieve (non accusa dura) per difensore e mediano/CC, niente per attaccante o centrocampista offensivo', () => {
+  for (const role of ['DIF', 'CC', 'MED']) {
+    const c = withPass(role, 74);
+    assert.ok(hasSoftPass(c), role); // resta un rilievo, ma lieve
+    assert.ok(!hasPassNeg(c), role);
+  }
+  // sotto la zona di tolleranza il rilievo diventa netto
+  for (const role of ['DIF', 'CC', 'MED']) assert.ok(hasPassNeg(withPass(role, 70)), role);
+  assert.ok(!hasSoftPass(withPass('DIF', 80)));
   assert.ok(!hasPassNeg(withPass('ATT', 74)));
   assert.ok(!hasPassNeg(withPass('TRQ', 74)));
   assert.ok(!hasPassNeg(withPass('MEZ_OFF', 74)));

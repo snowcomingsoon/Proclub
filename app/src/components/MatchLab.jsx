@@ -162,8 +162,8 @@ export function MatchLab({ data, matches }) {
           <span className="overline">EXTRA TIME / LO SPOGLIATOIO</span>
           <h2>La partita dopo la partita.</h2>
           <p className="sub">
-            Chi ha reso, chi ha pesato in negativo, dove si è perso il pallone.
-            Numeri EA, senza sconti.
+            Chi ha reso, dove c’è margine per migliorare, come si è giocato il pallone.
+            Numeri EA, letti con onestà.
           </p>
         </div>
         <span className="lab-live">

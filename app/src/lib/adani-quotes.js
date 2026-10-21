@@ -16,7 +16,7 @@ const ADANI_QUOTES = [
     url: 'https://www.goal.com/it/liste/adani-canzone-testo-significato-citazioni/blt60072252ea0bbab2',
     source: 'GOAL',
     context: 'Il tormentone diventato anche un brano nel 2024.',
-    categories: ['quality', 'welcome'],
+    categories: ['quality', 'welcome', 'roast'],
   },
   {
     id: 'garra',
@@ -93,8 +93,8 @@ const ADANI_QUOTES = [
     text: 'Allena di più e parla di meno',
     url: 'https://www.tuttosport.com/news/calcio/2020/02/01-66274654/adani_ancora_contro_allegri_e_bravo_quando_allena_ma_non_quando_parla_',
     source: 'Tuttosport',
-    context: 'La frecciata ad Allegri, riportata il 1º febbraio 2020.',
-    categories: ['roast', 'welcome'],
+    context: 'La frecciata ad Allegri, riportata il 1º febbraio 2020. Una battuta d’archivio, non un giudizio sul Pro.',
+    categories: ['welcome'],
   },
   {
     id: 'zitto',
@@ -103,7 +103,7 @@ const ADANI_QUOTES = [
     source: 'Gazzetta',
     context:
       'Il confronto televisivo con Allegri: una battuta d’archivio, non un giudizio sul Pro.',
-    categories: ['roast', 'duel'],
+    categories: ['duel'],
   },
   {
     id: 'pranzo',
@@ -112,7 +112,7 @@ const ADANI_QUOTES = [
     source: 'UnShow',
     context:
       'Israele–Italia, settembre 2025: il finale pieno di gol e disattenzioni difensive.',
-    categories: ['roast'],
+    categories: ['goal'],
   },
   {
     id: 'analizza',
@@ -129,7 +129,7 @@ const ADANI_QUOTES = [
     url: UNSHOW_URL,
     source: 'UnShow',
     context: 'Uno dei tormentoni della Bobo TV.',
-    categories: ['quality', 'welcome'],
+    categories: ['quality', 'welcome', 'roast'],
   },
   {
     id: 'complesso',
@@ -145,7 +145,7 @@ const ADANI_QUOTES = [
     url: 'https://it.wikiquote.org/wiki/Daniele_Adani',
     source: 'Wikiquote',
     context: 'Brasile–Corea del Sud, 5 dicembre 2022.',
-    categories: ['duel', 'welcome'],
+    categories: ['welcome'],
   },
   {
     id: 'sinistro',
@@ -246,8 +246,9 @@ export function toQuotePlayer(member) {
 }
 
 /**
- * Commento della redazione sotto la citazione: critico, basato sui dati del Pro
+ * Commento della redazione sotto la citazione: critico ma misurato, basato sui dati del Pro
  * (gol, assist, voto, passaggi), senza spiegare criteri e senza elogi dove i numeri non li reggono.
+ * Giudica la prestazione, non la persona, e indica sempre una direzione di lavoro.
  */
 export function adaniNote(player) {
   if (!player.games)
@@ -262,9 +263,9 @@ export function adaniNote(player) {
   switch (classifyProfile(player)) {
     case 'roast':
       return `${line} ${pick([
-        `Con questi numeri la battuta di Adani pesa meno del rendimento${pass ? `: ${pass}` : ''}.`,
-        `La citazione strappa un sorriso, il rendimento no${pass ? ` (${pass})` : ''}.`,
-        `Il tono è quello giusto per una prestazione che non regge${pass ? `: ${pass}` : ''}.`,
+        `I numeri chiedono un passo avanti${pass ? `: ${pass}` : ''}, a partire dalla precisione con il pallone.`,
+        `Il rendimento è sotto le attese${pass ? ` (${pass})` : ''}: la strada è ritrovare continuità gara dopo gara.`,
+        `C’è margine di crescita${pass ? `: ${pass}` : ''}; il lavoro riparte dai fondamentali.`,
       ])}`;
     case 'assist':
       return `${line} ${pick(
@@ -274,9 +275,9 @@ export function adaniNote(player) {
               'La rifinitura regge il confronto, ma una citazione di Adani non copre i cali.',
             ]
           : [
-              'Serve i compagni, ma il resto del rendimento resta ordinario.',
-              'La regia c’è a tratti: il voto medio dice che non basta a fare la differenza.',
-              'Gli assist sono il suo contributo, non ancora un peso reale sulle partite.',
+              'Serve i compagni; il resto del rendimento è nella norma e può crescere.',
+              'La regia c’è a tratti: il voto medio dice che c’è spazio per pesare di più.',
+              'Gli assist sono il suo contributo, da far crescere ancora sulle partite.',
             ],
       )}`;
     case 'goal':
@@ -287,9 +288,9 @@ export function adaniNote(player) {
               'Il gol è il suo mestiere e il rendimento regge, ma la citazione è più alta dei suoi difetti.',
             ]
           : [
-              'La porta la trova, fuori dall’area si vede poco.',
-              'Il gol non basta: il voto medio racconta una partita fatta a metà.',
-              'Segna, ma la media dice che il resto del lavoro non tiene il passo.',
+              'La porta la trova; fuori dall’area può farsi vedere di più.',
+              'Il gol è un buon punto di partenza: il voto medio dice che il resto del lavoro può crescere.',
+              'Segna, e la media indica margine nel resto del lavoro.',
             ],
       )}`;
     case 'duel':
@@ -299,8 +300,8 @@ export function adaniNote(player) {
           'Un ruolo di tenuta si giudica da come regge la linea, non dal tabellino.',
         ])}`;
       return `${line} ${pick([
-        'Più lavoro che incisività: il sacrificio non si traduce ancora in numeri.',
-        'Corre e contrasta, ma il tabellino resta quasi vuoto.',
+        'Più lavoro che incisività: il sacrificio è visibile, il contributo in zona gol può crescere.',
+        'Corre e contrasta, il tabellino non lo premia ancora: la strada è la continuità.',
       ])}`;
     default:
       return `${line} ${pick(
@@ -310,9 +311,9 @@ export function adaniNote(player) {
               'Numeri solidi, ma una citazione non sostituisce la continuità.',
             ]
           : [
-              'Rendimento senza picchi: la citazione è più alta dei numeri.',
-              'Nulla di brillante nei dati: per ora un contributo ordinario.',
-              'Il voto medio racconta un giocatore normale, non un protagonista.',
+              'Rendimento senza picchi: c’è spazio per far salire i numeri.',
+              'Dati nella norma: il contributo è utile e può diventare più incisivo.',
+              'Il voto medio racconta un contributo regolare, con margine per pesare di più.',
             ],
       )}`;
   }

@@ -61,13 +61,10 @@ export function usableInsights(insights, capturedAt, engineId, playerCount) {
   const captured = time(capturedAt);
   if (Number.isNaN(built) || Number.isNaN(captured)) return null;
   if (built < captured - INSIGHTS_SKEW_MS) return null;
+  // I testi di squadra usano le metriche dei Pro (`club.players`): senza, gli insight non sono utilizzabili.
+  if (!Array.isArray(insights.club.players)) return null;
   // Calcolati su un elenco di Pro diverso da quello del sito (es. con profili a zero presenze): testo diverso.
-  if (
-    playerCount != null &&
-    Array.isArray(insights.club.players) &&
-    insights.club.players.length !== playerCount
-  )
-    return null;
+  if (playerCount != null && insights.club.players.length !== playerCount) return null;
   return { coach: insights.coach, club: insights.club };
 }
 

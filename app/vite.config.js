@@ -55,6 +55,8 @@ export default defineConfig({
   // Versione del motore `shared/` incorporata: gli insight precalcolati valgono solo se coincide.
   define: { __ENGINE_ID__: JSON.stringify(computeEngineId()) },
   build: {
+    // mappe dei sorgenti: servono a leggere gli errori in produzione
+    sourcemap: true,
     // la scena 3D (three.js, ~640 kB) è l'unico chunk grande ed è caricata in lazy
     chunkSizeWarningLimit: 700,
     rolldownOptions: {

@@ -8,6 +8,7 @@ import {
   withPlayingMembers,
 } from './adapter.js';
 import { fallbackData } from './data.js';
+import { getDataMode } from './dataMode.js';
 import { ENGINE_ID } from './engine.js';
 
 const REFRESH_INTERVAL_MS = 60_000;
@@ -75,6 +76,7 @@ export function useClubData() {
     const mine = ++sequence.current;
     let payload;
     try {
+      if (getDataMode() !== 'new') throw Error('percorso collaudato');
       payload = await loadModular(bust);
     } catch {
       try {

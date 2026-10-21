@@ -182,3 +182,26 @@ test('lostMatchesNote: solo se > 0, singolare/plurale', () => {
   assert.match(lostMatchesNote({ lostClubMatches: 1 }), /^Una partita/);
   assert.match(lostMatchesNote({ lostClubMatches: 3 }), /^3 partite/);
 });
+
+test('percorso dati: collaudato per impostazione predefinita, nuovo solo su richiesta, sicuro dopo un errore', async () => {
+  const { getDataMode, forceLegacy, DEFAULT_MODE } = await import('../app/src/lib/dataMode.js');
+  assert.equal(DEFAULT_MODE, 'legacy');
+  assert.equal(getDataMode(), 'legacy');
+  globalThis.location = { search: '?data=new' };
+  assert.equal(getDataMode(), 'new');
+  const log = console.error;
+  console.error = () => {};
+  forceLegacy('prova');
+  console.error = log;
+  assert.equal(getDataMode(), 'legacy', 'dopo un errore la sessione resta sul percorso collaudato anche con ?data=new');
+  delete globalThis.location;
+});
+test('api/data legge dal monolite remoto con ripiego sul deploy', async () => {
+  process.env.DATA_LOCAL_ONLY = '1';
+  const handler = (await import('node:module')).createRequire(import.meta.url)('../api/data.js');
+  const res = { headers: {}, setHeader(k, v) { this.headers[k] = v; }, end(b) { this.body = b; } };
+  await handler({ method: 'GET', url: '/api/data', headers: {} }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(JSON.parse(res.body).club);
+  delete process.env.DATA_LOCAL_ONLY;
+});

@@ -233,16 +233,9 @@ test('archive e data (compatibilità) funzionano', async () => {
   });
   const archive = await call('archive', '/api/archive');
   assert.equal(archive.body, '[1]');
-  // api/data.js: stesso comportamento di prima (legge data/data.json dalla cwd)
-  const handler = require(path.join(ROOT, 'api', 'data.js'));
-  const res = { setHeader() {}, status(c) { this.c = c; return this; }, send(b) { this.b = b; } };
-  const cwd = process.cwd();
-  process.chdir(process.env.DATA_ROOT);
-  try {
-    handler({}, res);
-  } finally {
-    process.chdir(cwd);
-  }
-  assert.equal(res.c, 200);
-  assert.ok(JSON.parse(res.b).club);
+  // api/data.js: stesso contenuto di prima, ora con lettura remota e ripiego sul deploy
+  fs.writeFileSync(path.join(process.env.DATA_ROOT, 'data', 'data.json'), JSON.stringify({ club: [{ clubId: '70375' }], members: { members: [] } }));
+  const data = await call('data', '/api/data');
+  assert.equal(data.statusCode, 200);
+  assert.ok(JSON.parse(data.body).club);
 });

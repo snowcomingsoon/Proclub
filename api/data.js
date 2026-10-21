@@ -1,9 +1,5 @@
-const fs = require('node:fs');
-const path = require('node:path');
+// Monolite compatibile: stesso contenuto di sempre, ma letto da GitHub (con ripiego sul file del deploy)
+// così resta fresco anche quando i commit di soli dati non ripubblicano il sito.
+const { makeHandler } = require('./_lib/serve.js');
 
-module.exports = (req, res) => {
-  const file = path.join(process.cwd(), 'data', 'data.json');
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
-  res.status(200).send(fs.readFileSync(file, 'utf8'));
-};
+module.exports = makeHandler({ file: () => 'data/data.json', sMaxAge: 60 });

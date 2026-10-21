@@ -8,7 +8,7 @@ function initialize(data,clubId,now){
  const unmapped={};
  const players={};for(const m of data.members?.members||[]){const id=names.get(norm(m.name)),games=count(m.gamesPlayed);if(id&&games!=null)players[id]={id,name:m.name,anchor:games,highWater:games,cutoff,historicalMissing:Math.max(0,games-presence(history,id,clubId)),initialKnown:presence(history,id,clubId)};else if(games!=null)unmapped[norm(m.name)]={name:m.name,anchor:games,highWater:games,cutoff,historicalMissing:games,initialKnown:0};}
  const games=count(data.club?.[0]?.gamesPlayed);
- return {version:1,startedAt:now,players,unmapped,club:{anchor:games,highWater:games,cutoff},issues:[]};
+ return {version:2,startedAt:now,players,unmapped,club:{anchor:games,highWater:games,cutoff},issues:[]};
 }
 /** Anchors never advance on a successful-looking poll: unresolved deficits survive future runs. */
 function reconcile(previous,data,clubId,now){

@@ -1,7 +1,10 @@
+import { useEvolution } from './Evolution.jsx';
 import { formatProOverall } from '../lib/format.js';
 
 /** Figurina da collezione di un Pro (tier e "on fire" dal profilo calcolato). */
 export function CollectorCard({ member, profile, onClick }) {
+  const evolution=useEvolution(member.name);
+  const evolved=evolution?.level>0;
   const stats = [
     [member.goals, 'GOL'],
     [member.assists, 'AST'],
@@ -14,11 +17,12 @@ export function CollectorCard({ member, profile, onClick }) {
   const Tag = onClick ? 'button' : 'div';
   return (
     <Tag
-      className={`collector-card ${profile.tier} ${profile.hot ? 'on-fire' : ''}`}
+      className={`collector-card ${profile.tier} ${evolved ? `evo-${evolution.tier.key}` : ''} ${profile.hot ? 'on-fire' : ''}`}
       onClick={onClick}
       role={onClick ? undefined : 'img'}
-      aria-label={`${member.name}, overall EA ${formatProOverall(member)}, ${profile.label}, ${member.goals} gol e ${member.assists} assist stagionali${profile.hot ? ', in forma eccezionale' : ''}${onClick ? '. Apri la pagella' : ''}`}
+      aria-label={`${member.name}, overall EA ${formatProOverall(member)}, ${profile.label}, ${member.goals} gol e ${member.assists} assist stagionali${profile.hot ? ', in forma eccezionale' : ''}${evolved ? `, evoluzione ${evolution.tier.name}` : ''}${onClick ? '. Apri la pagella' : ''}`}
     >
+      {evolved&&<><span className="collector-evolution" aria-hidden="true"><i>✦</i><i>✧</i></span><span className="collector-evo-label">{evolution.tier.name.toUpperCase()}</span></>}
       <span className="collector-rating">
         {formatProOverall(member)}
         <small>{profile.label}</small>

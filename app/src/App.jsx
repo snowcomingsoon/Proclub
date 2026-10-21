@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { EvolutionProvider } from './components/Evolution.jsx';
 import { DayAfter } from './components/DayAfter.jsx';
 import { SiteHeader } from './components/SiteHeader.jsx';
 import { useRoute } from './lib/route.js';
@@ -80,7 +81,7 @@ function App() {
     [data],
   );
   return (
-    <div className="site">
+    <EvolutionProvider data={data}><div className="site">
       <SiteHeader
         connection={connection}
         view={view}
@@ -131,7 +132,7 @@ function App() {
         lastSync={lastSync}
       />
       </Suspense>
-    </div>
+    </div></EvolutionProvider>
   );
 }
 

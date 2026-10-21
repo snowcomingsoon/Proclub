@@ -36,7 +36,7 @@ function playerSummary(rows) {
   const roles = {};
   for (const p of rows) roles[p.pos || 'unknown'] = (roles[p.pos || 'unknown'] || 0) + 1;
   return {goals: sum('goals'), assists: sum('assists'), rating: ratings.length ? ratings.reduce((a,b)=>a+b,0) / ratings.length : null,
-    rated: ratings.length, roles, passes: sum('passesmade'), passAttempts: sum('passattempts')};
+    rated: ratings.length, roles, contribution: mean(rows.map(roleContribution)), contributionGames: rows.filter(p=>roleContribution(p)!=null).length, tackles: sum('tacklesmade'), tackleAttempts: sum('tackleattempts'), saves: sum('saves'), passes: sum('passesmade'), passAttempts: sum('passattempts')};
 }
 export function constellationPairs(matches, focusId, role = 'all') {
   const eligible = matches.filter(m => m.players.some(p => p.id === focusId && (role === 'all' || p.pos === role)));
@@ -65,14 +65,42 @@ export function pairTitle(pair) {
   return 'STESSA ORBITA';
 }
 
+const clamp = x => Math.max(0, Math.min(1, x));
+const mean = values => { const valid=values.filter(v=>v!=null); return valid.length ? valid.reduce((a,b)=>a+b,0)/valid.length : null; };
+function weighted(components) {
+  const valid=components.filter(([v])=>v!=null);
+  return valid.length ? valid.reduce((sum,[v,w])=>sum+v*w,0)/valid.reduce((sum,[,w])=>sum+w,0) : null;
+}
+/** Role at each appearance determines the contribution; absent fields remain absent. */
+export function roleContribution(p) {
+  const value = key => { const v=finite(p[key]); return v!=null && v>=0 ? v : null; };
+  const ratio = (made,attempts) => { const a=value(made), b=value(attempts); return a!=null && b>0 ? clamp(a/b) : null; };
+  const passes=ratio('passesmade','passattempts'), tackles=ratio('tacklesmade','tackleattempts');
+  const goals=value('goals'), assists=value('assists');
+  const attack=goals!=null && assists!=null ? clamp((goals+.7*assists)/1.5) : null;
+  const clean = key => {const v=value(key);return v==null?null:clamp(v);};
+  switch(p.pos) {
+    case 'forward': return weighted([[attack,.8],[passes,.2]]);
+    case 'midfielder': return weighted([[passes,.5],[assists==null?null:clamp(assists),.3],[tackles,.2]]);
+    case 'defender': return weighted([[tackles,.5],[passes,.25],[clean('cleansheetsdef'),.25]]);
+    case 'goalkeeper': {
+      const saves=value('saves'), conceded=value('goalsconceded');
+      const saveRate=saves!=null&&conceded!=null&&saves+conceded>0?clamp(saves/(saves+conceded)):null;
+      return weighted([[saveRate,.75],[clean('cleansheetsgk'),.25]]);
+    }
+    default: return null;
+  }
+}
 /** Site estimate of shared performance, not direct interactions or causal lift. */
 export function pairChemistry(p) {
-  const clamp = x => Math.max(0, Math.min(1,x));
-  const rated = p.a.rated + p.b.rated;
-  const rating = rated ? ((p.a.rating || 0)*p.a.rated + (p.b.rating || 0)*p.b.rated)/rated : null;
-  const attack = clamp((p.goals + p.assists * .7) / Math.max(1,p.n) / 3);
-  const performance = rating == null ? null : clamp((rating - 5)/4);
-  const results = clamp(p.ppg/3);
-  const raw = performance == null ? (attack*.35 + results*.2)/.55 : performance*.45 + attack*.35 + results*.2;
-  return Math.round(100 * raw * (.5 + .5*Math.min(p.n/20,1)));
+  const rated=p.a.rated+p.b.rated;
+  const rating=rated?((p.a.rating||0)*p.a.rated+(p.b.rating||0)*p.b.rated)/rated:null;
+  const contribution=mean([p.a.contribution,p.b.contribution]);
+  const raw=weighted([[rating==null?null:clamp((rating-5)/4),.5],[contribution,.3],[clamp(p.ppg/3),.2]]) ?? 0;
+  return Math.round(100*raw*(.5+.5*Math.min(p.n/20,1)));
+}
+/** Inclusive historical cutoff: replay never uses a future match. */
+export function replayMatches(matches, matchId) {
+  const index=matches.findIndex(m=>m.id===String(matchId));
+  return index<0?[]:matches.slice(0,index+1);
 }

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "activatedAt": 1792577044,
   "players": {
     "244455967": {
@@ -7,81 +7,954 @@
       "name": "rich87rich",
       "role": "forward",
       "metric": "goals",
-      "target": 2,
-      "vote": 7.2,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 2,
+        "metricPerGame": 0,
+        "rating": 6.1,
+        "accuracy": 0.6206896551724138,
+        "attemptsPerGame": 14.5
+      },
+      "requirements": {
+        "impact": 3,
+        "rating": 7.5,
+        "accuracy": 80,
+        "attempts": 58
+      },
+      "history": [
+        {
+          "pos": "forward",
+          "rating": "6.20",
+          "goals": "0",
+          "passesmade": "8",
+          "passattempts": "13",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "forward",
+          "rating": "6.00",
+          "goals": "0",
+          "passesmade": "10",
+          "passattempts": "16",
+          "saves": "0",
+          "goalsconceded": "5"
+        }
+      ]
     },
     "354389768": {
       "id": "354389768",
       "name": "garrus92",
       "role": "midfielder",
       "metric": "assists",
-      "target": 2,
-      "vote": 8.5,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 26,
+        "metricPerGame": 0.8076923076923077,
+        "rating": 7.803846153846156,
+        "accuracy": 0.7765567765567766,
+        "attemptsPerGame": 27.3
+      },
+      "requirements": {
+        "impact": 5,
+        "rating": 8.2,
+        "accuracy": 83,
+        "attempts": 110
+      },
+      "history": [
+        {
+          "pos": "midfielder",
+          "rating": "8.40",
+          "assists": "1",
+          "passesmade": "14",
+          "passattempts": "21",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "9.50",
+          "assists": "2",
+          "passesmade": "30",
+          "passattempts": "35",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.50",
+          "assists": "0",
+          "passesmade": "23",
+          "passattempts": "30",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.00",
+          "assists": "2",
+          "passesmade": "22",
+          "passattempts": "34",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.10",
+          "assists": "1",
+          "passesmade": "23",
+          "passattempts": "32",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.20",
+          "assists": "1",
+          "passesmade": "31",
+          "passattempts": "37",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.90",
+          "assists": "0",
+          "passesmade": "22",
+          "passattempts": "33",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.00",
+          "assists": "2",
+          "passesmade": "17",
+          "passattempts": "25",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.60",
+          "assists": "3",
+          "passesmade": "24",
+          "passattempts": "30",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.40",
+          "assists": "1",
+          "passesmade": "15",
+          "passattempts": "23",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.50",
+          "assists": "0",
+          "passesmade": "27",
+          "passattempts": "35",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.40",
+          "assists": "0",
+          "passesmade": "24",
+          "passattempts": "30",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.00",
+          "assists": "0",
+          "passesmade": "13",
+          "passattempts": "18",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.20",
+          "assists": "2",
+          "passesmade": "31",
+          "passattempts": "39",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.80",
+          "assists": "1",
+          "passesmade": "13",
+          "passattempts": "21",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "9.30",
+          "assists": "1",
+          "passesmade": "19",
+          "passattempts": "25",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.80",
+          "assists": "1",
+          "passesmade": "17",
+          "passattempts": "23",
+          "saves": "0",
+          "goalsconceded": "6"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.90",
+          "assists": "1",
+          "passesmade": "11",
+          "passattempts": "16",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.60",
+          "assists": "0",
+          "passesmade": "17",
+          "passattempts": "21",
+          "saves": "0",
+          "goalsconceded": "5"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.90",
+          "assists": "1",
+          "passesmade": "27",
+          "passattempts": "35",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.60",
+          "assists": "0",
+          "passesmade": "26",
+          "passattempts": "33",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "3.00",
+          "assists": "0",
+          "passesmade": "0",
+          "passattempts": "0",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.90",
+          "assists": "1",
+          "passesmade": "32",
+          "passattempts": "39",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.80",
+          "assists": "0",
+          "passesmade": "32",
+          "passattempts": "38",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "9.80",
+          "assists": "0",
+          "passesmade": "20",
+          "passattempts": "27",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.80",
+          "assists": "0",
+          "passesmade": "30",
+          "passattempts": "41",
+          "saves": "0",
+          "goalsconceded": "1"
+        }
+      ]
     },
     "371767401": {
       "id": "371767401",
       "name": "rghhgbvggg",
       "role": "midfielder",
       "metric": "assists",
-      "target": 2,
-      "vote": 7.9,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 14,
+        "metricPerGame": 0.3,
+        "rating": 7.928571428571429,
+        "accuracy": 0.772,
+        "attemptsPerGame": 25
+      },
+      "requirements": {
+        "impact": 3,
+        "rating": 8.3,
+        "accuracy": 83,
+        "attempts": 100
+      },
+      "history": [
+        {
+          "pos": "midfielder",
+          "rating": "8.30",
+          "assists": "0",
+          "passesmade": "24",
+          "passattempts": "30",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.50",
+          "assists": "0",
+          "passesmade": "25",
+          "passattempts": "28",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.40",
+          "assists": "0",
+          "passesmade": "21",
+          "passattempts": "26",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.80",
+          "assists": "1",
+          "passesmade": "31",
+          "passattempts": "33",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.50",
+          "assists": "0",
+          "passesmade": "20",
+          "passattempts": "24",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "9.40",
+          "assists": "1",
+          "passesmade": "23",
+          "passattempts": "29",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.30",
+          "assists": "1",
+          "passesmade": "16",
+          "passattempts": "24",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.90",
+          "assists": "0",
+          "passesmade": "20",
+          "passattempts": "29",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.20",
+          "assists": "1",
+          "passesmade": "20",
+          "passattempts": "27",
+          "saves": "0",
+          "goalsconceded": "4"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.70",
+          "assists": "0",
+          "passesmade": "23",
+          "passattempts": "31",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.40",
+          "assists": "0",
+          "passesmade": "21",
+          "passattempts": "25",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.30",
+          "assists": "0",
+          "passesmade": "18",
+          "passattempts": "21",
+          "saves": "0",
+          "goalsconceded": "6"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.30",
+          "assists": "0",
+          "passesmade": "19",
+          "passattempts": "20",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.00",
+          "assists": "0",
+          "passesmade": "13",
+          "passattempts": "20",
+          "saves": "0",
+          "goalsconceded": "5"
+        }
+      ]
     },
     "384997701": {
       "id": "384997701",
       "name": "We_Belen",
       "role": "defender",
       "metric": "tacklesmade",
-      "target": 6,
-      "vote": 7.7,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 4,
+        "metricPerGame": 1.5,
+        "rating": 7.5,
+        "accuracy": 0.8421052631578947,
+        "attemptsPerGame": 14.25
+      },
+      "requirements": {
+        "impact": 10,
+        "rating": 7.8,
+        "accuracy": 90,
+        "attempts": 57
+      },
+      "history": [
+        {
+          "pos": "defender",
+          "rating": "7.70",
+          "tacklesmade": "1",
+          "passesmade": "12",
+          "passattempts": "15",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "defender",
+          "rating": "7.00",
+          "tacklesmade": "2",
+          "passesmade": "8",
+          "passattempts": "9",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "defender",
+          "rating": "7.40",
+          "tacklesmade": "1",
+          "passesmade": "9",
+          "passattempts": "13",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "defender",
+          "rating": "7.90",
+          "tacklesmade": "2",
+          "passesmade": "19",
+          "passattempts": "20",
+          "saves": "0",
+          "goalsconceded": "1"
+        }
+      ]
     },
     "388221570": {
       "id": "388221570",
       "name": "scemo897",
       "role": "midfielder",
       "metric": "assists",
-      "target": 2,
-      "vote": 7.8,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 7,
+        "metricPerGame": 0.2857142857142857,
+        "rating": 7.457142857142856,
+        "accuracy": 0.8306451612903226,
+        "attemptsPerGame": 17.714285714285715
+      },
+      "requirements": {
+        "impact": 3,
+        "rating": 7.8,
+        "accuracy": 89,
+        "attempts": 71
+      },
+      "history": [
+        {
+          "pos": "midfielder",
+          "rating": "6.40",
+          "assists": "0",
+          "passesmade": "14",
+          "passattempts": "16",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.90",
+          "assists": "0",
+          "passesmade": "20",
+          "passattempts": "22",
+          "saves": "0",
+          "goalsconceded": "4"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "8.60",
+          "assists": "2",
+          "passesmade": "12",
+          "passattempts": "16",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.70",
+          "assists": "0",
+          "passesmade": "23",
+          "passattempts": "25",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.10",
+          "assists": "0",
+          "passesmade": "12",
+          "passattempts": "16",
+          "saves": "0",
+          "goalsconceded": "6"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.20",
+          "assists": "0",
+          "passesmade": "11",
+          "passattempts": "16",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.30",
+          "assists": "0",
+          "passesmade": "11",
+          "passattempts": "13",
+          "saves": "0",
+          "goalsconceded": "5"
+        }
+      ]
     },
     "812689150": {
       "id": "812689150",
       "name": "naji_3",
       "role": "midfielder",
       "metric": "assists",
-      "target": 2,
-      "vote": 7.6,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 4,
+        "metricPerGame": 0,
+        "rating": 7.425,
+        "accuracy": 0.8208955223880597,
+        "attemptsPerGame": 16.75
+      },
+      "requirements": {
+        "impact": 3,
+        "rating": 7.8,
+        "accuracy": 88,
+        "attempts": 67
+      },
+      "history": [
+        {
+          "pos": "midfielder",
+          "rating": "7.90",
+          "assists": "0",
+          "passesmade": "11",
+          "passattempts": "14",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.10",
+          "assists": "0",
+          "passesmade": "13",
+          "passattempts": "15",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.70",
+          "assists": "0",
+          "passesmade": "17",
+          "passattempts": "20",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.00",
+          "assists": "0",
+          "passesmade": "14",
+          "passattempts": "18",
+          "saves": "0",
+          "goalsconceded": "0"
+        }
+      ]
     },
     "1779911578": {
       "id": "1779911578",
       "name": "H2K_simoID",
       "role": "forward",
       "metric": "goals",
-      "target": 3,
-      "vote": 7.9,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 8,
+        "metricPerGame": 0.5,
+        "rating": 7.2124999999999995,
+        "accuracy": 0.8208955223880597,
+        "attemptsPerGame": 16.75
+      },
+      "requirements": {
+        "impact": 3,
+        "rating": 7.6,
+        "accuracy": 88,
+        "attempts": 67
+      },
+      "history": [
+        {
+          "pos": "forward",
+          "rating": "6.70",
+          "goals": "0",
+          "passesmade": "12",
+          "passattempts": "14",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "forward",
+          "rating": "6.20",
+          "goals": "0",
+          "passesmade": "7",
+          "passattempts": "9",
+          "saves": "0",
+          "goalsconceded": "5"
+        },
+        {
+          "pos": "forward",
+          "rating": "7.10",
+          "goals": "0",
+          "passesmade": "19",
+          "passattempts": "23",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "forward",
+          "rating": "7.00",
+          "goals": "0",
+          "passesmade": "14",
+          "passattempts": "18",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "forward",
+          "rating": "8.50",
+          "goals": "2",
+          "passesmade": "20",
+          "passattempts": "27",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "forward",
+          "rating": "6.40",
+          "goals": "0",
+          "passesmade": "15",
+          "passattempts": "15",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "forward",
+          "rating": "8.40",
+          "goals": "1",
+          "passesmade": "9",
+          "passattempts": "11",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "forward",
+          "rating": "7.40",
+          "goals": "1",
+          "passesmade": "14",
+          "passattempts": "17",
+          "saves": "0",
+          "goalsconceded": "1"
+        }
+      ]
     },
     "1798048136": {
       "id": "1798048136",
       "name": "Nyveex",
       "role": "forward",
       "metric": "goals",
-      "target": 2,
-      "vote": 7.5,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 3,
+        "metricPerGame": 0.6666666666666666,
+        "rating": 7.3,
+        "accuracy": 0.7719298245614035,
+        "attemptsPerGame": 19
+      },
+      "requirements": {
+        "impact": 4,
+        "rating": 7.6,
+        "accuracy": 83,
+        "attempts": 76
+      },
+      "history": [
+        {
+          "pos": "forward",
+          "rating": "6.40",
+          "goals": "0",
+          "passesmade": "14",
+          "passattempts": "20",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "forward",
+          "rating": "9.00",
+          "goals": "2",
+          "passesmade": "13",
+          "passattempts": "16",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "forward",
+          "rating": "6.50",
+          "goals": "0",
+          "passesmade": "17",
+          "passattempts": "21",
+          "saves": "0",
+          "goalsconceded": "1"
+        }
+      ]
     },
     "1002958051216": {
       "id": "1002958051216",
       "name": "Draigon000",
       "role": "midfielder",
       "metric": "assists",
-      "target": 2,
-      "vote": 7.2,
-      "start": 1792577044
+      "start": 1792577044,
+      "baseline": {
+        "sample": 16,
+        "metricPerGame": 0.2,
+        "rating": 6.3812500000000005,
+        "accuracy": 0.48201438848920863,
+        "attemptsPerGame": 13.9
+      },
+      "requirements": {
+        "impact": 3,
+        "rating": 7.5,
+        "accuracy": 80,
+        "attempts": 56
+      },
+      "history": [
+        {
+          "pos": "midfielder",
+          "rating": "6.50",
+          "assists": "0",
+          "passesmade": "11",
+          "passattempts": "13",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.80",
+          "assists": "1",
+          "passesmade": "11",
+          "passattempts": "17",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.20",
+          "assists": "0",
+          "passesmade": "9",
+          "passattempts": "12",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.10",
+          "assists": "0",
+          "passesmade": "10",
+          "passattempts": "14",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.20",
+          "assists": "0",
+          "passesmade": "7",
+          "passattempts": "12",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.00",
+          "assists": "0",
+          "passesmade": "7",
+          "passattempts": "14",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.60",
+          "assists": "1",
+          "passesmade": "13",
+          "passattempts": "24",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.70",
+          "assists": "0",
+          "passesmade": "14",
+          "passattempts": "20",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "5.80",
+          "assists": "0",
+          "passesmade": "5",
+          "passattempts": "10",
+          "saves": "0",
+          "goalsconceded": "3"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "5.80",
+          "assists": "0",
+          "passesmade": "0",
+          "passattempts": "1",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "5.70",
+          "assists": "0",
+          "passesmade": "4",
+          "passattempts": "13",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "7.40",
+          "assists": "0",
+          "passesmade": "9",
+          "passattempts": "18",
+          "saves": "0",
+          "goalsconceded": "0"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.10",
+          "assists": "1",
+          "passesmade": "4",
+          "passattempts": "14",
+          "saves": "0",
+          "goalsconceded": "1"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.10",
+          "assists": "0",
+          "passesmade": "4",
+          "passattempts": "13",
+          "saves": "0",
+          "goalsconceded": "2"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "6.20",
+          "assists": "0",
+          "passesmade": "8",
+          "passattempts": "15",
+          "saves": "0",
+          "goalsconceded": "4"
+        },
+        {
+          "pos": "midfielder",
+          "rating": "5.90",
+          "assists": "0",
+          "passesmade": "6",
+          "passattempts": "11",
+          "saves": "0",
+          "goalsconceded": "7"
+        }
+      ]
     }
   }
 }

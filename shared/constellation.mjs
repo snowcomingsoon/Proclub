@@ -51,7 +51,7 @@ export function constellationPairs(matches, focusId, role = 'all') {
   return [...pairs.values()].map(p => {
     const wins = p.games.filter(m => m.result === 'V').length, draws = p.games.filter(m => m.result === 'P').length;
     const a = playerSummary(p.a), b = playerSummary(p.b), games = p.games.length;
-    return {...p, a, b, n: games, wins, draws, losses: games - wins - draws, winPct: wins / games * 100,
+    return {...p, focusId, a, b, n: games, wins, draws, losses: games - wins - draws, winPct: wins / games * 100,
       ppg: (wins * 3 + draws) / games, gf: p.games.reduce((s,m)=>s+m.gf,0), ga: p.games.reduce((s,m)=>s+m.ga,0),
       goals: a.goals + b.goals, assists: a.assists + b.assists,
       reliability: games >= 25 ? 'Campione ampio' : games >= 10 ? 'Campione discreto' : 'Campione ridotto'};
@@ -90,14 +90,6 @@ export function roleContribution(p) {
     }
     default: return null;
   }
-}
-/** Site estimate of shared performance, not direct interactions or causal lift. */
-export function pairChemistry(p) {
-  const rated=p.a.rated+p.b.rated;
-  const rating=rated?((p.a.rating||0)*p.a.rated+(p.b.rating||0)*p.b.rated)/rated:null;
-  const contribution=mean([p.a.contribution,p.b.contribution]);
-  const raw=weighted([[rating==null?null:clamp((rating-5)/4),.5],[contribution,.3],[clamp(p.ppg/3),.2]]) ?? 0;
-  return Math.round(100*raw*(.5+.5*Math.min(p.n/20,1)));
 }
 /** Inclusive historical cutoff: replay never uses a future match. */
 export function replayMatches(matches, matchId) {

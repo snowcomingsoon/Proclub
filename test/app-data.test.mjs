@@ -211,3 +211,13 @@ test('api/data legge dal monolite remoto con ripiego sul deploy', async () => {
   assert.ok(JSON.parse(res.body).club);
   delete process.env.DATA_LOCAL_ONLY;
 });
+
+test('insight senza le metriche dei Pro (club.players) non sono utilizzabili e non fanno crollare i testi di squadra', async () => {
+  const ins = { engine: ENGINE, builtAt: summary.capturedAt, coach: {}, club: { record: {}, lines: [] } };
+  assert.equal(usableInsights(ins, summary.capturedAt, ENGINE, 9), null);
+  const withPlayers = { ...ins, club: { ...ins.club, players: new Array(9).fill({ name: 'x' }) } };
+  assert.ok(usableInsights(withPlayers, summary.capturedAt, ENGINE, 9));
+  assert.equal(usableInsights(withPlayers, summary.capturedAt, ENGINE, 8), null);
+  const { signalsEditorial } = await import('../shared/editorial.mjs');
+  assert.doesNotThrow(() => signalsEditorial({}, { scorer: 'a', assister: 'b', passer: 'c' }));
+});

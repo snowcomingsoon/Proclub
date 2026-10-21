@@ -26,8 +26,8 @@ const alp = p => (/^(8|11|18)/.test(String(r0(p))) ? `all'${r0(p)}%` : `al ${r0(
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 /** Mappa nome minuscolo -> metriche, da `buildAll`. */
-export function metricsIndex(all) {
-  return new Map(all.map(m => [String(m.name).toLowerCase(), m]));
+export function metricsIndex(all = []) {
+  return new Map((all || []).map(m => [String(m.name).toLowerCase(), m]));
 }
 const metricOf = (idx, name) => (idx && name ? idx.get(String(name).toLowerCase()) : undefined);
 

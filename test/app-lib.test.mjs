@@ -465,8 +465,8 @@ test('newsroom: buildCover con serata vuota', () => {
 test('newsroom: buildTrialTitle', () => {
   assert.equal(buildTrialTitle(null, null), 'Campione troppo corto per giudicare.');
   assert.equal(buildTrialTitle({ tier: 'xx' }, {}), 'Campione troppo corto per giudicare.');
-  assert.equal(buildTrialTitle({ tier: 'buono' }, { rating: 7.456, proPosLabel: 'ATT' }), 'Stagione 7.46 · ATT: buono, ma non basta.');
-  assert.equal(buildTrialTitle({ tier: 'bocciato' }, undefined), 'Stagione —: bocciato dai numeri.');
+  assert.equal(buildTrialTitle({ tier: 'buono' }, { rating: 7.456, proPosLabel: 'ATT' }), 'Stagione 7.46 · ATT: buono, con spazio per crescere.');
+  assert.equal(buildTrialTitle({ tier: 'bocciato' }, undefined), 'Stagione —: stagione sotto le attese.');
 });
 
 const statsFor = (name, o = {}) => ({

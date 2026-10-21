@@ -169,7 +169,7 @@ export function DuelPanel({
           />
           <div className="lab-story">
             <span>COME LEGGERE IL CONFRONTO</span>
-            <h3>Il confronto non assolve nessuno.</h3>
+            <h3>Come leggere i numeri insieme.</h3>
             <p>
               Il voto racconta il giudizio EA; gol e assist raccontano
               produzione; passaggi e contrasti raccontano altre parti del

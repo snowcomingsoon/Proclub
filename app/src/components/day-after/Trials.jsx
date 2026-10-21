@@ -109,14 +109,14 @@ export function Trials({ nightQuotes, nightStats, trials }) {
         <div>
           <span>02 / IL PROCESSO DEL PALLONE</span>
           <h3>
-            Tutti alla sbarra.
+            Tutti sotto esame.
             <br />
-            <em>Verdetti con i numeri in mano.</em>
+            <em>Valutazioni con i numeri in mano.</em>
           </h3>
         </div>
         <p>
-          Accusa, prove e verdetto per tutti quelli scesi in campo. Le cifre
-          sono di EA.
+          Aspetti da migliorare, prove e verdetto per tutti quelli scesi in campo,
+          con una nota di lavoro per le prossime gare. Le cifre sono di EA.
         </p>
       </div>
       <div className="paper-trial-grid">

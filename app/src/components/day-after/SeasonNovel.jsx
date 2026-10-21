@@ -18,7 +18,7 @@ function RoleTrendChart({ roleTrend }) {
             : roleTrend.delta >= 0.3
               ? 'Voti in risalita: da confermare nelle prossime gare.'
               : roleTrend.delta <= -0.3
-                ? 'Voti in calo: il rendimento recente scende.'
+                ? 'Voti in lieve calo: il rendimento recente può risalire.'
                 : 'Voti stabili: nessun salto, in un senso o nell’altro.'}
         </strong>
       </div>
@@ -57,7 +57,7 @@ function RoleTrendChart({ roleTrend }) {
       <p>
         {roleTrend.delta === null
           ? `${roleTrend.points.length} presenze con voto archiviate nell’ultimo reparto giocato (${roleTrend.role}). Il confronto tra due blocchi parte da quattro presenze con voto nello stesso reparto.`
-          : `Le ultime ${roleTrend.recentCount} presenze archiviate da ${roleTrend.role} valgono ${formatRating(roleTrend.recent)}, contro ${formatRating(roleTrend.previous)} nelle ${roleTrend.previousCount} precedenti: ${roleTrend.delta >= 0 ? '+' : ''}${roleTrend.delta.toFixed(2)} punti EA. ${roleTrend.recent < 7 ? 'Livello ancora basso. ' : ''}Il confronto usa lo stesso reparto.`}
+          : `Le ultime ${roleTrend.recentCount} presenze archiviate da ${roleTrend.role} valgono ${formatRating(roleTrend.recent)}, contro ${formatRating(roleTrend.previous)} nelle ${roleTrend.previousCount} precedenti: ${roleTrend.delta >= 0 ? '+' : ''}${roleTrend.delta.toFixed(2)} punti EA. ${roleTrend.recent < 7 ? 'Margine di crescita ancora ampio. ' : ''}Il confronto usa lo stesso reparto.`}
       </p>
       {roleTrend.points.length > 1 && (
         <small>
@@ -159,7 +159,7 @@ export function SeasonNovel({
       <div className="paper-section-heading">
         <div>
           <span>03 / IL ROMANZO DEI PRO</span>
-          <h3>La stagione, senza sconti.</h3>
+          <h3>La stagione, letta con onestà.</h3>
         </div>
         <label>
           Scegli il protagonista

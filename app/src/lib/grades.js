@@ -54,55 +54,56 @@ export function buildGradeComments(stats, variant = 0) {
     );
   praise.length ||
     praise.push(
-      `${stats.games} presenze, ${stats.passes} passaggi riusciti e ${stats.tackles} contrasti. Il lavoro registrato è soprattutto nella partecipazione alla manovra e nei duelli; manca un contributo diretto al gol.`,
+      `${stats.games} presenze, ${stats.passes} passaggi riusciti e ${stats.tackles} contrasti. Il lavoro registrato è soprattutto nella partecipazione alla manovra e nei duelli; il contributo diretto al gol è ancora da costruire.`,
     );
   const missedPasses = Math.max(0, stats.passAttempts - stats.passes);
   const missedTackles = Math.max(0, stats.tackleAttempts - stats.tackles);
   stats.reds &&
     criticism.push(
-      `${stats.reds} espulsioni: la disciplina rovina la prestazione. Il protagonismo va cercato col pallone, non con un appuntamento anticipato negli spogliatoi.`,
+      `${stats.reds} espulsioni: la disciplina è l’aspetto su cui lavorare. Il contributo va cercato col pallone, evitando gli interventi in ritardo.`,
     );
-  stats.shots >= 3 &&
+  stats.shots >= 5 &&
     stats.goals / stats.shots < 0.3 &&
     criticism.push(
       pick([
-        `${stats.goals} gol su ${stats.shots} tiri: manca efficacia in finalizzazione. L’attacco non vive di intenzioni: qui il portiere avversario ringrazia.`,
-        `La conversione è ${Math.round((stats.goals / stats.shots) * 100)}%: ${stats.shots - stats.goals} tiri senza rete. Tanto lavoro al tiro, poca ferocia sul tabellino.`,
-        `${stats.shots} conclusioni per ${stats.goals} gol: la produzione al tiro deve diventare più concreta. Le reti non si assegnano per partecipazione.`,
-        `Sotto porta lascia margine: ${stats.goals}/${stats.shots}. Il volume c’è, ma il colpo decisivo non arriva abbastanza spesso. Il pallone va in rete, non in terapia.`,
+        `${stats.goals} gol su ${stats.shots} tiri: la finalizzazione può crescere. Il lavoro al tiro c’è, ora si tratta di trasformarlo in reti.`,
+        `La conversione è ${Math.round((stats.goals / stats.shots) * 100)}%: ${stats.shots - stats.goals} tiri senza rete. Il volume è buono, la scelta della conclusione può migliorare.`,
+        `${stats.shots} conclusioni per ${stats.goals} gol: la produzione al tiro può diventare più concreta con un po’ più di lucidità.`,
+        `Sotto porta c’è margine: ${stats.goals}/${stats.shots}. Il volume c’è, manca ancora qualche rete in più per tentativo.`,
       ]),
     );
   missedPasses &&
+    stats.passAttempts >= 10 &&
     stats.passPct !== null &&
-    stats.passPct < 85 &&
+    stats.passPct < 72 &&
     criticism.push(
       pick([
-        `La trasmissione va ripulita: ${missedPasses} passaggi non riusciti, precisione ${stats.passPct}%. Una squadra non può costruire soltanto sulle buone intenzioni: meno fretta, più qualità.`,
-        `${stats.passPct}% nei passaggi: ${missedPasses} errori su ${stats.passAttempts} tentativi. Il fraseggio chiede un’esecuzione migliore; il compagno non può ricevere una promessa.`,
-        `Con ${missedPasses} passaggi non riusciti, la pulizia tecnica è il punto da correggere. Qui il pallone scotta troppo: trattalo da alleato, non da patata bollente.`,
-        `Distribuzione al ${stats.passPct}%: resta troppo margine nei passaggi. L’idea di gioco ha bisogno di piedi che la accompagnino, non che la sabotino.`,
-        `${missedPasses}/${stats.passAttempts} passaggi non arrivano: serve precisione nell’esecuzione. Il possesso non è un regalo da distribuire all’avversario.`,
-        `Il ${stats.passPct}% nei passaggi frena la qualità del fraseggio. ${missedPasses} tentativi non riusciti: prima di cercare il capolavoro, facciamo arrivare il pallone.`,
+        `La trasmissione può diventare più pulita: ${missedPasses} passaggi non riusciti, precisione ${stats.passPct}%. Qualche appoggio più semplice aiuta il possesso.`,
+        `${stats.passPct}% nei passaggi: ${missedPasses} errori su ${stats.passAttempts} tentativi. Il fraseggio ha margine di miglioramento nell’esecuzione.`,
+        `Con ${missedPasses} passaggi non riusciti, la pulizia tecnica è il punto da curare: scelte più sicure, un tocco in meno.`,
+        `Distribuzione al ${stats.passPct}%: c’è margine nei passaggi. L’idea di gioco c’è, l’esecuzione può accompagnarla meglio.`,
+        `${missedPasses}/${stats.passAttempts} passaggi non arrivano: l’obiettivo è la precisione nell’esecuzione.`,
+        `Il ${stats.passPct}% nei passaggi lascia spazio per migliorare il fraseggio: ${missedPasses} tentativi non riusciti da trasformare in possesso.`,
       ]),
     );
-  missedTackles >= 3 &&
-    stats.tackleAttempts &&
+  missedTackles >= 4 &&
+    stats.tackleAttempts >= 8 &&
     stats.tackles / stats.tackleAttempts < 0.5 &&
     criticism.push(
       pick([
-        `Nei contrasti riesce in ${stats.tackles} tentativi su ${stats.tackleAttempts}: va alzata l’efficacia del duello. L’aggressività senza recupero fa rumore, non difesa.`,
-        `${missedTackles} contrasti non riusciti: il dato chiede più efficacia nell’intervento. Entrare nel duello è facile; uscirne col pallone sarebbe la parte interessante.`,
-        `Il bilancio dei duelli è ${stats.tackles}/${stats.tackleAttempts}. C’è da migliorare la riuscita del contrasto: la garra da sola non porta il pallone a casa.`,
-        `Troppi tentativi di contrasto senza recupero (${missedTackles}). La voglia di intervenire non basta: bisogna far pesare l’intervento.`,
+        `Nei contrasti riesce in ${stats.tackles} tentativi su ${stats.tackleAttempts}: l’efficacia del duello può crescere con più posizione.`,
+        `${missedTackles} contrasti non riusciti: il dato indica margine nell’intervento, con tempi da affinare.`,
+        `Il bilancio dei duelli è ${stats.tackles}/${stats.tackleAttempts}: c’è da migliorare la riuscita del contrasto.`,
+        `Molti tentativi di contrasto senza recupero (${missedTackles}): l’impegno c’è, può diventare più efficace.`,
       ]),
     );
   criticism.length ||
     criticism.push(
       pick([
-        'Non emerge un difetto netto nelle cifre della serata. Ora deve confermare questa pulizia: una bella pagella non è un abbonamento al posto da titolare.',
-        'I numeri non isolano una criticità evidente. Il prossimo esame è ripetere la prova: lo spogliatoio applaude, ma non firma assegni in bianco.',
-        'Nessuna sbavatura significativa da inchiodare al tabellino. Stavolta niente processo: la continuità, però, si dimostra nella prossima partita.',
-        'La prova non offre un bersaglio statistico concreto. Si prende il merito, senza cominciare già a progettare la propria statua.',
+        'Non emerge un aspetto da correggere in modo netto nelle cifre della serata. Ora l’obiettivo è confermarsi.',
+        'I numeri non isolano criticità evidenti. Il prossimo passo è ripetere la prova.',
+        'Nessuna sbavatura significativa nelle cifre. La continuità si dimostra nella prossima partita.',
+        'La prova non offre rilievi statistici concreti: si guarda alla prossima gara.',
       ]),
     );
   return {

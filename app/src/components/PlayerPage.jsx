@@ -302,7 +302,8 @@ export function PlayerPage({ data, name }) {
   const rated = appearances.filter((game) => game.rating > 0);
   const keyNumbers = games ? buildKeyNumbers(metrics, member, analysis.all) : [];
   const strengths = metrics.rating > 8 ? uniqueByArea(comment.positives, 3) : [];
-  let weaknesses = uniqueByArea(comment.negatives, 4).map((item) => item.text);
+  // al massimo due aspetti da migliorare (quelli citati dal commento); gli altri restano nei dati
+  let weaknesses = (comment.chargeItems || []).map((item) => item.text);
   if (!weaknesses.length && enough && comment.charge) weaknesses = [comment.charge];
   const pairs = analysis.club.pairs
     .filter((pair) => pair.delta != null && (pair.a === metrics.name || pair.b === metrics.name))
@@ -464,7 +465,7 @@ export function PlayerPage({ data, name }) {
             <div>
               <span className="overline">LA LETTURA</span>
               <h2 id="pl-reading">
-                {strengths.length ? 'Cosa funziona, cosa no.' : 'Dove si perde terreno.'}
+                {strengths.length ? 'Cosa funziona, dove crescere.' : 'Dove migliorare.'}
               </h2>
               {metrics.mixed && metrics.roleScope && (
                 <p className="sub">
@@ -486,7 +487,7 @@ export function PlayerPage({ data, name }) {
             )}
             {weaknesses.length > 0 && (
               <div className="panel pg-panel pg-bad">
-                <h3>Punti deboli</h3>
+                <h3>Da migliorare</h3>
                 <ul>
                   {weaknesses.map((text) => (
                     <li key={text}>{text}</li>

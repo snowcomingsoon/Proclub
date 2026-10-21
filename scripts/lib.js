@@ -9,10 +9,21 @@ function validate({club, members, matches}, clubId) {
 }
 
 function mergeHistory(history, matches) {
-  const seen = new Set(history.map(m => String(m.matchId)));
-  const fresh = matches.filter(m => !seen.has(String(m.matchId)));
-  const merged = [...fresh, ...history].sort((a, b) => b.timestamp - a.timestamp);
-  return {history: merged, fresh};
+  const merge = (old, incoming) => {
+    const result = {...old};
+    for (const [key,value] of Object.entries(incoming || {})) {
+      if (value == null || value === '') continue;
+      result[key] = value && typeof value === 'object' && !Array.isArray(value)
+        ? merge(old?.[key] || {},value) : value;
+    }
+    return result;
+  };
+  const byId=new Map();
+  for(const m of history || [])if(m?.matchId)byId.set(String(m.matchId),merge(byId.get(String(m.matchId))||{},m));
+  const oldIds=new Set(byId.keys());
+  for(const m of matches || [])if(m?.matchId)byId.set(String(m.matchId),merge(byId.get(String(m.matchId))||{},m));
+  const merged=[...byId.values()].sort((a,b)=>b.timestamp-a.timestamp);
+  return {history:merged,fresh:merged.filter(m=>!oldIds.has(String(m.matchId)))};
 }
 
 function seasonKey(ts) {

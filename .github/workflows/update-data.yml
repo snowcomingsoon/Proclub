@@ -1,31 +1,51 @@
 name: Aggiorna dati EA
 on:
   push:
+    branches: [main]
     paths:
       - '.github/workflows/update-data.yml'
-      - 'scripts/update-data.js'
+      - 'scripts/**'
   schedule:
-    - cron: '17 * * * *'
-    - cron: '*/20 17-23,0-1 * * *'
+    - cron: '7,17,27,37,47,57 * * * *'
   workflow_dispatch:
 permissions:
   contents: write
 concurrency:
   group: update-data
+  cancel-in-progress: false
 jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - run: node scripts/update-data.js
+      - name: Conserva una copia anche se il push fallisce
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ea-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
+          path: data/
+          retention-days: 30
       - name: Commit se cambiato
         if: ${{ always() }}
         run: |
           git config user.name "billocchi-bot"
           git config user.email "billocchi-bot@users.noreply.github.com"
           git add data
-          git diff --cached --quiet || (git commit -m "chore: aggiorna dati EA" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: aggiorna dati EA"
+            for attempt in 1 2 3; do
+              git pull --rebase origin main && git push origin HEAD:main && exit 0
+              git rebase --abort 2>/dev/null || true
+              sleep 5
+            done
+            echo "Push fallito: snapshot conservato negli artifact del workflow."
+            exit 1
+          fi

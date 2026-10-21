@@ -3,6 +3,7 @@ import {
   formatRating,
   formatScore,
 } from '../../lib/format.js';
+import { detectGaps } from '../../../../shared/gaps.mjs';
 import {
   getOpponentName,
   getResultLetter,
@@ -41,6 +42,8 @@ function NightGameScore({ game, index }) {
 }
 
 export function NightResults({ nightStats, selectedNight }) {
+  const gaps = detectGaps(selectedNight.games.map((game) => game.timestamp));
+  const time = (timestamp) => formatMatchTime({ timestamp });
   return (
     <div className="paper-results">
       <div className="paper-record">
@@ -66,6 +69,11 @@ export function NightResults({ nightStats, selectedNight }) {
           <NightGameScore key={game.matchId} game={game} index={index} />
         ))}
       </div>
+      {gaps.map((gap) => (
+        <p key={gap.from} className="paper-gap-note" role="note">
+          {`Tra le ${time(gap.from)} e le ${time(gap.to)} c’è un buco di ${gap.minutes} minuti: probabilmente ${gap.estimatedMissing === 1 ? 'una partita' : `${gap.estimatedMissing} partite`} giocata ma non restituita da EA. Non compare nei numeri della serata.`}
+        </p>
+      ))}
     </div>
   );
 }

@@ -43,7 +43,12 @@ function atomic(file,data){const temp=file+'.tmp';fs.writeFileSync(temp,JSON.str
    if(key==='members'){const floor=new Map((old.members?.members||[]).map(m=>[norm(m.name),Number(m.gamesPlayed)||0]));for(const [id,p]of Object.entries(original?.players||{}))floor.set(norm(p.name),Math.max(floor.get(norm(p.name))||0,p.highWater));if(result.value.members.some(m=>Number(m.gamesPlayed)<(floor.get(norm(m.name))||0))){stale.members='contatori dei giocatori arretrati';return;}}
    delete stale[key];fetched.set(key,true);
    if(key==='club'||key==='members')next[key]=result.value;
-   else collected.push(...result.value.map(m=>({...m,sourceMatchType:key})));
+   else{
+    // EA lists only its last 10 matches per mode: a full list sharing nothing with the archive means matches may have fallen out of the window.
+    const known=new Set((old.matchHistory||[]).map(m=>String(m.matchId)));
+    if(result.value.length>=10&&known.size&&!result.value.some(m=>known.has(String(m.matchId))))failures[key+'Overflow']='lista EA piena senza partite già note: possibili partite perse';else delete failures[key+'Overflow'];
+    collected.push(...result.value.map(m=>({...m,sourceMatchType:key})));
+   }
   });
   const merged=mergeHistory(next.matchHistory||[],collected);next.matchHistory=merged.history;
   // Preserve recent results from a temporarily unavailable competition too.
@@ -61,5 +66,5 @@ function atomic(file,data){const temp=file+'.tmp';fs.writeFileSync(temp,JSON.str
  }
  if(Object.keys(stale).length)console.warn('Letture EA arretrate ignorate:',JSON.stringify(stale));
  console.log(JSON.stringify({attempts,failures,stale,issues:summary.issues,newMatches:next.matchHistory.length-(old.matchHistory||[]).length}));
- if(Object.keys(failures).length||summary.issues.length)process.exitCode=1;
+ if(Object.keys(failures).length||summary.issues.some(i=>!i.pending))process.exitCode=1;
 })().catch(e=>{console.error(e.message);process.exitCode=1;});

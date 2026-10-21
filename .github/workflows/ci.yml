@@ -38,3 +38,18 @@ jobs:
         run: |
           npm ci
           npm run build
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Install (app/)
+        working-directory: app
+        run: npm ci
+      - name: Lint (app/)
+        working-directory: app
+        run: npm run lint

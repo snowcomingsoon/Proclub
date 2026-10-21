@@ -565,3 +565,16 @@ test('withPlayingMembers toglie i profili senza presenze', async () => {
   const out = withPlayingMembers({members: {members: [{name: 'a', gamesPlayed: '3'}, {name: 'b', gamesPlayed: '0'}]}});
   assert.deepStrictEqual(out.members.members.map(m => m.name), ['a']);
 });
+
+test('detectGaps trova il buco di una partita non restituita e nessun falso allarme', async () => {
+  const {detectGaps} = await import('../shared/gaps.mjs');
+  const base = 1_000_000;
+  const regular = [0, 20, 40, 60, 80, 100].map(m => base + m * 60);
+  assert.deepStrictEqual(detectGaps(regular), []);
+  const missing = [0, 20, 40, 78, 98, 118].map(m => base + m * 60);
+  const gaps = detectGaps(missing);
+  assert.strictEqual(gaps.length, 1);
+  assert.strictEqual(gaps[0].estimatedMissing, 1);
+  assert.deepStrictEqual(detectGaps([base, base + 1200, base + 2400]), []);
+  assert.deepStrictEqual(detectGaps([base, base + 1200, base + 2400, base + 2400 + 5 * 3600]), []);
+});

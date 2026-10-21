@@ -1,0 +1,45 @@
+name: Formato EA (controllo settimanale)
+# Confronta la FORMA delle risposte EA (campi di club, membri, partite) con config/ea-shape.json
+# e apre/aggiorna/chiude l'issue "Formato EA cambiato". Con "update" rigenera lo schema dalle risposte attuali.
+on:
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      update:
+        description: 'Riscrive config/ea-shape.json dalle risposte EA attuali e lo committa'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: ea-shape
+  cancel-in-progress: false
+jobs:
+  shape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Controlla il formato
+        if: ${{ !inputs.update }}
+        run: node scripts/check-ea-shape.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Aggiorna lo schema
+        if: ${{ inputs.update }}
+        run: |
+          node scripts/check-ea-shape.js --update
+          git config user.name "billocchi-bot"
+          git config user.email "billocchi-bot@users.noreply.github.com"
+          git add config/ea-shape.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: aggiorna schema formato EA"
+            git pull --rebase origin main && git push origin HEAD:main
+          fi

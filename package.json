@@ -1,1 +1,1 @@
-{"name":"billocchi-club","private":true,"scripts":{"test":"node --test test/*.test.js test/*.test.mjs","update":"node scripts/update-data.js"},"engines":{"node":">=20"}}
+{"name":"billocchi-club","private":true,"scripts":{"test":"node --test test/*.test.js test/*.test.mjs","update":"node scripts/update-data.js","build:data":"node scripts/build-public.js","lint":"node scripts/lint.js","check:ea-shape":"node scripts/check-ea-shape.js","health:issue":"node scripts/health-issue.js"},"engines":{"node":">=20"}}

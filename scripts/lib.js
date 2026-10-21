@@ -1,5 +1,3 @@
-const fs = require('node:fs');
-const path = require('node:path');
 
 function validate({club, members, matches}, clubId) {
   if (!Array.isArray(club) || String(club[0]?.clubId) !== String(clubId)) throw new Error('Statistiche club non valide');
@@ -31,22 +29,6 @@ function seasonKey(ts) {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
-function archiveMatches(dir, history, clubId) {
-  const index = [];
-  for (const m of history) {
-    const c = m.clubs?.[clubId];
-    const opp = Object.entries(m.clubs || {}).find(([id]) => id !== String(clubId));
-    index.push({
-      matchId: String(m.matchId), timestamp: m.timestamp, month: seasonKey(m.timestamp),
-      opponent: opp?.[1]?.details?.name ?? null,
-      goalsFor: Number(c?.goals ?? 0), goalsAgainst: Number(c?.goalsAgainst ?? 0), result: String(c?.result ?? ''),
-    });
-  }
-  fs.mkdirSync(dir, {recursive: true});
-  fs.writeFileSync(path.join(dir, 'index.json'), JSON.stringify(index));
-  return index;
-}
-
 async function notify(fresh, clubId) {
   if (!fresh.length) return;
   const lines = fresh.map(m => {
@@ -61,4 +43,4 @@ async function notify(fresh, clubId) {
   await Promise.allSettled(jobs);
 }
 
-module.exports = {validate, mergeHistory, seasonKey, archiveMatches, notify};
+module.exports = {validate, mergeHistory, seasonKey, notify};

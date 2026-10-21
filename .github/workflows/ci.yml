@@ -3,15 +3,36 @@ on:
   pull_request:
   push:
     branches: [main]
+    paths-ignore:
+      - 'data/**'
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Controllo sintattico degli script
+        run: npm run lint
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
-      - run: npm test
+      - name: Test (motore, raccolta, stagione, archivio, dati pubblici, issue, workflow)
+        run: npm test
+      - name: La pipeline dati si rigenera da data/data.json
+        run: npm run build:data
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
       - name: Build front-end (app/)
         working-directory: app
         run: |

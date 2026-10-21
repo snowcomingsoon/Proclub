@@ -1,0 +1,32 @@
+name: Issue salute raccolta
+# Dopo ogni raccolta apre (3 fallimenti di fila o >2 ore), aggiorna (max 1 commento/ora) o chiude l'issue
+# "Raccolta EA in errore". Gira a parte: non può mai far fallire il job di raccolta.
+on:
+  workflow_run:
+    workflows: ['Aggiorna dati EA']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: health-issue
+  cancel-in-progress: false
+jobs:
+  health-issue:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion != 'cancelled' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/health-issue.js
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}

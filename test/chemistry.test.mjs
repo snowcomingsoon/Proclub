@@ -1,17 +1,36 @@
+import {chemistryDetails,replayRoster} from '../shared/chemistry.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { pairChemistry, roleContribution, constellationPairs, replayMatches } from '../shared/constellation.mjs';
-const pair={n:20,ppg:2,a:{rating:8,rated:20,contribution:.8},b:{rating:8,rated:20,contribution:.8}};
-test('chemistry rewards role contributions, attenuates small samples and stays bounded',()=>{
- assert.ok(pairChemistry(pair)>pairChemistry({...pair,a:{...pair.a,contribution:0},b:{...pair.b,contribution:0}}));
- assert.ok(pairChemistry(pair)>pairChemistry({...pair,n:2}));
- assert.equal(pairChemistry({...pair,ppg:3,a:{rating:10,rated:20,contribution:1},b:{rating:10,rated:20,contribution:1}}),100);
+import { roleContribution, constellationPairs, replayMatches } from '../shared/constellation.mjs';
+const pro=(id,rating=8)=>({id,playername:id,pos:'defender',rating,passesmade:19,passattempts:20,tacklesmade:4,tackleattempts:5,cleansheetsdef:1});
+const games=(count=20,rating=8)=>Array.from({length:count},(_,i)=>({id:String(i),timestamp:i+100,result:'V',gf:2,ga:0,players:[pro('a',rating),pro('b',rating)]}));
+const pairOf=ms=>constellationPairs(ms,'a')[0];
+test('evidence shrinks small samples toward neutral and final score stays bounded',()=>{
+ const long=chemistryDetails(pairOf(games(20))),short=chemistryDetails(pairOf(games(2)));
+ assert.ok(long.score>short.score);assert.ok(short.score>=50);assert.ok(long.score<100);assert.ok(short.confidence<long.confidence);
+ const missing=games(3).map(m=>({...m,players:m.players.map(p=>({id:p.id,playername:p.playername,pos:'unknown'}))}));
+ const analysis=chemistryDetails(pairOf(missing));assert.equal(analysis.components.find(c=>c.key==='performance').score,null);assert.ok(analysis.confidence<short.confidence);
 });
-test('missing ratings and role data are excluded instead of fabricated',()=>{
+test('same-role solo baseline distinguishes positive and negative associations',()=>{
+ const shared=games(15,8),solo=r=>Array.from({length:8},(_,i)=>({id:'solo'+i,timestamp:i,result:'V',gf:1,ga:0,players:[pro(i%2?'a':'b',r)]}));
+ const positive=chemistryDetails(pairOf(shared),[...shared,...solo(6)]),negative=chemistryDetails(pairOf(shared),[...shared,...solo(9)]);
+ assert.equal(positive.lift,2);assert.equal(negative.lift,-1);assert.ok(positive.score>negative.score);
+ const otherRole=solo(6).map(m=>({...m,players:m.players.map(p=>({...p,pos:'forward'}))}));
+ assert.equal(chemistryDetails(pairOf(shared),[...shared,...otherRole]).lift,null);
+});
+test('trend compares separate blocks and a single player cannot supply the missing partner rating',()=>{
+ const ms=games(10).map((m,i)=>({...m,players:[pro('a',i<5?6:8),pro('b',i<5?6:8)]}));
+ assert.ok(Math.abs(chemistryDetails(pairOf(ms)).trend-2)<1e-9);
+ const missing=ms.map(m=>({...m,players:[m.players[0],{...m.players[1],rating:undefined}]}));
+ assert.equal(chemistryDetails(pairOf(missing)).validRatings,0);
+});
+test('replay roster excludes absent IDs and returns nobody for a missing frame',()=>{
+ const roster=[{id:'a'},{id:'b'},{id:'c'}];assert.deepEqual(replayRoster(roster,{players:[{id:'b'}]}),[{id:'b'}]);assert.deepEqual(replayRoster(roster,undefined),[]);
+});
+test('missing role fields are excluded, with no division by zero',()=>{
  assert.equal(roleContribution({pos:'defender'}),null);
  assert.equal(roleContribution({pos:'defender',passesmade:0,passattempts:0,tacklesmade:0,tackleattempts:0}),null);
  assert.equal(roleContribution({pos:'midfielder',passesmade:9,passattempts:10}),.9);
- assert.equal(pairChemistry({...pair,ppg:3,a:{rating:null,rated:0},b:{rating:null,rated:0}}),100);
 });
 test('defenders and keepers can earn full role contribution without attacking returns',()=>{
  assert.equal(roleContribution({pos:'defender',goals:0,assists:0,passesmade:20,passattempts:20,tacklesmade:4,tackleattempts:4,cleansheetsdef:1}),1);

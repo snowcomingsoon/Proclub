@@ -8,7 +8,7 @@ import {
   withPlayingMembers,
 } from './adapter.js';
 import { fallbackData } from './data.js';
-import { getDataMode } from './dataMode.js';
+import { getDataMode, safetyLevel } from './dataMode.js';
 import { ENGINE_ID } from './engine.js';
 
 const REFRESH_INTERVAL_MS = 60_000;
@@ -107,7 +107,7 @@ export function useClubData() {
     } catch {
       /* health non raggiungibile: sotto si rivalida il summary */
     }
-    if (next) {
+    if (next && safetyLevel() < 2) {
       setHealth(next);
       const known = seen.current;
       // Si rilegge una sola volta per ogni `capturedAt` annunciato (evita cicli se la cache è indietro).
@@ -127,11 +127,13 @@ export function useClubData() {
     setRefreshing(true);
     try {
       await load(health?.capturedAt);
-      try {
-        const body = await getJson('/api/health', 'no-store');
-        if (isValidHealth(body)) setHealth(body);
-      } catch {
-        /* nessun effetto visibile */
+      if (safetyLevel() < 2) {
+        try {
+          const body = await getJson('/api/health', 'no-store');
+          if (isValidHealth(body)) setHealth(body);
+        } catch {
+          /* nessun effetto visibile */
+        }
       }
     } finally {
       setRefreshing(false);
@@ -141,9 +143,11 @@ export function useClubData() {
   useEffect(() => {
     // Avvio: dati modulari subito (la salute arriva in parallelo), poi solo health.
     load();
-    getJson('/api/health', 'no-store')
-      .then((body) => isValidHealth(body) && setHealth(body))
-      .catch(() => {});
+    if (safetyLevel() < 2) {
+      getJson('/api/health', 'no-store')
+        .then((body) => isValidHealth(body) && setHealth(body))
+        .catch(() => {});
+    }
     const tick = () => {
       if (!document.hidden) poll();
     };

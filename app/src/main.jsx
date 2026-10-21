@@ -1,12 +1,12 @@
 import { Component, StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
-import { forceLegacy, getDataMode } from './lib/dataMode.js';
+import { escalate, safetyLevel } from './lib/dataMode.js';
 import './styles.css';
 import './pages.css';
 import './mobile.css';
 
-/** Se la pagina va in errore con il percorso nuovo dei dati, riparte sul percorso collaudato. */
+/** Se la pagina va in errore, riparte con più prudenza: prima senza il percorso nuovo dei dati, poi anche senza lo stato di salute. */
 class SafeData extends Component {
   state = { attempt: 0 };
 
@@ -15,8 +15,8 @@ class SafeData extends Component {
   }
 
   componentDidCatch(error) {
-    if (getDataMode() === 'new') {
-      forceLegacy(error?.stack || String(error));
+    if (safetyLevel() < 2) {
+      escalate(error?.stack || String(error));
       this.setState(({ attempt }) => ({ attempt: attempt + 1 }));
     } else {
       throw error;

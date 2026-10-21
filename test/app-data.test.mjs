@@ -184,7 +184,7 @@ test('lostMatchesNote: solo se > 0, singolare/plurale', () => {
 });
 
 test('percorso dati: collaudato per impostazione predefinita, nuovo solo su richiesta, sicuro dopo un errore', async () => {
-  const { getDataMode, forceLegacy, DEFAULT_MODE } = await import('../app/src/lib/dataMode.js');
+  const { getDataMode, forceLegacy, safetyLevel, DEFAULT_MODE } = await import('../app/src/lib/dataMode.js');
   assert.equal(DEFAULT_MODE, 'legacy');
   assert.equal(getDataMode(), 'legacy');
   globalThis.location = { search: '?data=new' };
@@ -194,6 +194,12 @@ test('percorso dati: collaudato per impostazione predefinita, nuovo solo su rich
   forceLegacy('prova');
   console.error = log;
   assert.equal(getDataMode(), 'legacy', 'dopo un errore la sessione resta sul percorso collaudato anche con ?data=new');
+  assert.equal(safetyLevel(), 1);
+  console.error = () => {};
+  forceLegacy('seconda');
+  forceLegacy('terza');
+  console.error = log;
+  assert.equal(safetyLevel(), 2, 'il livello non supera 2');
   delete globalThis.location;
 });
 test('api/data legge dal monolite remoto con ripiego sul deploy', async () => {

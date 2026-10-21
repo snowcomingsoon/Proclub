@@ -6,6 +6,7 @@
 export const DEFAULT_MODE = 'legacy';
 const SAFE_KEY = 'billocchi.data.safe';
 let override = null;
+let level = null;
 
 const read = (storage, key) => {
   try {
@@ -15,9 +16,14 @@ const read = (storage, key) => {
   }
 };
 
+/** 0 = normale; 1 = percorso dati collaudato; 2 = anche senza lo stato di salute (aspetto di prima). */
+export function safetyLevel() {
+  if (level == null) level = Math.min(2, Number(read('sessionStorage', SAFE_KEY)) || 0);
+  return level;
+}
+
 export function getDataMode() {
-  if (override) return override;
-  if (read('sessionStorage', SAFE_KEY) === '1') return 'legacy';
+  if (override || safetyLevel() >= 1) return 'legacy';
   try {
     const query = new URLSearchParams(globalThis.location?.search || '').get('data');
     if (query === 'new' || query === 'legacy') return query;
@@ -27,12 +33,16 @@ export function getDataMode() {
   return DEFAULT_MODE;
 }
 
-export function forceLegacy(reason) {
-  override = 'legacy';
+/** Un errore di pagina alza di un gradino il livello di sicurezza (max 2) per il resto della sessione. */
+export function escalate(reason) {
+  level = Math.min(2, safetyLevel() + 1);
   try {
-    globalThis.sessionStorage?.setItem(SAFE_KEY, '1');
+    globalThis.sessionStorage?.setItem(SAFE_KEY, String(level));
   } catch {
     /* ignora */
   }
-  console.error('[dati] percorso sicuro attivato:', reason);
+  console.error('[dati] livello di sicurezza', level, ':', reason);
+  return level;
 }
+
+export const forceLegacy = escalate;

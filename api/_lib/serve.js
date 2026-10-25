@@ -152,7 +152,7 @@ function makeHandler({ file, derive: deriveFn, sMaxAge = 60, validate, optional 
     const etag = etagOf(text);
     const headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': `public, s-maxage=${sMaxAge}, must-revalidate`,
+      'Cache-Control': source === 'github' ? `public, s-maxage=${sMaxAge}, must-revalidate` : 'no-store',
       ETag: etag,
       'X-Data-Source': source,
     };

@@ -87,6 +87,8 @@ export function useClubData() {
       }
     }
     if (mine !== sequence.current) return false;
+    // Never replace a newer snapshot with an older CDN or deployment fallback.
+    if (seen.current.live && Date.parse(payload.capturedAt) < Date.parse(seen.current.capturedAt)) return false;
     seen.current.live = true;
     if (seen.current.capturedAt !== payload.capturedAt) {
       seen.current.capturedAt = payload.capturedAt;

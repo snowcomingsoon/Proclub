@@ -36,8 +36,8 @@ async function loadModular(bust) {
 }
 
 /** Rete di sicurezza: il monolite /api/data (stessa forma di sempre). */
-async function loadMonolith() {
-  const payload = await getJson('/api/data', 'no-store');
+async function loadMonolith(bust) {
+  const payload = await getJson(versioned('/api/data', bust), 'no-store');
   if (!payload.club?.[0] || !payload.members?.members) throw Error('shape');
   return {
     ...payload,
@@ -80,7 +80,7 @@ export function useClubData() {
       payload = await loadModular(bust);
     } catch {
       try {
-        payload = await loadMonolith();
+        payload = await loadMonolith(bust);
       } catch {
         if (mine === sequence.current && !seen.current.live) setConnection('no');
         return false;
@@ -110,8 +110,8 @@ export function useClubData() {
     if (next && safetyLevel() < 2) {
       setHealth(next);
       const known = seen.current;
-      // Si rilegge una sola volta per ogni `capturedAt` annunciato (evita cicli se la cache è indietro).
-      const changed = next.capturedAt !== known.capturedAt && known.bust !== next.capturedAt;
+      // Ritenta a ogni polling finché la versione annunciata non è stata effettivamente caricata.
+      const changed = next.capturedAt !== known.capturedAt;
       if (!known.live || changed) {
         known.bust = next.capturedAt;
         await load(known.live ? next.capturedAt : undefined);

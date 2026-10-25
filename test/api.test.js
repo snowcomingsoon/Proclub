@@ -62,11 +62,10 @@ test('summary: legge da GitHub raw con repo di default e imposta le intestazioni
   const calls = mockFetch(() => jsonResponse({ version: 2, capturedAt: 'x' }));
   const res = await call('summary', '/api/summary');
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(calls, [
-    'https://raw.githubusercontent.com/snowcomingsoon/Proclub/main/data/public/summary.json',
-  ]);
+  assert.equal(new URL(calls[0]).pathname, '/snowcomingsoon/Proclub/main/data/public/summary.json');
+  assert.match(new URL(calls[0]).searchParams.get('refresh'), /^\d+$/);
   assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
-  assert.equal(res.headers['cache-control'], 'public, s-maxage=60, stale-while-revalidate=600');
+  assert.equal(res.headers['cache-control'], 'public, s-maxage=60, must-revalidate');
   assert.match(res.headers.etag, /^"[A-Za-z0-9_-]+"$/);
   assert.equal(res.headers['x-data-source'], 'github');
   assert.deepEqual(JSON.parse(res.body), { version: 2, capturedAt: 'x' });
@@ -77,14 +76,14 @@ test('DATA_REPO cambia il repository', async () => {
   process.env.DATA_REPO = 'org/altro';
   const calls = mockFetch(() => jsonResponse({}));
   await call('history', '/api/history');
-  assert.match(calls[0], /raw\.githubusercontent\.com\/org\/altro\/main\/data\/public\/history\.json$/);
+  assert.match(calls[0], /raw\.githubusercontent\.com\/org\/altro\/main\/data\/public\/history\.json\?refresh=\d+$/);
 });
 
 test('health: s-maxage 30', async () => {
   process.env.DATA_ROOT = deployDir();
   mockFetch(() => jsonResponse({ version: 1 }));
   const res = await call('health', '/api/health');
-  assert.equal(res.headers['cache-control'], 'public, s-maxage=30, stale-while-revalidate=600');
+  assert.equal(res.headers['cache-control'], 'public, s-maxage=30, must-revalidate');
 });
 
 test('If-None-Match: 304 senza corpo, anche con W/ e liste; HEAD senza corpo', async () => {
@@ -185,7 +184,7 @@ test('night: giorno valido, 404 se la serata non esiste', async () => {
   const calls = mockFetch((url) => jsonResponse({ day: url.match(/(\d{4}-\d{2}-\d{2})\.json/)[1], matches: [] }));
   const ok = await call('night', '/api/night?day=2026-10-20');
   assert.equal(ok.statusCode, 200);
-  assert.match(calls[0], /data\/public\/nights\/2026-10-20\.json$/);
+  assert.match(calls[0], /data\/public\/nights\/2026-10-20\.json\?refresh=\d+$/);
   mockFetch(() => jsonResponse({}, 404));
   const missing = await call('night', '/api/night?day=2020-01-01');
   assert.equal(missing.statusCode, 404);
@@ -238,4 +237,22 @@ test('archive e data (compatibilità) funzionano', async () => {
   const data = await call('data', '/api/data');
   assert.equal(data.statusCode, 200);
   assert.ok(JSON.parse(data.body).club);
+});
+
+ test('a new upstream cache window retrieves newer data despite a cached raw URL', async () => {
+  const realNow = Date.now;
+  const cache = new Map();
+  let current = 'old';
+  mockFetch((url, opts) => {
+    assert.equal(opts.cache, 'no-store');
+    if (!cache.has(url)) cache.set(url, current);
+    return jsonResponse({ capturedAt: cache.get(url) });
+  });
+  try {
+    Date.now = () => 60000;
+    assert.equal(JSON.parse((await call('data', '/api/data')).body).capturedAt, 'old');
+    current = 'new';
+    Date.now = () => 120000;
+    assert.equal(JSON.parse((await call('data', '/api/data')).body).capturedAt, 'new');
+  } finally { Date.now = realNow; }
 });

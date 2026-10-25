@@ -1,0 +1,39 @@
+name: Verifica dati sul sito pubblico
+on:
+  workflow_run:
+    workflows: ['Aggiorna dati EA']
+    types: [completed]
+  schedule:
+    - cron: '11,41 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/public-data.yml'
+      - 'scripts/check-public-data.js'
+      - 'api/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: public-data-check
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confronta archivio e dati ricevuti dai visitatori
+        run: node scripts/check-public-data.js
+      - name: Conserva la diagnosi
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-delivery-${{ github.run_id }}
+          path: public-delivery-report.json
+          retention-days: 7

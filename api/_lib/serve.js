@@ -24,11 +24,11 @@ function validDay(day) {
 /** Legge JSON da GitHub raw. Ritorna {status:'ok',text} | {status:'missing'} | {status:'error'}. */
 async function fromRemote(rel) {
   if (process.env.DATA_LOCAL_ONLY === '1') return { status: 'error' };
-  const url = `https://raw.githubusercontent.com/${repo()}/main/${rel}`;
+  const url = `https://raw.githubusercontent.com/${repo()}/main/${rel}?refresh=${Math.floor(Date.now() / 60000)}`;
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), FETCH_TIMEOUT_MS);
   try {
-    const response = await fetch(url, { signal: ctl.signal, redirect: 'follow' });
+    const response = await fetch(url, { signal: ctl.signal, redirect: 'follow', cache: 'no-store' });
     if (response.status === 404) return { status: 'missing' };
     if (!response.ok) return { status: 'error' };
     const text = await response.text();
@@ -152,7 +152,7 @@ function makeHandler({ file, derive: deriveFn, sMaxAge = 60, validate, optional 
     const etag = etagOf(text);
     const headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': `public, s-maxage=${sMaxAge}, stale-while-revalidate=600`,
+      'Cache-Control': `public, s-maxage=${sMaxAge}, must-revalidate`,
       ETag: etag,
       'X-Data-Source': source,
     };

@@ -41,7 +41,7 @@ export function SiteFooter({ connection, data, freshKeys, lastSync, health }) {
       />
       <strong>BILLOCCHI CLUB · FC 27</strong>
       <p>
-        Dati EA SPORTS FC Clubs. Raccolta programmata ogni 10 minuti;
+        Dati EA SPORTS FC Clubs. Raccolta ogni 3 minuti durante la fascia serale, avvio programmato ogni ora nel resto della giornata;
         verifica sul sito ogni 60 secondi durante la visita.
         <br />
         {describeSync({

@@ -3,7 +3,7 @@ import { formatProOverall } from '../lib/format.js';
 
 /** Figurina da collezione di un Pro (tier e "on fire" dal profilo calcolato). */
 export function CollectorCard({ member, profile, onClick }) {
-  const portrait = {we_belen: '/cards/we-belen-portrait.webp', garrus92: '/cards/garrus92-portrait.webp'}[member.name.toLowerCase()];
+  const portrait = {we_belen: '/cards/we-belen-portrait-v2.webp', garrus92: '/cards/garrus92-portrait.webp'}[member.name.toLowerCase()];
   const evolution=useEvolution(member.name);
   const evolved=evolution?.level>0;
   const stats = [
@@ -47,11 +47,11 @@ export function CollectorCard({ member, profile, onClick }) {
       {profile.hot && <span className="collector-fire-label">ON FIRE</span>}
       {portrait ? (
         <img
-          className={`collector-player-image ${member.name.toLowerCase() === 'garrus92' ? 'collector-player-closeup' : ''}`}
+          className={`collector-player-image ${['garrus92', 'we_belen'].includes(member.name.toLowerCase()) ? 'collector-player-closeup' : ''}`}
           src={portrait}
           alt=""
-          width={member.name.toLowerCase() === 'garrus92' ? 1089 : 600}
-          height={member.name.toLowerCase() === 'garrus92' ? 1444 : 719}
+          width={member.name.toLowerCase() === 'garrus92' ? 1089 : 1145}
+          height={member.name.toLowerCase() === 'garrus92' ? 1444 : 1373}
           loading="lazy"
           decoding="async"
         />

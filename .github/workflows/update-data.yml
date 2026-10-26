@@ -35,6 +35,7 @@ jobs:
         id: collect
         run: bash scripts/collect-loop.sh
         env:
+          LOOP_SECONDS: ${{ github.event_name == 'push' && '60' || '3000' }}
           # Opzionali: se i secret non esistono restano vuoti e le notifiche sono disattivate.
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
@@ -62,9 +63,8 @@ jobs:
             echo "Push fallito: snapshot conservato negli artifact del workflow."
             exit 1
           fi
-      - name: Avvia il giro successivo (serata)
-        if: ${{ always() && steps.collect.outputs.chain == '1' }}
-        continue-on-error: true
+      - name: Avvia il giro successivo (tutto il giorno)
+        if: ${{ !cancelled() && steps.collect.outputs.chain == '1' }}
         run: gh workflow run update-data.yml --ref main -R "$GITHUB_REPOSITORY"
         env:
           GH_TOKEN: ${{ github.token }}

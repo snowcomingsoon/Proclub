@@ -14,6 +14,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: write
 concurrency:
   group: public-data-check
   cancel-in-progress: false
@@ -30,6 +31,17 @@ jobs:
           node-version: '22'
       - name: Confronta archivio e dati ricevuti dai visitatori
         run: node scripts/check-public-data.js
+      - name: Riavvia raccolta ferma senza duplicare un ciclo attivo
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          active=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/update-data.yml/runs?per_page=20" --jq '[.workflow_runs[] | select(.status == "in_progress" or .status == "queued" or .status == "requested" or .status == "waiting")] | length')
+          if [ "$active" -eq 0 ]; then
+            gh workflow run update-data.yml --ref main -R "$GITHUB_REPOSITORY"
+          else
+            echo "Raccolta già attiva o in coda; non la duplico."
+          fi
       - name: Conserva la diagnosi
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

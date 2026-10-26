@@ -11,7 +11,7 @@ const CardDialog = lazy(() =>
   loadCardDialog().then((module) => ({ default: module.CardDialog })),
 );
 
-const playerPortraits = { we_belen: '/cards/we-belen-portrait-v2.webp', garrus92: '/cards/garrus92-portrait.webp' };
+const playerPortraits = { we_belen: '/cards/we-belen-portrait-v2.webp', garrus92: '/cards/garrus92-portrait.webp', scemo897: '/cards/scemo897-portrait.webp' };
 
 function LeaderList({ cards, setSelectedName }) {
   return (

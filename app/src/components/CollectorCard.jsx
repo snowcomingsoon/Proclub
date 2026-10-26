@@ -47,7 +47,7 @@ export function CollectorCard({ member, profile, onClick }) {
       {profile.hot && <span className="collector-fire-label">ON FIRE</span>}
       {portrait ? (
         <img
-          className={`collector-player-image ${member.name.toLowerCase() === 'garrus92' ? 'collector-player-closeup' : ''}`}
+          className={`collector-player-image ${['garrus92', 'we_belen'].includes(member.name.toLowerCase()) ? 'collector-player-closeup' : ''}`}
           src={portrait}
           alt=""
           width={member.name.toLowerCase() === 'garrus92' ? 1089 : 1145}

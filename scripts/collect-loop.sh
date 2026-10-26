@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Raccolta EA. Fuori dalla serata: un solo giro. Durante la serata (17:00-01:59 UTC = 19-03 italiane in estate,
+# Raccolta EA continua anche fuori dalla serata. Durante la serata (17:00-01:59 UTC = 19-03 italiane in estate,
 # 18-02 in inverno) un'esecuzione resta attiva circa 50 minuti e interroga EA ogni 3 minuti, committando i dati
 # a ogni novità; alla fine prepara il giro successivo (vedi il workflow). Così la raccolta non dipende dalla
 # puntualità del cron di GitHub, che può ritardare o saltare le esecuzioni programmate.
 set -u
 
-INTERVAL="${LOOP_INTERVAL:-180}"
+# Each run hands off to the next, at every hour of the day. Cron is only a backup.
 hour=$((10#$(date -u +%H)))
-event="${GITHUB_EVENT_NAME:-manual}"
-duration="${LOOP_SECONDS:-}"
-if [ -z "$duration" ]; then
-  duration=0
-  if [ "$event" = "schedule" ] || [ "$event" = "workflow_dispatch" ]; then
-    if [ "$hour" -ge 17 ] || [ "$hour" -le 1 ]; then duration=3000; fi
-  fi
+INTERVAL="${LOOP_INTERVAL:-180}"
+if [ "$hour" -ge 2 ] && [ "$hour" -lt 17 ]; then INTERVAL="${LOOP_INTERVAL:-600}"; fi
+duration=3000
+duration="${LOOP_SECONDS:-$duration}"
+# Set before collection so a failed round cannot suppress the next run.
+if [ -n "${GITHUB_OUTPUT:-}" ]; then
+  if [ "$duration" -gt 0 ]; then echo "chain=1" >> "$GITHUB_OUTPUT"; else echo "chain=0" >> "$GITHUB_OUTPUT"; fi
 fi
 
 commit_data() {

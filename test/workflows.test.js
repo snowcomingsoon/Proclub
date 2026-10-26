@@ -37,10 +37,10 @@ test('cadenza update-data: avvio orario, rete di sicurezza serale e giro ripetut
   assert.match(t, /steps\.collect\.outputs\.chain == '1'/);
   const sh = fs.readFileSync(path.join(ROOT, 'scripts', 'collect-loop.sh'), 'utf8');
   // finestra serale 17:00-01:59 UTC = 19-03 italiane in estate (CEST) e 18-02 in inverno (CET)
-  assert.match(sh, /\[ "\$hour" -ge 17 \] \|\| \[ "\$hour" -le 1 \]/);
+  assert.match(sh, /LOOP_INTERVAL:-600/);
   assert.match(sh, /duration=3000/);
   assert.match(sh, /INTERVAL="\$\{LOOP_INTERVAL:-180\}"/);
-  assert.match(sh, /schedule/);
+  assert.doesNotMatch(sh, /GITHUB_EVENT_NAME/);
 });
 test('update-data: concurrency invariata, push con retry, artifact, azioni senza Node 20', () => {
   const t = wf('update-data.yml');

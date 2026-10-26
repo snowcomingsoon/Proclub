@@ -11,6 +11,8 @@ const CardDialog = lazy(() =>
   loadCardDialog().then((module) => ({ default: module.CardDialog })),
 );
 
+const playerPortraits = { we_belen: '/cards/we-belen-portrait.webp', garrus92: '/cards/garrus92-portrait.webp' };
+
 function LeaderList({ cards, setSelectedName }) {
   return (
     <div className="leader-list">
@@ -25,9 +27,10 @@ function LeaderList({ cards, setSelectedName }) {
             #{String(index + 1).padStart(2, '0')}
           </span>
           <span
-            className={`leader-mini-card ${profile.tier} ${profile.hot ? 'on-fire' : ''}`}
+            className={`leader-mini-card ${profile.tier} ${profile.hot ? 'on-fire' : ''} ${playerPortraits[member.name.toLowerCase()] ? 'has-portrait' : ''}`}
             aria-hidden="true"
           >
+            {playerPortraits[member.name.toLowerCase()] && <img className="leader-mini-portrait" src={playerPortraits[member.name.toLowerCase()]} alt="" loading="lazy" decoding="async" />}
             <span>{formatProOverall(member)}</span>
           </span>
           <span className="leader-entry-name">

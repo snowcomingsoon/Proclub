@@ -10,6 +10,7 @@ import {
   buildTurningPoints,
 } from '../lib/newsroom.js';
 import { buildNightComments } from '../lib/coach.js';
+import { missingByNight } from '../lib/missing.js';
 import { getEditorialContext } from '../lib/editorial-ctx.js';
 import { notebookEditorial, verdictFor } from '../../../shared/editorial.mjs';
 import { buildSeasonProfile } from '../lib/season-profile.js';
@@ -26,7 +27,7 @@ import { TurningPoints } from './day-after/TurningPoints.jsx';
  * "Il giorno dopo": la gazzetta della serata scelta (copertina, svolte, processo
  * ai Pro, romanzo della stagione). `matches` è lo storico partite disponibile.
  */
-export function DayAfter({ members, matches, data }) {
+export function DayAfter({ members, matches, data, health }) {
   const editorial = useMemo(() => getEditorialContext(data), [data]);
   const nights = useMemo(() => groupByNight(matches), [matches]);
   const [nightChoice, setNightChoice] = useState('');
@@ -156,7 +157,11 @@ export function DayAfter({ members, matches, data }) {
             nightStats={nightStats}
             selectedNight={selectedNight}
           />
-          <NightResults nightStats={nightStats} selectedNight={selectedNight} />
+          <NightResults
+            nightStats={nightStats}
+            selectedNight={selectedNight}
+            missing={missingByNight(health, data).get(selectedNight?.day) || 0}
+          />
           <TurningPoints turningPoints={turningPoints} />
           <Trials
             nightQuotes={nightQuotes}

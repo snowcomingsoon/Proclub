@@ -53,7 +53,8 @@ async function collect({cfg, log, nowFn, P, previousHealth, fetchImpl, wait, eng
   let storedLedgerSig = savedLedger ? sigOf(savedLedger) : null;
   // Un ledger di versione precedente, o assente, si ricostruisce dalla PRIMA lettura fresca e coerente di questa esecuzione.
   let original = savedLedger && savedLedger.version === 2 ? savedLedger : null;
-  const syncSigOf = (o) => JSON.stringify(o, (k, v) => (k === 'checkedAt' || k === 'lastSeen' ? undefined : v));
+  // I giri ripetuti (e il secondo tentativo dopo una raccolta incompleta) cambiano solo orari e numero di tentativi: non sono novità.
+  const syncSigOf = (o) => JSON.stringify(o, (k, v) => (k === 'checkedAt' || k === 'lastSeen' || k === 'attempts' ? undefined : v));
   const savedSync = readJson(P.sync, null);
   let storedSyncSig = savedSync ? syncSigOf(savedSync) : null;
   let pending = readJson(P.candidate, null);  // candidato cambio stagione in attesa di conferma
@@ -64,6 +65,7 @@ async function collect({cfg, log, nowFn, P, previousHealth, fetchImpl, wait, eng
   let next = {...stored}, summary, state = null, attempts = 0, seasonEvent = null, cutoffTs = null;
   next.season = currentSeason(stored, nowFn());
 
+  let syncWritten = false;
   const persist = () => {
     const now = nowFn();
     const due = Date.parse(now) - Date.parse(stored.capturedAt || 0) >= HEARTBEAT_MS;
@@ -75,8 +77,9 @@ async function collect({cfg, log, nowFn, P, previousHealth, fetchImpl, wait, eng
       if (state) { writeJson(P.ledger, state); storedLedgerSig = ledgerSig; }
     } else if (state && ledgerSig !== storedLedgerSig) { writeJson(P.ledger, state); storedLedgerSig = ledgerSig; }
     const syncObj = {checkedAt: summary.checkedAt, complete: next.collectionStatus.complete, failures: {...failures}, stale: {...stale}, integrity: summary, attempts};
-    const syncSig = syncSigOf(syncObj);
-    if (wrote || syncSig !== storedSyncSig) { writeJson(P.sync, syncObj); storedSyncSig = syncSig; }
+    // Il numero di tentativi conta solo se in questa esecuzione il file è già stato riscritto (così riflette l'ultimo giro).
+    const syncSig = syncSigOf(syncObj) + (syncWritten ? `|a${attempts}` : '');
+    if (wrote || syncSig !== storedSyncSig) { writeJson(P.sync, syncObj); storedSyncSig = syncSigOf(syncObj) + `|a${attempts}`; syncWritten = true; }
     if (pending) writeJson(P.candidate, pending); else if (fs.existsSync(P.candidate)) fs.unlinkSync(P.candidate);
   };
 

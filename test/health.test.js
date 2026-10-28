@@ -12,7 +12,7 @@ test('failuresOf: endpoint + discrepanze non transitorie, non quelle in attesa',
 test('buildHealth: contratto, contatore di fallimenti consecutivi e azzeramento', () => {
   const t = (n) => `2026-10-21T0${n}:00:00.000Z`;
   const h1 = buildHealth({status: bad, data, now: t(1)});
-  assert.deepEqual(Object.keys(h1).slice(0, 11), ['version', 'checkedAt', 'capturedAt', 'complete', 'failures', 'stale', 'lostClubMatches', 'writtenOff', 'season', 'consecutiveFailures', 'failingSince']);
+  assert.deepEqual(Object.keys(h1).slice(0, 12), ['version', 'checkedAt', 'capturedAt', 'complete', 'failures', 'stale', 'lostClubMatches', 'writtenOff', 'pendingMissing', 'season', 'consecutiveFailures', 'failingSince']);
   assert.equal(h1.version, 1); assert.equal(h1.complete, false); assert.equal(h1.consecutiveFailures, 1); assert.equal(h1.failingSince, t(1)); assert.deepEqual(h1.engine, {ok: true});
   const h2 = buildHealth({status: bad, data, previous: h1, now: t(2)});
   assert.equal(h2.consecutiveFailures, 2); assert.equal(h2.failingSince, t(1));

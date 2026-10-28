@@ -30,6 +30,8 @@ function buildHealth({status, data, previous, now, engine, advance = true, seaso
     stale: {...(status?.stale || {})},
     lostClubMatches: status?.lostClubMatches || 0,
     writtenOff: (status?.writtenOff || []).slice(-20),
+    // Partite che il contatore del club conta in più di quelle restituite da EA e non ancora considerate perse: servono al sito per dirlo sulla serata giusta.
+    pendingMissing: (status?.issues || []).filter((i) => i.kind === 'missing_matches').map((i) => ({since: i.firstSeen, count: i.missing})),
     season: season || data?.season || null,
     consecutiveFailures,
     failingSince: failing ? (before > 0 && previous?.failingSince ? previous.failingSince : now) : null,
@@ -42,7 +44,7 @@ function buildHealth({status, data, previous, now, engine, advance = true, seaso
 function crashHealth({previous, now, error}) {
   const before = previous?.consecutiveFailures || 0;
   return {
-    ...(previous || {version: 1, capturedAt: null, complete: false, stale: {}, lostClubMatches: 0, writtenOff: [], season: null, engine: {ok: true}}),
+    ...(previous || {version: 1, capturedAt: null, complete: false, stale: {}, lostClubMatches: 0, writtenOff: [], pendingMissing: [], season: null, engine: {ok: true}}),
     version: 1, checkedAt: now, complete: false, failures: {crash: String(error?.message || error)},
     consecutiveFailures: before + 1, failingSince: before > 0 && previous?.failingSince ? previous.failingSince : now,
     lastSuccessAt: previous?.lastSuccessAt || null,

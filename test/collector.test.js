@@ -70,3 +70,22 @@ test('a collector crash is recorded in health.json instead of being thrown', asy
   const health = JSON.parse(require('node:fs').readFileSync(require('node:path').join(root, 'data', 'public', 'health.json'), 'utf8'));
   assert.equal(health.consecutiveFailures, 1); assert.ok(health.failures.crash);
 });
+
+const fs = require('node:fs'), path = require('node:path');
+const snapshot = (root) => {
+  const out = {};
+  const walk = (dir) => { for (const e of fs.readdirSync(dir, {withFileTypes: true})) { const f = path.join(dir, e.name); if (e.isDirectory()) walk(f); else out[path.relative(root, f)] = fs.readFileSync(f, 'utf8'); } };
+  walk(path.join(root, 'data')); return out;
+};
+test('un giro ripetuto senza novità non modifica nessun file (niente commit inutili), anche con una raccolta in attesa di partite', async () => {
+  const base = await collect({now: '2026-10-21T18:00:00.000Z'});
+  const more = {...data.club[0], gamesPlayed: String(Number(data.club[0].gamesPlayed) + 2)};
+  const club = [more];
+  const second = await collect({root: base.root, club, now: '2026-10-21T18:10:00.000Z'});
+  assert.equal(second.status.complete, false, 'il contatore del club ha due partite in più non listate: raccolta in attesa');
+  const after = snapshot(base.root);
+  const third = await collect({root: base.root, club, now: '2026-10-21T18:20:00.000Z'});
+  const fourth = await collect({root: base.root, club, now: '2026-10-21T18:30:00.000Z'});
+  assert.deepEqual(snapshot(base.root), after, 'nessun file cambia tra giri senza novità');
+  assert.equal(third.status.complete, false); assert.equal(fourth.status.complete, false);
+});

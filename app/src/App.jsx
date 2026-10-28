@@ -104,6 +104,7 @@ function App() {
         <a className="constellation-entry" href="#/costellazione"><span className="constellation-entry-symbol" aria-hidden="true">✦</span><span><b>LA COSTELLAZIONE DEL CLUB</b><small>Scopri chi entra nella tua orbita. Esplora i legami tra i Pro.</small></span><strong aria-hidden="true">↗</strong></a>
         <DayAfter
           data={data}
+          health={health}
           members={data.members.members}
           matches={data.matchHistory || recentMatches}
         />

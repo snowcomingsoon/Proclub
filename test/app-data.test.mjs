@@ -221,3 +221,29 @@ test('insight senza le metriche dei Pro (club.players) non sono utilizzabili e n
   const { signalsEditorial } = await import('../shared/editorial.mjs');
   assert.doesNotThrow(() => signalsEditorial({}, { scorer: 'a', assister: 'b', passer: 'c' }));
 });
+
+test('partite contate da EA e non restituite: attribuite alla serata in cui il buco è stato visto', async () => {
+  const { missingByNight, missingNote } = await import('../app/src/lib/missing.js');
+  // 21:41 UTC del 27/10 = 22:41 italiane (ora solare): serata del 27
+  const health = { pendingMissing: [{ since: '2026-10-27T21:41:17.570Z', count: 2 }], writtenOff: [] };
+  assert.equal(missingByNight(health, null).get('2026-10-27'), 2);
+  // le due partite perse in passato si sommano a quelle in attesa della stessa serata, quelle personali (scope player) no
+  const both = {
+    pendingMissing: [{ since: '2026-10-27T21:41:17.570Z', count: 1 }],
+    writtenOff: [
+      { scope: 'club', since: '2026-10-20T21:41:17.570Z', count: 1 },
+      { scope: 'player', since: '2026-10-27T21:41:17.570Z', count: 5 },
+    ],
+  };
+  const map = missingByNight(both, null);
+  assert.equal(map.get('2026-10-27'), 1);
+  assert.equal(map.get('2026-10-20'), 1);
+  // dopo mezzanotte conta la serata precedente
+  assert.equal(missingByNight({ pendingMissing: [{ since: '2026-10-27T23:30:00.000Z', count: 1 }] }).get('2026-10-27'), 1);
+  // monolite senza health: problemi missing_matches di collectionStatus
+  const mono = { collectionStatus: { issues: [{ kind: 'missing_matches', firstSeen: '2026-10-27T21:41:17.570Z', missing: 2 }, { kind: 'missing_appearances', firstSeen: '2026-10-27T21:41:17.570Z', missing: 2 }] } };
+  assert.equal(missingByNight(null, mono).get('2026-10-27'), 2);
+  assert.equal(missingByNight(null, null).size, 0);
+  assert.match(missingNote(1), /una partita in più/);
+  assert.match(missingNote(2), /2 partite in più/);
+});

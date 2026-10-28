@@ -10,7 +10,7 @@ import {
   buildTurningPoints,
 } from '../lib/newsroom.js';
 import { buildNightComments } from '../lib/coach.js';
-import { missingByNight } from '../lib/missing.js';
+import { missingByNight, reconstructedByNight } from '../lib/missing.js';
 import { getEditorialContext } from '../lib/editorial-ctx.js';
 import { notebookEditorial, verdictFor } from '../../../shared/editorial.mjs';
 import { buildSeasonProfile } from '../lib/season-profile.js';
@@ -161,6 +161,9 @@ export function DayAfter({ members, matches, data, health }) {
             nightStats={nightStats}
             selectedNight={selectedNight}
             missing={missingByNight(health, data).get(selectedNight?.day) || 0}
+            rebuilt={
+              reconstructedByNight(health, data).get(selectedNight?.day) || null
+            }
           />
           <TurningPoints turningPoints={turningPoints} />
           <Trials

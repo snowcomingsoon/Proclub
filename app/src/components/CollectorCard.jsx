@@ -3,7 +3,7 @@ import { formatProOverall } from '../lib/format.js';
 
 /** Figurina da collezione di un Pro (tier e "on fire" dal profilo calcolato). */
 export function CollectorCard({ member, profile, onClick }) {
-  const portrait = {we_belen: '/cards/we-belen-portrait-v2.webp', garrus92: '/cards/garrus92-portrait.webp', scemo897: '/cards/scemo897-portrait.webp', nyveex: '/cards/nyveex-portrait.webp'}[member.name.toLowerCase()];
+  const portrait = {we_belen: '/cards/we-belen-portrait-v2.webp', garrus92: '/cards/garrus92-portrait-v2.webp', scemo897: '/cards/scemo897-portrait.webp'}[member.name.toLowerCase()];
   const evolution=useEvolution(member.name);
   const evolved=evolution?.level>0;
   const stats = [

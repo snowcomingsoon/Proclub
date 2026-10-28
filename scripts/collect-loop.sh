@@ -17,19 +17,10 @@ if [ -n "${GITHUB_OUTPUT:-}" ]; then
 fi
 
 commit_data() {
-  git config user.name "billocchi-bot"
-  git config user.email "billocchi-bot@users.noreply.github.com"
-  git add data
-  if git diff --cached --quiet; then return 0; fi
-  git commit -q -m "chore: aggiorna dati EA"
-  for attempt in 1 2 3; do
-    if git pull -q --rebase origin main && git push -q origin HEAD:main; then return 0; fi
-    git rebase --abort 2>/dev/null || true
-    sleep 5
-  done
-  echo "Push fallito: snapshot conservato negli artifact del workflow."
-  return 1
+  bash scripts/publish-data.sh publish
 }
+
+bash scripts/publish-data.sh restore
 
 start=$SECONDS
 status=0

@@ -45,7 +45,7 @@ test('cadenza update-data: avvio orario, rete di sicurezza serale e giro ripetut
 test('update-data: concurrency invariata, push con retry, artifact, azioni senza Node 20', () => {
   const t = wf('update-data.yml');
   assert.match(t, /concurrency:\n  group: update-data\n  cancel-in-progress: false/);
-  assert.match(t, /for attempt in 1 2 3/); assert.match(t, /upload-artifact@/); assert.match(t, /workflow_dispatch/);
+  assert.match(fs.readFileSync(path.join(ROOT, 'scripts', 'publish-data.sh'), 'utf8'), /for attempt in 1 2 3/); assert.match(t, /publish-data\.sh publish/); assert.match(t, /upload-artifact@/); assert.match(t, /workflow_dispatch/);
   for (const name of fs.readdirSync(path.join(ROOT, '.github', 'workflows'))) {
     for (const [, action, v] of wf(name).matchAll(/uses:\s*actions\/([\w-]+)@v(\d+)/g)) assert.ok(Number(v) >= 4, `${name}: actions/${action}@v${v} non è una versione verificata`);
   }

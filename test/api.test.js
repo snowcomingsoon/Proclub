@@ -62,7 +62,7 @@ test('summary: legge da GitHub raw con repo di default e imposta le intestazioni
   const calls = mockFetch(() => jsonResponse({ version: 2, capturedAt: 'x' }));
   const res = await call('summary', '/api/summary');
   assert.equal(res.statusCode, 200);
-  assert.equal(new URL(calls[0]).pathname, '/snowcomingsoon/Proclub/main/data/public/summary.json');
+  assert.equal(new URL(calls[0]).pathname, '/snowcomingsoon/Proclub/data/data/public/summary.json');
   assert.match(new URL(calls[0]).searchParams.get('refresh'), /^\d+$/);
   assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
   assert.equal(res.headers['cache-control'], 'public, s-maxage=60, must-revalidate');
@@ -76,7 +76,7 @@ test('DATA_REPO cambia il repository', async () => {
   process.env.DATA_REPO = 'org/altro';
   const calls = mockFetch(() => jsonResponse({}));
   await call('history', '/api/history');
-  assert.match(calls[0], /raw\.githubusercontent\.com\/org\/altro\/main\/data\/public\/history\.json\?refresh=\d+$/);
+  assert.match(calls[0], /raw\.githubusercontent\.com\/org\/altro\/data\/data\/public\/history\.json\?refresh=\d+$/);
 });
 
 test('health: s-maxage 30', async () => {

@@ -40,7 +40,7 @@ GitHub può ritardare le esecuzioni programmate. Per non produrre 144 commit al 
 
 Tutti JSON UTF-8, derivati solo da `data/data.json` + `shared/`, rigenerati a ogni raccolta (`npm run build:data` li ricostruisce a mano).
 
-- `health.json`: `{version, checkedAt, capturedAt, complete, failures, stale, lostClubMatches, writtenOff[ultimi 20], season:{id, startedAt, lastChange, previous}, consecutiveFailures, failingSince, lastSuccessAt, engine:{ok, error?}}`
+- `health.json`: `{version, checkedAt, capturedAt, complete, failures, stale, lostClubMatches, writtenOff[ultimi 20], pendingMissing[], unlisted:{pending, final[ultimi 20]}, season:{id, startedAt, lastChange, previous}, consecutiveFailures, failingSince, lastSuccessAt, engine:{ok, error?}}`
 - `summary.json`: `{version:2, capturedAt, club, members:{members}, matches[≤30], nights:[{day, games, from, to}], matchCount, season}`
 - `nights/<YYYY-MM-DD>.json`: `{day, matches[]}` (ora italiana, le gare tra 00:00 e 05:59 appartengono alla serata precedente)
 - `insights.json`: `{version, builtAt, engine (hash dei sorgenti di shared/), coach:{<nome minuscolo>: commentFor(...)}, club: analyzeClub(...) senza il dettaglio per giocatore}`. Se il motore va in errore, `insights.json` non viene aggiornato e `health.engine.ok` è `false`: la raccolta continua.
@@ -80,5 +80,9 @@ Non può far fallire la raccolta (job separato, `continue-on-error`, solo `issue
 - `npm run build:data`: rigenera `data/public/` da `data/data.json` (non conta come una nuova esecuzione nel contatore dei fallimenti).
 - `npm run update`: raccolta EA completa (richiede accesso a proclubs.ea.com).
 - `npm run check:ea-shape`: controllo del formato EA (`-- --update` riscrive lo schema, `-- --from-data` lo ricava da `data.json`).
+
+## Partite non listate da EA (ricostruzione)
+
+A volte EA conta una partita nei contatori cumulativi (`club[0]`, `members[]`) ma non la restituisce in `clubs/matches`. `scripts/unlisted.js` (funzioni pure) la ricostruisce: stato `unlisted` nel ledger = `{base:{club, players, cutoff}, since, finals[]}`; deficit = totali correnti − `base` − contributo esatto (esito/gol da `clubs[id]`, presenze/gol/assist/MOTM/rossi da `players[id]`) delle partite archiviate con timestamp > `cutoff`. Vale solo se partite > 0, V+P+S = partite e tutte le componenti ≥ 0 (altrimenti avviso non bloccante in `unlisted.warning`; se dura 12 ore si ribasa dalla lettura corrente). Se la partita compare dopo in lista il deficit si riduce da solo. Dopo 12 ore (stessa scadenza del write-off del club) il deficit passa in `finals` (max 200) e `base` si ribasa sui contatori correnti. `since` = primo avvistamento, da cui il sito ricava la serata. `config/unlisted-seed.json` (generato con `node scripts/tools/make-unlisted-seed.js <commit>`) è il riferimento una tantum per un ledger esistente senza `unlisted`: usato solo se coerente con storico e contatori, altrimenti si parte dalla lettura corrente. `node scripts/tools/show-unlisted.js` stampa la ricostruzione sui dati del repository senza scrivere nulla. I numeri di `lostClubMatches`/`writtenOff` non cambiano.
 
 Le partite uscite dagli ultimi dieci elenchi di EA prima di essere archiviate non sono ricostruibili.

@@ -42,6 +42,7 @@ function LeaderList({ cards, setSelectedName }) {
               {' PRESENZE'}
               {profile.basis === 'season' ? ' · INDICE STAGIONALE' : ''}
               {profile.hot ? ' · ON FIRE' : ''}
+              {member.defense?.defGames ? ` · ${member.defense.defGames} DA DIFENSORE` : ''}
             </small>
           </span>
           <span className="leader-entry-breakdown">
@@ -56,7 +57,11 @@ function LeaderList({ cards, setSelectedName }) {
           </span>
           <span className="leader-entry-total">
             <strong>{toNumber(member.goals) + toNumber(member.assists)}</strong>
-            <small>G + A</small>
+            <small>
+              {member.defense?.adjusted
+                ? `G + A · PESATO ${Math.round(member.defense.weighted)}`
+                : 'G + A'}
+            </small>
           </span>
           <ArrowUpRight className="leader-arrow" size={17} />
         </button>
@@ -113,7 +118,7 @@ export function Squad({ members, matches, data }) {
       </div>
       <LeaderList cards={cards} setSelectedName={setSelectedName} />
       <p className="role-note">
-        Classifica sui gol + assist stagionali EA, considerando tutti i ruoli.
+        Classifica sui gol + assist stagionali EA. Le partite giocate da difensore (indicate accanto al nome) pesano con la media gol + assist che il Pro fa nelle altre gare, così chi si sacrifica in difesa non perde posizioni; serve un minimo di 5 gare fuori dalla difesa, altrimenti vale il totale reale.
         Il numero grande della figurina è l'overall del Pro fornito da EA:
         misura l'avatar, non il rendimento del giocatore. Colore e indice di
         forma sono valutazioni del sito sulle gare recenti nel ruolo indicato.

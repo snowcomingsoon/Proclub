@@ -11,7 +11,8 @@ import { EvolutionProvider } from './components/Evolution.jsx';
 import { DayAfter } from './components/DayAfter.jsx';
 import { SiteHeader } from './components/SiteHeader.jsx';
 import { useRoute } from './lib/route.js';
-import { toNumber } from './lib/stats.js';
+import { CLUB_ID } from './lib/constants.js';
+import { rankMembers } from './lib/defense.js';
 import { useClubData } from './lib/useClubData.js';
 
 const Constellation = lazy(() => import('./components/Constellation.jsx').then(m => ({default: m.Constellation})));
@@ -32,18 +33,6 @@ const StatsPage = lazy(() =>
     default: module.StatsPage,
   })),
 );
-
-/** Rosa ordinata per gol + assist, poi gol, presenze e nome. */
-const sortMembers = (members) =>
-  [...members].sort(
-    (a, b) =>
-      toNumber(b.goals) +
-        toNumber(b.assists) -
-        (toNumber(a.goals) + toNumber(a.assists)) ||
-      toNumber(b.goals) - toNumber(a.goals) ||
-      toNumber(b.gamesPlayed) - toNumber(a.gamesPlayed) ||
-      a.name.localeCompare(b.name),
-  );
 
 function App() {
   const { data, connection, freshKeys, lastSync, refreshing, refresh, health } =
@@ -77,7 +66,7 @@ function App() {
   }, [view, route.name, data]);
   const recentMatches = data.matches || [];
   const sortedMembers = useMemo(
-    () => sortMembers(data.members.members),
+    () => rankMembers(data.members.members, data.matchHistory || [], CLUB_ID),
     [data],
   );
   return (

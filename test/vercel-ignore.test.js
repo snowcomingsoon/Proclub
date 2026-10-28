@@ -85,3 +85,26 @@ test('nomi di file con spazi in data/ => salta', () => {
   commit(dir, { 'data/con spazio.json': '{}' });
   assert.equal(run(dir), 0);
 });
+
+const runWith = (dir, env) => spawnSync('bash', [SCRIPT], { cwd: dir, encoding: 'utf8', env: { ...process.env, ...env } }).status;
+
+test('un commit di codice soppiantato da commit di soli dati si pubblica comunque (confronto con l\'ultimo commit pubblicato)', () => {
+  const dir = repo();
+  commit(dir, { 'app/a.js': '1' });
+  const published = git(dir, 'rev-parse', 'HEAD').trim();
+  commit(dir, { 'app/a.js': '2' }, 'codice mai pubblicato');
+  commit(dir, { 'data/data.json': '1' }, 'dati 1');
+  commit(dir, { 'data/data.json': '2' }, 'dati 2');
+  assert.equal(run(dir), 0, 'senza riferimento: solo l\'ultimo commit (dati) => salta: il bug di prima');
+  assert.equal(runWith(dir, { VERCEL_GIT_PREVIOUS_SHA: published }), 1, 'con l\'ultimo pubblicato: il codice cambiato => builda');
+});
+
+test('con l\'ultimo pubblicato e soli dati cambiati => salta; riferimento sconosciuto => builda', () => {
+  const dir = repo();
+  commit(dir, { 'app/a.js': '1' });
+  const published = git(dir, 'rev-parse', 'HEAD').trim();
+  commit(dir, { 'data/data.json': '1' });
+  commit(dir, { 'data/data.json': '2' });
+  assert.equal(runWith(dir, { VERCEL_GIT_PREVIOUS_SHA: published }), 0);
+  assert.equal(runWith(dir, { VERCEL_GIT_PREVIOUS_SHA: 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeef' }), 1);
+});

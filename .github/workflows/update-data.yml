@@ -47,22 +47,10 @@ jobs:
           name: ea-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
           path: data/
           retention-days: 30
-      - name: Commit se cambiato
+      - name: Pubblica i dati nel branch data
         if: ${{ always() }}
-        run: |
-          git config user.name "billocchi-bot"
-          git config user.email "billocchi-bot@users.noreply.github.com"
-          git add data
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: aggiorna dati EA"
-            for attempt in 1 2 3; do
-              git pull --rebase origin main && git push origin HEAD:main && exit 0
-              git rebase --abort 2>/dev/null || true
-              sleep 5
-            done
-            echo "Push fallito: snapshot conservato negli artifact del workflow."
-            exit 1
-          fi
+        run: bash scripts/publish-data.sh publish
+
       - name: Avvia il giro successivo (tutto il giorno)
         if: ${{ !cancelled() && steps.collect.outputs.chain == '1' }}
         run: gh workflow run update-data.yml --ref main -R "$GITHUB_REPOSITORY"

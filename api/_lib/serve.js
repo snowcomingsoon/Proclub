@@ -13,6 +13,7 @@ const FETCH_TIMEOUT_MS = 4000;
 
 const rootDir = () => process.env.DATA_ROOT || process.cwd();
 const repo = () => process.env.DATA_REPO || 'snowcomingsoon/Proclub';
+const branch = () => process.env.DATA_BRANCH || 'data';
 
 /** Data valida nel formato YYYY-MM-DD (niente 2026-02-31). */
 function validDay(day) {
@@ -24,7 +25,7 @@ function validDay(day) {
 /** Legge JSON da GitHub raw. Ritorna {status:'ok',text} | {status:'missing'} | {status:'error'}. */
 async function fromRemote(rel) {
   if (process.env.DATA_LOCAL_ONLY === '1') return { status: 'error' };
-  const url = `https://raw.githubusercontent.com/${repo()}/main/${rel}?refresh=${Math.floor(Date.now() / 60000)}`;
+  const url = `https://raw.githubusercontent.com/${repo()}/${branch()}/${rel}?refresh=${Math.floor(Date.now() / 60000)}`;
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), FETCH_TIMEOUT_MS);
   try {

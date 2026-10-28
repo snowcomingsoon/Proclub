@@ -1,0 +1,123 @@
+{
+ "version": 1,
+ "source": {
+  "commit": "36e4b79",
+  "capturedAt": "2026-10-27T21:16:36.415Z"
+ },
+ "club": {
+  "gamesPlayed": 92,
+  "wins": 47,
+  "ties": 13,
+  "losses": 32,
+  "goals": 259,
+  "goalsAgainst": 210
+ },
+ "players": {
+  "robe_92": {
+   "gamesPlayed": 12,
+   "goals": 15,
+   "assists": 7,
+   "manOfTheMatch": 4,
+   "redCards": 0
+  },
+  "rich87rich": {
+   "gamesPlayed": 35,
+   "goals": 34,
+   "assists": 15,
+   "manOfTheMatch": 3,
+   "redCards": 0
+  },
+  "garrus92": {
+   "gamesPlayed": 79,
+   "goals": 54,
+   "assists": 72,
+   "manOfTheMatch": 18,
+   "redCards": 0
+  },
+  "rghhgbvggg": {
+   "gamesPlayed": 16,
+   "goals": 1,
+   "assists": 8,
+   "manOfTheMatch": 1,
+   "redCards": 0
+  },
+  "we_belen": {
+   "gamesPlayed": 83,
+   "goals": 91,
+   "assists": 39,
+   "manOfTheMatch": 18,
+   "redCards": 0
+  },
+  "scemo897": {
+   "gamesPlayed": 9,
+   "goals": 2,
+   "assists": 3,
+   "manOfTheMatch": 0,
+   "redCards": 0
+  },
+  "naji_3": {
+   "gamesPlayed": 18,
+   "goals": 7,
+   "assists": 3,
+   "manOfTheMatch": 0,
+   "redCards": 0
+  },
+  "h2k_simoid": {
+   "gamesPlayed": 52,
+   "goals": 22,
+   "assists": 22,
+   "manOfTheMatch": 7,
+   "redCards": 0
+  },
+  "nyveex": {
+   "gamesPlayed": 60,
+   "goals": 8,
+   "assists": 15,
+   "manOfTheMatch": 8,
+   "redCards": 0
+  },
+  "draigon000": {
+   "gamesPlayed": 24,
+   "goals": 5,
+   "assists": 3,
+   "manOfTheMatch": 0,
+   "redCards": 1
+  },
+  "ame_96": {
+   "gamesPlayed": 0,
+   "goals": 0,
+   "assists": 0,
+   "manOfTheMatch": 0,
+   "redCards": 0
+  },
+  "axing_03": {
+   "gamesPlayed": 0,
+   "goals": 0,
+   "assists": 0,
+   "manOfTheMatch": 0,
+   "redCards": 0
+  },
+  "sixeyeswaowa": {
+   "gamesPlayed": 0,
+   "goals": 0,
+   "assists": 0,
+   "manOfTheMatch": 0,
+   "redCards": 0
+  },
+  "jefridiaz1955": {
+   "gamesPlayed": 0,
+   "goals": 0,
+   "assists": 0,
+   "manOfTheMatch": 0,
+   "redCards": 0
+  },
+  "hasanoos0": {
+   "gamesPlayed": 0,
+   "goals": 0,
+   "assists": 0,
+   "manOfTheMatch": 0,
+   "redCards": 0
+  }
+ },
+ "cutoff": 1793135681
+}

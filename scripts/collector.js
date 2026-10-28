@@ -21,7 +21,7 @@ const clone = (value) => JSON.parse(JSON.stringify(value));
 function pathsFor(root) {
   const d = (...p) => path.join(root, 'data', ...p);
   return {
-    data: d('data.json'), ledger: d('collection-ledger.json'), sync: d('sync-status.json'), candidate: d('season-candidate.json'),
+    data: d('data.json'), ledger: d('collection-ledger.json'), sync: d('sync-status.json'), candidate: d('season-candidate.json'), seed: path.join(root, 'config', 'unlisted-seed.json'),
     seasons: d('seasons'), matches: d('matches'), archiveIndex: d('archive', 'index.json'), backups: d('backups'), publicDir: d('public'),
   };
 }
@@ -50,6 +50,7 @@ async function collect({cfg, log, nowFn, P, previousHealth, fetchImpl, wait, eng
   let stored = readJson(P.data);              // ultimo snapshot su disco
   let old = stored;                           // riferimento per le letture arretrate (si rinnova a un cambio stagione)
   const savedLedger = readJson(P.ledger, null);
+  const unlistedSeed = readJson(P.seed, null);   // snapshot una tantum per un ledger esistente senza `unlisted`
   let storedLedgerSig = savedLedger ? sigOf(savedLedger) : null;
   // Un ledger di versione precedente, o assente, si ricostruisce dalla PRIMA lettura fresca e coerente di questa esecuzione.
   let original = savedLedger && savedLedger.version === 2 ? savedLedger : null;
@@ -133,7 +134,7 @@ async function collect({cfg, log, nowFn, P, previousHealth, fetchImpl, wait, eng
     // Conserva i risultati recenti anche di una competizione temporaneamente non disponibile.
     next.matches = mergeHistory(next.matches || [], collected).history.slice(0, 30);
     if (!original && fetched.has('club') && fetched.has('members') && !stale.club && !stale.members) original = initialize(next, CLUB_ID, nowFn());
-    if (original) { delete failures.ledger; ({state, summary} = reconcile(original, next, CLUB_ID, nowFn())); }
+    if (original) { delete failures.ledger; ({state, summary} = reconcile(original, next, CLUB_ID, nowFn(), {seed: unlistedSeed})); }
     else { failures.ledger = 'riferimento iniziale non disponibile: letture EA mancanti o arretrate'; const at = nowFn(); summary = {startedAt: at, checkedAt: at, issues: [], players: [], healthy: true}; }
     if (fetched.size) next.capturedAt = nowFn();
     next.collectionStatus = {...summary, endpointFailures: {...failures}, stale: {...stale}, attempts, complete: !Object.keys(failures).length && summary.healthy};

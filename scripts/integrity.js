@@ -1,3 +1,4 @@
+const unlisted=require('./unlisted');
 const GRACE_MS=12*3600*1000;
 const expired=(first,now)=>!!first&&Date.parse(now)-Date.parse(first)>=GRACE_MS;
 const norm=s=>String(s||'').trim().toLowerCase();
@@ -10,10 +11,11 @@ function initialize(data,clubId,now){
  const unmapped={};
  const players={};for(const m of data.members?.members||[]){const id=names.get(norm(m.name)),games=count(m.gamesPlayed);if(id&&games!=null)players[id]={id,name:m.name,anchor:games,highWater:games,cutoff,historicalMissing:Math.max(0,games-presence(history,id,clubId)),initialKnown:presence(history,id,clubId)};else if(games!=null)unmapped[norm(m.name)]={name:m.name,anchor:games,highWater:games,cutoff,historicalMissing:games,initialKnown:0};}
  const games=count(data.club?.[0]?.gamesPlayed);
- return {version:2,startedAt:now,players,unmapped,club:{anchor:games,highWater:games,cutoff},issues:[]};
+ return {version:2,startedAt:now,players,unmapped,club:{anchor:games,highWater:games,cutoff},issues:[],unlisted:unlisted.initialize(data,{clubId})};
 }
 /** Anchors never advance on a successful-looking poll: unresolved deficits survive future runs. */
-function reconcile(previous,data,clubId,now){
+/** `opts.seed`: riferimento una tantum per un ledger esistente senza `unlisted` (usato solo se coerente, vedi unlisted.js). */
+function reconcile(previous,data,clubId,now,opts={}){
  const state=JSON.parse(JSON.stringify(previous));const history=data.matchHistory||[],names=identities(history,clubId),issues=[],players=[];
  state.writtenOff=state.writtenOff||[];
  const prior=new Map((state.issues||[]).map(x=>[x.key,x]));
@@ -51,7 +53,13 @@ function reconcile(previous,data,clubId,now){
  }
  const partial=history.filter(m=>Number(m.timestamp)>state.club.cutoff&&(!Object.keys(m.players?.[clubId]||{}).length||Object.values(m.players?.[clubId]||{}).some(p=>!validPlayer(p))));
  if(partial.length)issue('partial-matches','incomplete_match_details',{count:partial.length,matchIds:partial.map(m=>String(m.matchId))});
+ // Partite non listate da EA: ricostruite dai contatori cumulativi (stessa tolleranza di 12h del write-off del club).
+ // Primo avvistamento già noto: problema club-matches ancora aperto o, alla prima creazione da seed, un write-off del club avvenuto dopo il riferimento.
+ let hint=prior.get('club-matches')?.firstSeen;
+ if(!hint&&!state.unlisted&&opts.seed){const after=state.writtenOff.filter(w=>w.scope==='club'&&Date.parse(w.since)>Number(opts.seed.cutoff)*1000);hint=after.length?after[0].since:undefined;}
+ const rebuilt=unlisted.step(state.unlisted||null,data,clubId,now,{seed:opts.seed,hint});
+ if(rebuilt.state)state.unlisted=rebuilt.state;
  state.writtenOff=state.writtenOff.slice(-200);state.issues=issues;state.checkedAt=now;
- return {state,summary:{startedAt:state.startedAt,checkedAt:now,issues,players,writtenOff:state.writtenOff.slice(-20),lostClubMatches:state.club.writtenOff||0,healthy:issues.length===0}};
+ return {state,summary:{startedAt:state.startedAt,checkedAt:now,issues,players,writtenOff:state.writtenOff.slice(-20),lostClubMatches:state.club.writtenOff||0,unlisted:rebuilt.summary,healthy:issues.length===0}};
 }
 module.exports={initialize,reconcile,validPlayer};

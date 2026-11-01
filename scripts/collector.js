@@ -5,7 +5,7 @@ const path = require('node:path');
 const {mergeHistory, notify} = require('./lib');
 const {initialize, reconcile} = require('./integrity');
 const {createEaClient} = require('./ea-client');
-const {loadConfig, ROOT} = require('./config');
+const {loadConfig, loadClubs, ROOT} = require('./config');
 const {readJson, writeJson, sleep} = require('./fsx');
 const {classifyCounters, observeSeason, changeSeason, currentSeason} = require('./season');
 const {writeMatchFiles, updateIndex, monthlyBackup} = require('./archive');
@@ -18,22 +18,26 @@ const VOLATILE_KEYS = new Set(['capturedAt', 'checkedAt', 'lastSeen', 'attempts'
 const sigOf = (value) => JSON.stringify(value, (key, v) => (VOLATILE_KEYS.has(key) ? undefined : v));
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
-function pathsFor(root) {
-  const d = (...p) => path.join(root, 'data', ...p);
+function pathsFor(root, dataDir = 'data', useUnlistedSeed = true) {
+  const segs = dataDir.split('/').filter(Boolean);
+  const d = (...p) => path.join(root, ...segs, ...p);
   return {
-    data: d('data.json'), ledger: d('collection-ledger.json'), sync: d('sync-status.json'), candidate: d('season-candidate.json'), seed: path.join(root, 'config', 'unlisted-seed.json'),
+    data: d('data.json'), ledger: d('collection-ledger.json'), sync: d('sync-status.json'), candidate: d('season-candidate.json'),
+    seed: useUnlistedSeed ? path.join(root, 'config', 'unlisted-seed.json') : null,
     seasons: d('seasons'), matches: d('matches'), archiveIndex: d('archive', 'index.json'), backups: d('backups'), publicDir: d('public'),
   };
 }
 
 /**
- * Esegue una raccolta. Dipendenze iniettabili per i test: {root, fetch, wait, now, config, engine, log}.
+ * Esegue una raccolta. Dipendenze iniettabili per i test: {root, fetch, wait, now, config, engine, log, dataDir, useUnlistedSeed}.
  * Ritorna {exitCode, failures, stale, ...}: non lancia mai (gli errori finiscono in health.json).
  */
 async function run(opts = {}) {
   const cfg = opts.config || loadConfig(opts.env || process.env);
   const root = opts.root || ROOT, log = opts.log || console, nowFn = opts.now || (() => new Date().toISOString());
-  const P = pathsFor(root);
+  const dataDir = opts.dataDir || cfg.dataDir || 'data';
+  const useUnlistedSeed = opts.useUnlistedSeed ?? (cfg.useUnlistedSeed !== false && dataDir === 'data');
+  const P = pathsFor(root, dataDir, useUnlistedSeed);
   const previousHealth = readJson(path.join(P.publicDir, 'health.json'), null);
   try {
     return await collect({cfg, root, log, nowFn, P, previousHealth, fetchImpl: opts.fetch || fetch, wait: opts.wait || sleep, engine: opts.engine});
@@ -44,13 +48,32 @@ async function run(opts = {}) {
   }
 }
 
+async function runAll(opts = {}) {
+  const clubs = loadClubs();
+  let exitCode = 0;
+  const results = {};
+  for (const club of clubs) {
+    const res = await run({...opts, config: club, dataDir: club.dataDir, useUnlistedSeed: !!club.useUnlistedSeed});
+    results[club.key] = res;
+    if (res.exitCode !== 0) exitCode = 1;
+  }
+  return {exitCode, results};
+}
+
 async function collect({cfg, log, nowFn, P, previousHealth, fetchImpl, wait, engine}) {
   const CLUB_ID = cfg.clubId;
   const client = createEaClient({fetchImpl, wait, platform: cfg.platform, clubId: CLUB_ID});
-  let stored = readJson(P.data);              // ultimo snapshot su disco
+  let stored = readJson(P.data, null) || {
+    capturedAt: null,
+    club: [],
+    members: {members: []},
+    matches: [],
+    matchHistory: [],
+    collectionStatus: {startedAt: nowFn()},
+  };
   let old = stored;                           // riferimento per le letture arretrate (si rinnova a un cambio stagione)
   const savedLedger = readJson(P.ledger, null);
-  const unlistedSeed = readJson(P.seed, null);   // snapshot una tantum per un ledger esistente senza `unlisted`
+  const unlistedSeed = P.seed ? readJson(P.seed, null) : null;   // snapshot una tantum per un ledger esistente senza `unlisted`
   let storedLedgerSig = savedLedger ? sigOf(savedLedger) : null;
   // Un ledger di versione precedente, o assente, si ricostruisce dalla PRIMA lettura fresca e coerente di questa esecuzione.
   let original = savedLedger && savedLedger.version === 2 ? savedLedger : null;
@@ -160,8 +183,8 @@ async function collect({cfg, log, nowFn, P, previousHealth, fetchImpl, wait, eng
 
   const allFailures = failuresOf(status);
   for (const w of warnings) log.warn(w);
-  log.log(JSON.stringify({attempts, failures: allFailures, stale, issues: summary.issues, newMatches: freshById.size, season: next.season?.id, seasonChange: seasonEvent ? seasonEvent.archivedId : undefined}));
+  log.log(JSON.stringify({club: cfg.key || 'billocchi', attempts, failures: allFailures, stale, issues: summary.issues, newMatches: freshById.size, season: next.season?.id, seasonChange: seasonEvent ? seasonEvent.archivedId : undefined}));
   return {exitCode: Object.keys(allFailures).length ? 1 : 0, failures: allFailures, stale, attempts, status, season: next.season, seasonChange: seasonEvent ? {from: seasonEvent.archivedId, to: seasonEvent.season.id} : null, warnings};
 }
 
-module.exports = {run, sigOf, pathsFor};
+module.exports = {run, runAll, sigOf, pathsFor};

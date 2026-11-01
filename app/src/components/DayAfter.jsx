@@ -14,6 +14,7 @@ import { missingByNight, reconstructedByNight } from '../lib/missing.js';
 import { getEditorialContext } from '../lib/editorial-ctx.js';
 import { notebookEditorial, verdictFor } from '../../../shared/editorial.mjs';
 import { buildSeasonProfile } from '../lib/season-profile.js';
+import { useClub } from '../lib/useClub.js';
 import { CoverStory } from './day-after/CoverStory.jsx';
 import { EditionBar } from './day-after/EditionBar.jsx';
 import { Masthead } from './day-after/Masthead.jsx';
@@ -28,20 +29,28 @@ import { TurningPoints } from './day-after/TurningPoints.jsx';
  * ai Pro, romanzo della stagione). `matches` è lo storico partite disponibile.
  */
 export function DayAfter({ members, matches, data, health }) {
-  const editorial = useMemo(() => getEditorialContext(data), [data]);
-  const nights = useMemo(() => groupByNight(matches), [matches]);
+  const { club, wasmReady } = useClub();
+  const editorial = useMemo(
+    () => getEditorialContext(data, club.id),
+    [data, club.id],
+  );
+  const nights = useMemo(
+    () => groupByNight(matches, club.id),
+    [matches, club.id, wasmReady],
+  );
   const [nightChoice, setNightChoice] = useState('');
   const [protagonistChoice, setProtagonistChoice] = useState('');
   const [copyState, setCopyState] = useState('');
   const selectedNight =
     nights.find((night) => night.day === nightChoice) || nights[0];
   const nightComments = useMemo(
-    () => buildNightComments(data, selectedNight?.games || [], editorial.all),
-    [data, editorial, selectedNight],
+    () =>
+      buildNightComments(data, selectedNight?.games || [], editorial.all, club.id),
+    [data, editorial, selectedNight, club.id],
   );
   const nightStats = useMemo(
-    () => summarizeNight(selectedNight?.games || []),
-    [selectedNight],
+    () => summarizeNight(selectedNight?.games || [], club.id),
+    [selectedNight, club.id, wasmReady],
   );
   const trials = buildTrials(nightStats.players, selectedNight?.day || '').map(
     ({ player, trial }) => {
@@ -99,7 +108,7 @@ export function DayAfter({ members, matches, data, health }) {
     ) ||
     members[0];
   const roleTrend = protagonist
-    ? buildRoleTrend(protagonist.name, matches)
+    ? buildRoleTrend(protagonist.name, matches, club.id)
     : null;
   const seasonProfile = protagonist
     ? buildSeasonProfile(

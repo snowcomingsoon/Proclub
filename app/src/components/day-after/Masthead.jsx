@@ -1,23 +1,26 @@
+import { useClub } from '../../lib/useClub.js';
+
 export function Masthead() {
+  const { club, clubKey } = useClub();
   return (
     <header className="paper-masthead">
       <img
-        src="/logo-billocchi.svg"
-        alt="Stemma BILLOCCHI CLUB"
-        width="80"
-        height="90"
+        src={club.logo}
+        alt={`Stemma ${club.name}`}
+        width={clubKey === 'faida' ? '88' : '80'}
+        height={clubKey === 'faida' ? '88' : '90'}
         decoding="async"
       />
       <div>
-        <h1>BILLOCCHI</h1>
-        <p>IL GIORNO DOPO</p>
+        <h1>{clubKey === 'faida' ? 'FAIDA FC' : 'BILLOCCHI'}</h1>
+        <p>{club.masthead}</p>
       </div>
       <span>
-        LA GAZZETTA DEL CLUB
+        {clubKey === 'faida' ? 'IL DOSSIER DEL CLUB' : 'LA GAZZETTA DEL CLUB'}
         <br />
         CRONACA · PAGELLE · VERDETTI
         <br />
-        <b>REDAZIONE BILLOCCHI</b>
+        <b>{club.redazione}</b>
       </span>
     </header>
   );

@@ -6,6 +6,7 @@ import { computeCardProfile } from '../lib/card-profile.js';
 import { formatProOverall } from '../lib/format.js';
 import { STATS_HREF } from '../lib/route.js';
 import { toNumber } from '../lib/stats.js';
+import { useClub } from '../lib/useClub.js';
 import { CollectorCard } from './CollectorCard.jsx';
 import { FormChart } from './pages/FormChart.jsx';
 
@@ -274,8 +275,9 @@ function Nights({ appearances }) {
 
 /** Vista `#/pro/<nome>`: pagina del giocatore costruita sul motore di analisi condiviso. */
 export function PlayerPage({ data, name }) {
+  const { club: clubMeta, wasmReady } = useClub();
   const analysis = useMemo(() => {
-    const all = buildAll(data).map((metrics) => {
+    const all = buildAll(data, clubMeta.id).map((metrics) => {
       const member = data.members.members.find((m) => m.name === metrics.name);
       return {
         ...metrics,
@@ -284,20 +286,29 @@ export function PlayerPage({ data, name }) {
           : null,
       };
     });
-    return { all, club: analyzeClub(data, undefined, all) };
-  }, [data]);
+    return { all, club: analyzeClub(data, clubMeta.id, all) };
+  }, [data, clubMeta.id]);
   const metrics = analysis.all.find(
     (item) => item.name.toLowerCase() === name.toLowerCase(),
   );
   const member = data.members.members.find((m) => m.name === metrics?.name);
   const appearances = useMemo(
-    () => (metrics ? appearancesFor(data.matchHistory || [], metrics.name) : []),
-    [data, metrics],
+    () =>
+      metrics
+        ? appearancesFor(data.matchHistory || [], metrics.name, clubMeta.id)
+        : [],
+    [data, metrics, clubMeta.id],
+  );
+  const profile = useMemo(
+    () =>
+      member
+        ? computeCardProfile(member, data.matches || [], clubMeta.id)
+        : null,
+    [member, data.matches, clubMeta.id, wasmReady],
   );
   if (!metrics || !member) return null;
 
   const comment = commentFor(metrics);
-  const profile = computeCardProfile(member, data.matches || []);
   const games = metrics.games;
   const enough = comment.tier !== 'campione_insufficiente';
   const rated = appearances.filter((game) => game.rating > 0);

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { CLUBS, withClubParam } from './constants.js';
 
 async function readRows(url) {
   const response = await fetch(url);
@@ -9,20 +10,22 @@ async function readRows(url) {
 }
 
 /**
- * Archivio risultati: prima /api/archive (aggiornato a runtime, senza deploy), poi il file
- * statico /archive.json incluso nel build. `status` 'loading' | 'ready' | 'error'.
+ * Archivio risultati del club attivo: prima /api/archive (aggiornato a runtime, senza deploy),
+ * poi il file statico incluso nel build. `status` 'loading' | 'ready' | 'error'.
  */
-export function useArchive() {
-  const [state, setState] = useState({ status: 'loading', rows: [] });
+export function useArchive(clubKey = 'billocchi') {
+  const spec = CLUBS[clubKey] || CLUBS.billocchi;
+  const [state, setState] = useState({ clubKey: spec.key, status: 'loading', rows: [] });
   useEffect(() => {
     let alive = true;
-    readRows('/api/archive')
-      .catch(() => readRows('/archive.json'))
-      .then((rows) => alive && setState({ status: 'ready', rows }))
-      .catch(() => alive && setState({ status: 'error', rows: [] }));
+    setState({ clubKey: spec.key, status: 'loading', rows: [] });
+    readRows(withClubParam('/api/archive', spec.key))
+      .catch(() => readRows(spec.archiveStaticUrl))
+      .then((rows) => alive && setState({ clubKey: spec.key, status: 'ready', rows }))
+      .catch(() => alive && setState({ clubKey: spec.key, status: 'error', rows: [] }));
     return () => {
       alive = false;
     };
-  }, []);
-  return state;
+  }, [spec.key, spec.archiveStaticUrl]);
+  return state.clubKey === spec.key ? state : { status: 'loading', rows: [] };
 }

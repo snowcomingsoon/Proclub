@@ -1,7 +1,6 @@
 'use strict';
-// Servizio dei file pubblici dei dati: GitHub raw (repo pubblica, nessun token)
-// con timeout; in caso di errore, i file inclusi nel deploy (data/public/**, data/data.json).
-// Usa solo l'API nativa di Node (statusCode/setHeader/end) così gira anche nel dev server Vite.
+// Servizio locale/test dei file pubblici dei dati (in produzione Vercel esegue api/*.rs in Rust).
+// Legge GitHub raw con timeout; in caso di errore ricade sui file del deploy e sul monolite del club.
 
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -10,6 +9,17 @@ const derive = require('./derive.js');
 
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const FETCH_TIMEOUT_MS = 4000;
+
+const CLUBS = {
+  billocchi: { key: 'billocchi', clubId: '70375', dataDir: 'data' },
+  faida: { key: 'faida', clubId: '2039010', dataDir: 'data/clubs/faida' },
+};
+
+function resolveClub(param) {
+  if (param == null || param === '' || param === 'billocchi') return CLUBS.billocchi;
+  if (param === 'faida') return CLUBS.faida;
+  return null;
+}
 
 const rootDir = () => process.env.DATA_ROOT || process.cwd();
 const repo = () => process.env.DATA_REPO || 'snowcomingsoon/Proclub';
@@ -51,8 +61,8 @@ function readLocal(rel) {
 }
 
 /** Il monolite incluso nel deploy, già parsato (o null). */
-function monolith() {
-  const text = readLocal('data/data.json');
+function monolith(club = CLUBS.billocchi) {
+  const text = readLocal(`${club.dataDir}/data.json`);
   if (!text) return null;
   try {
     return JSON.parse(text);
@@ -92,15 +102,6 @@ function parseQuery(url = '') {
   return Object.fromEntries(new URLSearchParams(i < 0 ? '' : url.slice(i + 1)));
 }
 
-/**
- * Crea un handler Vercel.
- * @param {object} opts
- * @param {(query:object) => string} opts.file  percorso relativo alla radice del repo
- * @param {(data:object, query:object) => object|null} [opts.derive]  ricostruzione dal monolite se il file manca
- * @param {(query:object) => string|null} [opts.validate]  codice d'errore se l'input non è valido
- * @param {number} [opts.sMaxAge]
- * @param {boolean} [opts.optional]  risorsa facoltativa: se manca risponde 204 (niente errore nella console del browser)
- */
 function makeHandler({ file, derive: deriveFn, sMaxAge = 60, validate, optional = false }) {
   return async function handler(req, res) {
     if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -108,9 +109,11 @@ function makeHandler({ file, derive: deriveFn, sMaxAge = 60, validate, optional 
       return sendError(req, res, 405, 'method_not_allowed');
     }
     const query = parseQuery(req.url);
-    const invalid = validate ? validate(query) : null;
+    const club = resolveClub(query.club);
+    if (!club) return sendError(req, res, 400, 'invalid_club');
+    const invalid = validate ? validate(query, club) : null;
     if (invalid) return sendError(req, res, 400, invalid);
-    const rel = file(query);
+    const rel = file(query, club);
 
     let text = null;
     let source = 'github';
@@ -129,8 +132,8 @@ function makeHandler({ file, derive: deriveFn, sMaxAge = 60, validate, optional 
         }
       }
       if (!text && deriveFn) {
-        const data = monolith();
-        const derived = data ? deriveFn(data, query) : null;
+        const data = monolith(club);
+        const derived = data ? deriveFn(data, query, club) : null;
         if (derived) {
           text = JSON.stringify(derived);
           source = 'monolith';
@@ -156,6 +159,7 @@ function makeHandler({ file, derive: deriveFn, sMaxAge = 60, validate, optional 
       'Cache-Control': source === 'github' ? `public, s-maxage=${sMaxAge}, must-revalidate` : 'no-store',
       ETag: etag,
       'X-Data-Source': source,
+      'X-Club': club.key,
     };
     if (matchesEtag(req.headers?.['if-none-match'], etag))
       return send(req, res, 304, undefined, headers);
@@ -164,4 +168,4 @@ function makeHandler({ file, derive: deriveFn, sMaxAge = 60, validate, optional 
   };
 }
 
-module.exports = { makeHandler, validDay, derive, etagOf, matchesEtag, parseQuery };
+module.exports = { makeHandler, validDay, derive, etagOf, matchesEtag, parseQuery, resolveClub, CLUBS };

@@ -1,9 +1,9 @@
 'use strict';
-// Genera data/public/*: contratto dati pubblico derivato SOLO da data/data.json + motore shared/.
+// Genera public/* per ogni club: contratto dati pubblico derivato SOLO da data.json + motore shared/.
 const fs = require('node:fs');
 const path = require('node:path');
 const {atomicWrite, readJson} = require('./fsx');
-const {loadConfig, ROOT} = require('./config');
+const {loadConfig, loadClubs, ROOT} = require('./config');
 const {loadEngine, loadSession, engineVersion} = require('./engine');
 const {buildHealth} = require('./health');
 const {currentSeason} = require('./season');
@@ -61,7 +61,7 @@ async function buildPublic(data, now, opts = {}) {
   for (const {day, matches} of nights) files[`nights/${day}.json`] = {day, matches};
   files['history.json'] = {version: 1, matchHistory: history};
 
-  if (engineState.ok) {
+  if (engineState.ok && data.club?.[0]) {
     try { files['insights.json'] = buildInsights(data, now, engine, clubId, opts.engineVersion || (() => { try { return engineVersion(); } catch { return 'unknown'; } })()); }
     catch (e) { engineState = {ok: false, error: String(e.message || e)}; }
   }
@@ -99,15 +99,33 @@ function writePublic(dir, files, {now = new Date().toISOString(), heartbeatMs = 
   return {written, unchanged, removed};
 }
 
-/** `npm run build:data`: rigenera data/public da data/data.json senza contare come una nuova esecuzione. */
+/** `npm run build:data`: rigenera public/* per ogni club registrato con data.json esistente. */
 async function main() {
-  const dataFile = path.join(ROOT, 'data', 'data.json'), dir = path.join(ROOT, 'data', 'public');
-  const data = readJson(dataFile);
+  const only = process.env.BUILD_ONLY_CLUB || '';
+  const clubs = loadClubs();
   const now = new Date().toISOString();
-  const {files, engine} = await buildPublic(data, now, {previousHealth: readJson(path.join(dir, 'health.json'), null), advance: false});
-  const result = writePublic(dir, files, {now});
-  if (!engine.ok) console.warn('Motore insights in errore:', engine.error);
-  console.log(JSON.stringify({written: result.written.length, unchanged: result.unchanged.length, removed: result.removed.length}));
+  const totals = {written: 0, unchanged: 0, removed: 0};
+  for (const club of clubs) {
+    if (only && club.key !== only && club.clubId !== only) continue;
+    const base = path.join(ROOT, ...club.dataDir.split('/'));
+    const dataFile = path.join(base, 'data.json');
+    if (!fs.existsSync(dataFile)) continue;
+    const dir = path.join(base, 'public');
+    const data = readJson(dataFile);
+    const {files, engine} = await buildPublic(data, now, {
+      clubId: club.clubId,
+      tz: club.timezone,
+      nightEndsAtHour: club.nightEndsAtHour,
+      previousHealth: readJson(path.join(dir, 'health.json'), null),
+      advance: false,
+    });
+    const result = writePublic(dir, files, {now});
+    if (!engine.ok) console.warn(`Motore insights in errore (${club.key}):`, engine.error);
+    totals.written += result.written.length;
+    totals.unchanged += result.unchanged.length;
+    totals.removed += result.removed.length;
+  }
+  console.log(JSON.stringify(totals));
 }
 
 if (require.main === module) main().catch((e) => { console.error(e); process.exitCode = 1; });

@@ -11,8 +11,8 @@ import { EvolutionProvider } from './components/Evolution.jsx';
 import { DayAfter } from './components/DayAfter.jsx';
 import { SiteHeader } from './components/SiteHeader.jsx';
 import { useRoute } from './lib/route.js';
-import { CLUB_ID } from './lib/constants.js';
 import { rankMembers } from './lib/defense.js';
+import { ClubContext, useClubController } from './lib/useClub.js';
 import { useClubData } from './lib/useClubData.js';
 
 const Constellation = lazy(() => import('./components/Constellation.jsx').then(m => ({default: m.Constellation})));
@@ -35,8 +35,10 @@ const StatsPage = lazy(() =>
 );
 
 function App() {
+  const clubCtrl = useClubController();
+  const { club: activeClub, clubKey, wasmReady } = clubCtrl;
   const { data, connection, freshKeys, lastSync, refreshing, refresh, health } =
-    useClubData();
+    useClubData(clubKey);
   const route = useRoute();
   const [belowReady, setBelowReady] = useState(false);
   const onBelowReady = useCallback(() => setBelowReady(true), []);
@@ -55,21 +57,26 @@ function App() {
   // Cambio vista: le pagine interne partono dall'alto; la home gestisce il proprio hash.
   useLayoutEffect(() => {
     if (view !== 'home' || !location.hash) window.scrollTo(0, 0);
-  }, [view, route.name]);
+  }, [view, route.name, clubKey]);
   useEffect(() => {
     document.title =
-      view === 'constellation' ? 'Costellazione — BILLOCCHI CLUB' : view === 'stats'
-        ? 'Statistiche — BILLOCCHI CLUB'
-        : view === 'player'
-          ? `${data.members.members.find((m) => m.name.toLowerCase() === route.name.toLowerCase())?.name} — BILLOCCHI CLUB`
-          : 'BILLOCCHI CLUB — Club Intelligence';
-  }, [view, route.name, data]);
+      view === 'constellation'
+        ? `Costellazione — ${activeClub.name}`
+        : view === 'stats'
+          ? `Statistiche — ${activeClub.name}`
+          : view === 'player'
+            ? `${data.members.members.find((m) => m.name.toLowerCase() === route.name.toLowerCase())?.name} — ${activeClub.name}`
+            : clubKey === 'faida'
+              ? `${activeClub.name} — Dark Intelligence`
+              : `${activeClub.name} — Club Intelligence`;
+  }, [view, route.name, data, activeClub.name, clubKey]);
   const recentMatches = data.matches || [];
   const sortedMembers = useMemo(
-    () => rankMembers(data.members.members, data.matchHistory || [], CLUB_ID),
-    [data],
+    () => rankMembers(data.members.members, data.matchHistory || [], activeClub.id),
+    [data, activeClub.id, wasmReady],
   );
   return (
+    <ClubContext.Provider value={clubCtrl}>
     <EvolutionProvider data={data}><div className="site">
       <SiteHeader
         connection={connection}
@@ -124,6 +131,7 @@ function App() {
       />
       </Suspense>
     </div></EvolutionProvider>
+    </ClubContext.Provider>
   );
 }
 

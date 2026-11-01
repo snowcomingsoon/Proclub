@@ -5,7 +5,11 @@ on:
     paths:
       - '.github/workflows/update-data.yml'
       - 'scripts/**'
+      - 'rust/**'
+      - 'crates/**'
+      - 'Cargo.toml'
       - 'config/club.json'
+      - 'config/clubs.json'
   schedule:
     # Ogni ora al minuto 17, più (nelle ore serali 17:00-01:59 UTC) un secondo avvio al minuto 47 come rete di sicurezza.
     # Durante la serata ogni esecuzione resta attiva ~50 minuti e interroga EA ogni 3 minuti (scripts/collect-loop.sh),
@@ -31,6 +35,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Compila il collector EA in Rust
+        run: cargo build --release --bin collector
       - name: Raccolta (un giro, o ripetuta durante la serata)
         id: collect
         run: bash scripts/collect-loop.sh

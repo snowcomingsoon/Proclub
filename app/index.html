@@ -13,6 +13,17 @@
     <meta name="twitter:card" content="summary" />
     <meta name="theme-color" content="#0b0f0c" />
     <link rel="icon" href="/logo-billocchi.svg" />
+    <script>
+      (function () {
+        var q = new URLSearchParams(location.search);
+        var c = q.get('club') === 'faida' || location.hash === '#/faida' || location.hash === '#faida' ? 'faida' : 'billocchi';
+        document.documentElement.dataset.club = c;
+        if (c === 'faida') {
+          var ic = document.querySelector('link[rel="icon"]');
+          if (ic) ic.href = '/logo-faida.png';
+        }
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" media="print" onload="this.media='all'" />

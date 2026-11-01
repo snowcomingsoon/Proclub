@@ -181,7 +181,7 @@ export function awardLabel(rating, multiple) {
  * `record` = {wins, draws, losses, goals, against, games}; `players` = totali di serata;
  * `metricsByName` = metricsIndex(buildAll).
  */
-export function coverEditorial({day = '', record, winners = [], players = [], metricsByName}) {
+export function coverEditorial({day = '', record, winners = [], players = [], metricsByName, clubName = 'BILLOCCHI CLUB'}) {
   const n = record.games, seed = hash(day + (winners[0] ? winners[0].name : ''));
   const tp = teamPasses(players);
   const leader = winners[0] || [...players].filter(p => p.rating != null).sort((a, b) => b.rating - a.rating)[0];
@@ -208,7 +208,7 @@ export function coverEditorial({day = '', record, winners = [], players = [], me
     `${plural(record.wins, 'vittoria', 'vittorie')}, ${plural(record.draws, 'pareggio', 'pareggi')} e ${plural(record.losses, 'sconfitta', 'sconfitte')}; ${record.goals} reti segnate e ${record.against} subite, saldo ${sign(diff)}${diff}.`,
     diff > 0 && record.against / Math.max(1, n) >= 1.5 ? 'Il saldo è positivo; dietro c’è margine per subire meno.' : diff < 0 ? 'Attacco e tenuta possono crescere insieme.' : '');
   return {
-    name: winners.length ? winners.map(w => w.name).join(' + ') : leader ? leader.name : 'BILLOCCHI CLUB',
+    name: winners.length ? winners.map(w => w.name).join(' + ') : leader ? leader.name : clubName,
     title, deck, closing: coverClosing(record, tp, seed), balance, note: '',
     awardLabel: awardLabel(leader ? leader.rating : null, winners.length > 1),
   };

@@ -2,7 +2,7 @@ import {
   coverEditorial,
   turningPointsEditorial,
 } from '../../../shared/editorial.mjs';
-import { CLUB_ID } from './constants.js';
+import { getActiveClub, getActiveClubId } from './constants.js';
 import {
   formatLongDate,
   formatMatchTime,
@@ -21,9 +21,10 @@ const charCodeSum = (text) =>
  * condiviso: `ctx` = { metricsByName, club } da `buildAll` / `analyzeClub`.
  */
 export function buildCover(nightStats, gameCount, day = '', ctx = {}) {
+  const activeClub = getActiveClub();
   if (!nightStats.players.length)
     return {
-      name: 'BILLOCCHI CLUB',
+      name: activeClub.name,
       title: 'La prossima storia aspetta il fischio d’inizio.',
       deck: 'Le prime gare registrate apriranno la prima pagina del club.',
       closing: '',
@@ -45,13 +46,14 @@ export function buildCover(nightStats, gameCount, day = '', ctx = {}) {
     players: nightStats.players,
     metricsByName: ctx.metricsByName,
     club: ctx.club,
+    clubName: activeClub.name,
   });
 }
 
 /** Fino a tre svolte della serata, con testi critici basati sui dati EA delle gare. */
 export function buildTurningPoints(games, ctx = {}) {
   return turningPointsEditorial(games, {
-    clubId: CLUB_ID,
+    clubId: getActiveClubId(),
     metricsByName: ctx.metricsByName,
     fmtTime: formatMatchTime,
   });
@@ -203,17 +205,17 @@ export function buildTrials(players, salt) {
 }
 
 /** Andamento dei voti EA di un Pro nell'ultimo reparto giocato (ultime 12 gare con voto). */
-export function buildRoleTrend(playerName, matches) {
+export function buildRoleTrend(playerName, matches, clubId = getActiveClubId()) {
   const appearances = [
     ...new Map(
       matches
-        .filter((match) => match.clubs?.[CLUB_ID])
+        .filter((match) => match.clubs?.[clubId])
         .map((match) => [String(match.matchId), match]),
     ).values(),
   ]
     .sort((a, b) => a.timestamp - b.timestamp)
     .flatMap((match) =>
-      Object.values(match.players?.[CLUB_ID] || {})
+      Object.values(match.players?.[clubId] || {})
         .filter(
           (player) =>
             player &&
@@ -261,6 +263,7 @@ export function buildRoleTrend(playerName, matches) {
 /** Testo da copiare per condividere l'edizione della serata nella chat del club. */
 export function buildShareText({ night, nightStats, cover, trials }) {
   if (!night) return '';
+  const activeClub = getActiveClub();
   const { winners } = nightStats;
   const bestOfNight = winners.length
     ? `${cover.awardLabel}: ${winners.map((winner) => winner.name).join(' + ')} · media EA ${formatRating(winners[0].rating)}.\n`
@@ -271,5 +274,9 @@ export function buildShareText({ night, nightStats, cover, trials }) {
         `\n${player.name} · ${formatRating(player.rating)} EA\n${trial.praise ? `A favore: ${trial.praise}\n` : ''}Accusa: ${trial.charge}\nProva: ${trial.proof}\nVerdetto: ${trial.verdict}`,
     )
     .join('\n');
-  return `BILLOCCHI · IL GIORNO DOPO\nSerata del ${formatLongDate(night.day)}\n${cover.title}\n${cover.deck}\n${cover.closing ? cover.closing + '\n' : ''}${night.games.length} gare: ${nightStats.wins}V ${nightStats.draws}P ${nightStats.losses}S · ${nightStats.goals} gol fatti, ${nightStats.against} subiti.\n${bestOfNight}${verdicts}\nhttps://billocchi-club.kr3n.chatgpt.site/`;
+  const shareFooter =
+    activeClub.key === 'faida'
+      ? activeClub.shareUrl
+      : 'https://billocchi-club.kr3n.chatgpt.site/';
+  return `${activeClub.short} · ${activeClub.masthead}\nSerata del ${formatLongDate(night.day)}\n${cover.title}\n${cover.deck}\n${cover.closing ? cover.closing + '\n' : ''}${night.games.length} gare: ${nightStats.wins}V ${nightStats.draws}P ${nightStats.losses}S · ${nightStats.goals} gol fatti, ${nightStats.against} subiti.\n${bestOfNight}${verdicts}\n${shareFooter}`;
 }

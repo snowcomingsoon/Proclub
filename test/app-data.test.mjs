@@ -204,7 +204,7 @@ test('percorso dati: collaudato per impostazione predefinita, nuovo solo su rich
 });
 test('api/data legge dal monolite remoto con ripiego sul deploy', async () => {
   process.env.DATA_LOCAL_ONLY = '1';
-  const handler = (await import('node:module')).createRequire(import.meta.url)('../api/data.js');
+  const handler = (await import('node:module')).createRequire(import.meta.url)('../api/_lib/endpoints/data.js');
   const res = { headers: {}, setHeader(k, v) { this.headers[k] = v; }, end(b) { this.body = b; } };
   await handler({ method: 'GET', url: '/api/data', headers: {} }, res);
   assert.equal(res.statusCode, 200);

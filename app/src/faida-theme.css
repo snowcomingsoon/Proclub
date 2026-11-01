@@ -1,0 +1,1443 @@
+/*
+ * Top Club Switcher (visibile su entrambi i club) + Tema Dark / Cattivo per FAIDA FC.
+ * Attivato tramite html[data-club="faida"] impostato già in <head> prima del primo paint.
+ */
+
+/* --- Header a due livelli: barra club in alto + barra navigazione --- */
+.nav {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+}
+
+.club-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 7px max(3vw, 18px);
+  background: linear-gradient(90deg, #050c09 0%, #09120e 46%, #16060b 100%);
+  border-bottom: 1px solid #24382c;
+}
+
+.club-bar-label {
+  font: 800 10px / 1 'DM Sans', sans-serif;
+  letter-spacing: 0.2em;
+  color: #8ca393;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.club-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px;
+  border-radius: 999px;
+  background: #040807;
+  border: 1px solid #27392e;
+  box-shadow: inset 0 1px 6px #000a;
+}
+
+.club-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 5px 14px 5px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #a9bbb0;
+  font: 800 15px / 1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: background 0.22s, color 0.22s, border-color 0.22s, box-shadow 0.22s, transform 0.18s;
+}
+
+.club-btn img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 50%;
+  flex: none;
+}
+
+.club-btn small {
+  font: 800 9px / 1 'DM Sans', sans-serif;
+  letter-spacing: 0.14em;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: #2b0911;
+  color: #ff5c72;
+  border: 1px solid #6b1526;
+}
+
+.club-btn-billocchi:hover {
+  color: #eef8e3;
+  border-color: #547544;
+}
+
+.club-btn-billocchi.active {
+  background: linear-gradient(135deg, #203c26, #112418);
+  color: #f4fbe8;
+  border-color: #c8f366;
+  box-shadow: 0 0 16px #d2fb6a2b;
+}
+
+/* Il pulsante FAIDA FC ha già un accento dark-cremisi anche dalla vista Billocchi */
+.club-btn-faida {
+  color: #e4c6cb;
+  background: linear-gradient(135deg, #16060a, #0b0305);
+  border-color: #4f1320;
+}
+
+.club-btn-faida:hover {
+  color: #fff;
+  border-color: #ff2a48;
+  box-shadow: 0 0 18px #ff1e3c45;
+  transform: translateY(-1px);
+}
+
+.club-btn-faida.active {
+  background: linear-gradient(135deg, #4b0917 0%, #1d040a 65%, #0e0205 100%);
+  color: #fff5f6;
+  border-color: #ff2a48;
+  box-shadow: 0 0 22px #ff1e3c66, inset 0 0 14px #ff2a4833;
+}
+
+.club-btn-faida.active small {
+  background: #ff2442;
+  color: #160205;
+  border-color: #ff6b7f;
+}
+
+.club-vs-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #6b4e38;
+  background: radial-gradient(circle, #181014 0%, #050506 100%);
+  flex: none;
+  cursor: pointer;
+  box-shadow: 0 0 12px #000c, -2px 0 10px #c8f36633, 2px 0 10px #ff244244;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.club-vs-badge:hover {
+  transform: scale(1.12);
+  border-color: #ff4d67;
+  box-shadow: -3px 0 14px #c8f36666, 3px 0 16px #ff244288;
+}
+
+.club-vs-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vs-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: radial-gradient(circle at 50% 45%, #12090eef 0%, #030405f7 100%);
+  backdrop-filter: blur(10px);
+}
+
+.vs-modal-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-width: min(460px, 92vw);
+  width: 100%;
+  padding: 26px 24px 22px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0b1610 0%, #070709 48%, #18050a 100%);
+  border: 1px solid #3f2830;
+  box-shadow:
+    0 24px 70px #000e,
+    -12px 0 42px #c8f3661f,
+    12px 0 42px #ff1e3c2e;
+}
+
+.vs-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #3d2c33;
+  background: #100b0e;
+  color: #e9dde0;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.vs-modal-close:hover {
+  border-color: #ff2a48;
+  color: #fff;
+}
+
+.vs-modal-kicker {
+  font: 800 10px / 1 'DM Sans', sans-serif;
+  letter-spacing: 0.22em;
+  color: #d6c5ca;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.vs-modal-crest {
+  width: min(350px, 76vw);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  filter: drop-shadow(-8px 0 24px #c8f36633) drop-shadow(8px 0 26px #ff1e3c44);
+}
+
+.vs-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.vs-modal-download {
+  font: 700 12px / 1.2 'DM Sans', sans-serif;
+  letter-spacing: 0.06em;
+  color: #cfc4c7;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.vs-modal-download:hover {
+  color: #fff;
+}
+
+.engine-pill {
+  font: 800 10px / 1 'DM Sans', sans-serif;
+  letter-spacing: 0.16em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #35503f;
+  background: #0c1b14;
+  color: #b7d3b0;
+  white-space: nowrap;
+}
+
+.nav-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  min-height: 68px;
+  padding: 8px max(3vw, 18px);
+}
+
+.content,
+.pg .content,
+.day-after,
+section[id] {
+  scroll-margin-top: 148px;
+}
+
+@media (max-width: 900px) {
+  .club-bar-label,
+  .engine-pill {
+    display: none;
+  }
+  .club-bar {
+    justify-content: center;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 800px) {
+  .nav {
+    padding: 0;
+  }
+  .nav-main {
+    flex-wrap: wrap;
+    gap: 4px;
+    min-height: 0;
+    padding: 8px 16px 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .club-switch {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .club-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 5px 8px;
+    font-size: 14px;
+  }
+  .club-btn small {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   TEMA FAIDA FC — PIÙ DARK, PIÙ CATTIVO (Obsidian, Blood Crimson & Razor Steel)
+   ========================================================================== */
+
+html[data-club='faida'] {
+  --bg: #040203;
+  --panel: #0b0507;
+  --panel2: #13070b;
+  --line: #38111b;
+  --muted: #b0949a;
+  --lime: #ff2442;
+  --white: #f7eeef;
+}
+
+html[data-club='faida'] body {
+  background:
+    radial-gradient(ellipse at 50% -10%, #2b0610 0%, transparent 52%),
+    radial-gradient(circle at 90% 25%, #1c040b 0%, transparent 40%),
+    var(--bg);
+  color: var(--white);
+}
+
+/* Header & Club bar in modalità FAIDA */
+html[data-club='faida'] .nav {
+  background: #060204eb;
+  border-bottom: 1px solid #47111e;
+  box-shadow: 0 12px 38px #000c;
+}
+
+html[data-club='faida'] .club-bar {
+  background: linear-gradient(90deg, #090204 0%, #1a040a 50%, #090204 100%);
+  border-bottom-color: #3b0e19;
+}
+
+html[data-club='faida'] .club-bar-label {
+  color: #b98a94;
+}
+
+html[data-club='faida'] .club-switch {
+  background: #050103;
+  border-color: #46111e;
+}
+
+html[data-club='faida'] .engine-pill {
+  background: #19050a;
+  border-color: #691628;
+  color: #ff697e;
+}
+
+html[data-club='faida'] .brand small {
+  color: #c28894;
+}
+
+html[data-club='faida'] .brand .site-logo {
+  filter: drop-shadow(0 0 12px #ff1e3c66);
+}
+
+html[data-club='faida'] .nav nav {
+  color: #ccb3b8;
+}
+
+html[data-club='faida'] .nav .section-navigation {
+  scrollbar-color: #70192b transparent;
+}
+
+html[data-club='faida'] .nav-dot {
+  background: #6f4851;
+}
+
+html[data-club='faida'] .is-active .nav-dot {
+  background: var(--lime);
+  box-shadow: 0 0 0 3px #ff244235, 0 0 10px var(--lime);
+}
+
+html[data-club='faida'] .status {
+  color: #d8b5bc;
+  border-color: #4d1623;
+  background: #110408;
+}
+
+html[data-club='faida'] .status i {
+  background: #6c4a51;
+}
+
+html[data-club='faida'] .status i.active {
+  background: var(--lime);
+  box-shadow: 0 0 14px var(--lime);
+  animation-name: faida-heartbeat;
+}
+
+@keyframes faida-heartbeat {
+  50% {
+    box-shadow: 0 0 0 6px #ff244230, 0 0 16px #ff2442;
+  }
+}
+
+/* Banner Costellazione in cima alla home */
+html[data-club='faida'] .constellation-entry {
+  background:
+    radial-gradient(ellipse at 20% 50%, #4a0a1855, transparent 60%),
+    linear-gradient(135deg, #130509 0%, #090305 100%) !important;
+  border-color: #6b1628 !important;
+  color: #f8eaec !important;
+  box-shadow: 0 16px 44px #000b, inset 0 0 28px #ff1e3c14 !important;
+}
+
+html[data-club='faida'] .constellation-entry:hover {
+  border-color: #ff2442 !important;
+  box-shadow: 0 18px 50px #ff1e3c29, inset 0 0 32px #ff1e3c24 !important;
+}
+
+html[data-club='faida'] .constellation-entry-symbol,
+html[data-club='faida'] .constellation-entry b,
+html[data-club='faida'] .constellation-entry strong {
+  color: #ff3853 !important;
+}
+
+html[data-club='faida'] .constellation-entry small {
+  color: #c7a6ad !important;
+}
+
+/* ==========================================================================
+   IL GIORNO DOPO -> "CRONACA NERA" (Gazzetta notturna ossidiana & sangue)
+   ========================================================================== */
+
+html[data-club='faida'] .day-after {
+  --paper: #0a0407;
+  --paper-ink: #f5eaec;
+  --paper-green: #ff334f;
+  --paper-red: #ff6b4a;
+  --paper-line: #3d141f;
+  background:
+    radial-gradient(ellipse at 50% 0%, #240710 0%, transparent 55%),
+    linear-gradient(180deg, #0d0508 0%, #080305 100%);
+  color: var(--paper-ink);
+  border: 1px solid #3c111d;
+  border-top: 6px solid #ff2442;
+  box-shadow: 0 34px 95px #000e, 0 0 55px #ff173814;
+}
+
+html[data-club='faida'] :is(
+  .day-after a:focus-visible,
+  .day-after button:focus-visible,
+  .day-after summary:focus-visible,
+  .day-after select:focus-visible,
+  .day-after textarea:focus-visible
+) {
+  outline-color: #ff2442;
+}
+
+html[data-club='faida'] .day-after select {
+  background: #16070c;
+  color: #f7eeef;
+  border-color: #681c2d;
+}
+
+html[data-club='faida'] .paper-edition-bar {
+  border-bottom-color: #451420;
+  color: #e0bbc2;
+}
+
+html[data-club='faida'] .paper-masthead {
+  border-bottom-color: #5c1828;
+}
+
+html[data-club='faida'] .paper-masthead > img {
+  filter: drop-shadow(0 0 16px #ff1e3c75);
+}
+
+html[data-club='faida'] .paper-masthead h1 {
+  color: #fbf2f3;
+  text-shadow: 0 0 34px #ff1e3c38;
+}
+
+html[data-club='faida'] .paper-masthead p {
+  color: #ff2e4c;
+}
+
+html[data-club='faida'] .paper-masthead > span {
+  color: #b8949c;
+  border-left-color: #461622;
+}
+
+html[data-club='faida'] .paper-masthead > span > b {
+  color: #ff4760;
+}
+
+html[data-club='faida'] .paper-nav {
+  border-bottom-color: #3d141f;
+  color: #e4c7cd;
+}
+
+html[data-club='faida'] .paper-nav a:hover {
+  color: #ff3853;
+}
+
+html[data-club='faida'] .paper-cover {
+  border-bottom-color: #521624;
+}
+
+html[data-club='faida'] .paper-eyebrow,
+html[data-club='faida'] .paper-section-heading > span,
+html[data-club='faida'] .paper-section-heading > div > span {
+  color: #ff3b56;
+}
+
+html[data-club='faida'] .paper-lead h2,
+html[data-club='faida'] .paper-section-heading h3,
+html[data-club='faida'] .paper-turning-grid h4,
+html[data-club='faida'] .paper-trial h4 {
+  color: #faf0f1;
+}
+
+html[data-club='faida'] .paper-section-heading h3 em {
+  color: #ff3b56;
+}
+
+html[data-club='faida'] .paper-deck,
+html[data-club='faida'] .paper-lead-details > p,
+html[data-club='faida'] .paper-turning-grid p,
+html[data-club='faida'] .paper-section-heading > p {
+  color: #d5bcc1;
+}
+
+html[data-club='faida'] .paper-lead-details summary,
+html[data-club='faida'] .paper-turning-grid details summary,
+html[data-club='faida'] .paper-open-case,
+html[data-club='faida'] .paper-verdict summary,
+html[data-club='faida'] .paper-longread > summary {
+  color: #ff4d65;
+  border-color: #5c1b29;
+}
+
+html[data-club='faida'] .paper-lead-details summary:after {
+  color: #ff4d65;
+}
+
+html[data-club='faida'] .paper-cover-side {
+  border-left-color: #451521;
+  border-top-color: #451521;
+}
+
+html[data-club='faida'] .paper-cover-award {
+  background: linear-gradient(155deg, #2b0711 0%, #140409 100%);
+  border-top-color: #ff2442;
+  color: #fff2f4;
+  box-shadow: inset 0 0 28px #ff1e3c1a;
+}
+
+html[data-club='faida'] .paper-cover-award > svg,
+html[data-club='faida'] .paper-cover-award > div > b {
+  color: #ff2e4c;
+}
+
+html[data-club='faida'] .paper-cover-award > span,
+html[data-club='faida'] .paper-cover-award > div > small {
+  color: #dfb9c0;
+}
+
+html[data-club='faida'] .paper-cover-number {
+  border-bottom-color: #421420;
+}
+
+html[data-club='faida'] .paper-cover-number > b {
+  color: #fff0f2;
+}
+
+html[data-club='faida'] .paper-cover-number > span,
+html[data-club='faida'] .paper-cover-side > p {
+  color: #c7a3aa;
+}
+
+html[data-club='faida'] .paper-results {
+  border-bottom-color: #421420;
+}
+
+html[data-club='faida'] .paper-record {
+  border-right-color: #421420;
+}
+
+html[data-club='faida'] .paper-record > span {
+  color: #ff4760;
+}
+
+html[data-club='faida'] .paper-record > strong > small,
+html[data-club='faida'] .paper-record > p {
+  color: #bfa0a7;
+}
+
+html[data-club='faida'] .paper-score-strip {
+  scrollbar-color: #7d1b30 #14060a;
+}
+
+html[data-club='faida'] .paper-score {
+  background: #14070b;
+  border: 1px solid #35111b;
+  border-bottom: 3px solid #6b4951;
+}
+
+html[data-club='faida'] .paper-score.V {
+  border-bottom-color: #ff2442;
+}
+
+html[data-club='faida'] .paper-score.S {
+  border-bottom-color: #7f2d24;
+}
+
+html[data-club='faida'] .paper-score.P {
+  border-bottom-color: #8b7b80;
+}
+
+html[data-club='faida'] .paper-score summary > span,
+html[data-club='faida'] .paper-score summary > small,
+html[data-club='faida'] .paper-score summary:after {
+  color: #c5a3aa;
+}
+
+html[data-club='faida'] .paper-match-pros > div {
+  border-top-color: #2f1019;
+}
+
+html[data-club='faida'] .paper-match-pros span {
+  color: #bd9aa2;
+}
+
+html[data-club='faida'] .paper-match-pros b {
+  color: #ff4d65;
+}
+
+html[data-club='faida'] .paper-gap-note {
+  color: #d6b2b9;
+}
+
+html[data-club='faida'] .paper-turning,
+html[data-club='faida'] .paper-season {
+  border-bottom-color: #491623;
+}
+
+html[data-club='faida'] .paper-turning-grid > article {
+  border-color: #3d141f !important;
+}
+
+html[data-club='faida'] .paper-story-no {
+  color: #ff2e4c;
+}
+
+html[data-club='faida'] .paper-proof-matches > div {
+  border-top-color: #34111a;
+}
+
+html[data-club='faida'] .paper-proof-matches time {
+  color: #b49299;
+}
+
+html[data-club='faida'] .paper-proof-matches b {
+  color: #fff0f2;
+}
+
+html[data-club='faida'] .paper-proof-matches i {
+  color: #ff3b56;
+}
+
+html[data-club='faida'] .paper-proof-matches i.S {
+  color: #ff8a65;
+}
+
+html[data-club='faida'] .paper-proof-matches i.P {
+  color: #9e8a8f;
+}
+
+html[data-club='faida'] .paper-trial {
+  background: #110509;
+  border-color: #38121c;
+}
+
+html[data-club='faida'] .paper-trial.is-cover-pro {
+  background: linear-gradient(180deg, #21070f 0%, #120509 100%);
+  border-top: 2px solid #ff2442;
+}
+
+html[data-club='faida'] .paper-trial-top > span,
+html[data-club='faida'] .paper-trial-top > b small,
+html[data-club='faida'] .paper-trial-stats {
+  color: #bfa0a7;
+  border-color: #35111b;
+}
+
+html[data-club='faida'] .paper-trial-top svg,
+html[data-club='faida'] .paper-trial-title {
+  color: #ff4d65;
+}
+
+html[data-club='faida'] .paper-praise > span,
+html[data-club='faida'] .paper-verdict > div > span {
+  color: #ff4d65;
+}
+
+html[data-club='faida'] .paper-praise p,
+html[data-club='faida'] .paper-verdict > div > p {
+  color: #dec6ca;
+}
+
+html[data-club='faida'] .paper-trial blockquote {
+  background: #1c070d;
+  border-left-color: #ff2442;
+}
+
+html[data-club='faida'] .paper-trial blockquote > span,
+html[data-club='faida'] .paper-trial blockquote > svg {
+  color: #ff6b7f;
+}
+
+html[data-club='faida'] .paper-trial blockquote > p {
+  color: #f3dce0;
+}
+
+html[data-club='faida'] .paper-verdict {
+  border-top-color: #36121c;
+}
+
+html[data-club='faida'] .paper-trial-evidence span {
+  background: #1d080e;
+  color: #f0ccd2;
+  border: 1px solid #471522;
+}
+
+html[data-club='faida'] .paper-verdict small {
+  color: #ae8e95;
+  border-top-color: #33111a;
+}
+
+html[data-club='faida'] .paper-notebook {
+  background: linear-gradient(135deg, #24060f 0%, #120408 100%);
+  border: 1px solid #591626;
+  color: #f8eaec;
+}
+
+html[data-club='faida'] .paper-notebook > svg,
+html[data-club='faida'] .paper-notebook > div > span {
+  color: #ff3853;
+}
+
+html[data-club='faida'] .paper-notebook p {
+  color: #dfc3c8;
+}
+
+html[data-club='faida'] .paper-notebook button {
+  background: #ff2442;
+  border-color: #ff566d;
+  color: #160205;
+}
+
+html[data-club='faida'] .paper-notebook button:hover {
+  background: #ff425c;
+}
+
+html[data-club='faida'] .paper-manual-copy {
+  color: #e3bfc6;
+}
+
+html[data-club='faida'] .paper-manual-copy textarea {
+  background: #120508;
+  color: #f7eeef;
+  border-color: #611b2b;
+}
+
+html[data-club='faida'] .paper-season > .paper-section-heading label {
+  color: #cfb0b7;
+}
+
+html[data-club='faida'] .paper-season-layout {
+  border-color: #4a1623;
+}
+
+html[data-club='faida'] .paper-season-index {
+  background: linear-gradient(165deg, #25060f 0%, #110408 100%);
+  color: #f4e2e5;
+}
+
+html[data-club='faida'] .paper-season-index > svg,
+html[data-club='faida'] .paper-season-index > div > b,
+html[data-club='faida'] .paper-season-index > p > strong {
+  color: #ff2e4c;
+}
+
+html[data-club='faida'] .paper-season-index > span,
+html[data-club='faida'] .paper-season-index > div > span,
+html[data-club='faida'] .paper-season-index > p {
+  color: #d6b6bd;
+}
+
+html[data-club='faida'] .paper-season-totals {
+  border-top-color: #541827;
+}
+
+html[data-club='faida'] .paper-season-totals > span > b,
+html[data-club='faida'] .paper-season-index h4 {
+  color: #fff2f4;
+}
+
+html[data-club='faida'] .paper-season-index > a {
+  color: #ff5970;
+  border-bottom-color: #ff2442;
+}
+
+html[data-club='faida'] .paper-season-story {
+  background: #0e0407;
+}
+
+html[data-club='faida'] .paper-season-story > h4 {
+  color: #fff0f2;
+}
+
+html[data-club='faida'] .paper-season-story > p,
+html[data-club='faida'] .paper-chapters p {
+  color: #d8bfc4;
+}
+
+html[data-club='faida'] .paper-trend {
+  background: #16060b;
+  border-left-color: #ff2442;
+}
+
+html[data-club='faida'] .paper-trend > div > span {
+  color: #ff4d65;
+}
+
+html[data-club='faida'] .paper-trend > div > strong {
+  color: #faf0f1;
+}
+
+html[data-club='faida'] .paper-trend svg line {
+  stroke: #4c1926;
+}
+
+html[data-club='faida'] .paper-trend svg polyline {
+  stroke: #ff2e4c;
+}
+
+html[data-club='faida'] .paper-trend svg circle {
+  fill: #ff2442;
+  stroke: #16060b;
+}
+
+html[data-club='faida'] .paper-trend > p {
+  color: #d6bcc1;
+}
+
+html[data-club='faida'] .paper-trend > small {
+  color: #af8e95;
+}
+
+html[data-club='faida'] .paper-chapters > details {
+  border-bottom-color: #36121c;
+}
+
+html[data-club='faida'] .paper-chapters summary > span {
+  color: #ff5970;
+}
+
+html[data-club='faida'] .paper-chapters summary > strong {
+  color: #f6e7ea;
+}
+
+html[data-club='faida'] .paper-chapters summary:after {
+  color: #ff3853;
+}
+
+html[data-club='faida'] .paper-method,
+html[data-club='faida'] .paper-empty p {
+  color: #b5949b;
+}
+
+/* Box Adani dentro la gazzetta dark */
+html[data-club='faida'] .adani-comment {
+  border-color: #411520;
+}
+
+html[data-club='faida'] .adani-kicker,
+html[data-club='faida'] .adani-motion {
+  color: #ff4760;
+}
+
+html[data-club='faida'] .adani-comment blockquote {
+  color: #fff0f2;
+}
+
+html[data-club='faida'] .adani-comment p,
+html[data-club='faida'] .adani-comment details > summary,
+html[data-club='faida'] .adani-comment details small {
+  color: #ccb0b6;
+}
+
+html[data-club='faida'] .adani-mini {
+  background: radial-gradient(at 50% 66%, #59122275 0, #24070e55 45%, transparent 72%);
+}
+
+/* ==========================================================================
+   PANORAMICA, SALA ANALISI, VOTI, ROSA, SPOGLIATOIO, ARCHIVIO, FOOTER
+   ========================================================================== */
+
+html[data-club='faida'] .refresh,
+html[data-club='faida'] .source {
+  border-color: #6b1a2b;
+}
+
+html[data-club='faida'] .refresh:hover,
+html[data-club='faida'] .source:hover {
+  background: #240710;
+  border-color: var(--lime);
+}
+
+html[data-club='faida'] .panel:hover,
+html[data-club='faida'] .analysis-card:hover,
+html[data-club='faida'] .signal:hover {
+  border-color: #9e1f38;
+  box-shadow: 0 18px 45px #000a, 0 0 24px #ff1e3c1a;
+}
+
+html[data-club='faida'] .record-numbers i {
+  color: #6b424b;
+}
+
+html[data-club='faida'] .record-labels,
+html[data-club='faida'] .metrics span,
+html[data-club='faida'] .metrics small,
+html[data-club='faida'] .sub,
+html[data-club='faida'] .count small {
+  color: #b4959c;
+}
+
+html[data-club='faida'] .split i:nth-child(2) {
+  background: #9f8188;
+}
+
+html[data-club='faida'] .split i:last-child {
+  background: #4d2830;
+}
+
+html[data-club='faida'] .form-row span {
+  background: #261217;
+}
+
+html[data-club='faida'] .form-row .V {
+  background: var(--lime);
+  color: #160205;
+}
+
+html[data-club='faida'] .form-row .S {
+  background: #4a1b18;
+  color: #ffb8a8;
+}
+
+html[data-club='faida'] .insight {
+  background: linear-gradient(125deg, #ff1e3c 0%, #b80d27 100%);
+  color: #fff6f7;
+  box-shadow: 0 16px 40px #ff1e3c26;
+}
+
+/* Sala Analisi */
+html[data-club='faida'] .analysis {
+  background: radial-gradient(circle at 5% 45%, #2b0711 0, transparent 38%), #060204;
+}
+
+html[data-club='faida'] .analysis-stamp {
+  color: #d6b6bd;
+  border-color: #541724;
+}
+
+html[data-club='faida'] .analysis-card,
+html[data-club='faida'] .signal {
+  background: #0e0508;
+  border-color: #3d131e;
+}
+
+html[data-club='faida'] .signal-icon {
+  background: #2b0912;
+  color: var(--lime);
+}
+
+html[data-club='faida'] .signal div > span,
+html[data-club='faida'] .signal p,
+html[data-club='faida'] .pulse-totals strong small,
+html[data-club='faida'] .pulse-game > span,
+html[data-club='faida'] .chart-legend,
+html[data-club='faida'] .chart-legend small {
+  color: #b8989f;
+}
+
+html[data-club='faida'] .pulse-chart {
+  border-bottom-color: #4f1826;
+}
+
+html[data-club='faida'] .pulse-bars .bar-for {
+  background: var(--lime);
+  box-shadow: 0 0 16px #ff244255;
+}
+
+html[data-club='faida'] .pulse-bars .bar-against,
+html[data-club='faida'] .chart-legend span:nth-child(2) i {
+  background: #7d5b63;
+}
+
+/* Voti / Performance Grades */
+html[data-club='faida'] .performance-grades {
+  background: #070305;
+}
+
+html[data-club='faida'] .performance-grades label,
+html[data-club='faida'] .grade-method {
+  color: #c2a3aa;
+}
+
+html[data-club='faida'] .performance-grades select {
+  background: #14060a;
+  border-color: #5e1928;
+  color: #f7eeef;
+}
+
+html[data-club='faida'] .grades-scroll {
+  border-color: #461420;
+}
+
+html[data-club='faida'] .grades-table thead {
+  background: #1c070d;
+  color: #efb8c2;
+}
+
+html[data-club='faida'] .grades-table th,
+html[data-club='faida'] .grades-table td {
+  border-bottom-color: #2f0e17;
+}
+
+html[data-club='faida'] .grades-table th small,
+html[data-club='faida'] .grades-table td small {
+  color: #b3939a;
+}
+
+html[data-club='faida'] .grades-table button {
+  background: #250810;
+  border-color: #6b1a2b;
+  color: #ff4d65;
+}
+
+html[data-club='faida'] .grades-table button:hover {
+  background: var(--lime);
+  color: #160205;
+}
+
+html[data-club='faida'] .grade-selected {
+  background: #13060a;
+  border-left-color: var(--lime);
+}
+
+html[data-club='faida'] .grade-selected p {
+  color: #dbc2c7;
+}
+
+/* La Rosa / Leaderboard / CardDialog */
+html[data-club='faida'] .squad {
+  background: radial-gradient(circle at 50% 30%, #290711, #060204 72%);
+}
+
+html[data-club='faida'] .leaderboard-head {
+  background: #16060b;
+  border-color: #4b1523;
+  color: #ff5970;
+}
+
+html[data-club='faida'] .leaderboard-head span:last-child,
+html[data-club='faida'] .role-note {
+  color: #b6979e;
+}
+
+html[data-club='faida'] .leader-entry {
+  background: #100508;
+  border-color: #3a111c;
+  color: #f7eeef;
+}
+
+html[data-club='faida'] :is(.leader-entry:hover, .leader-entry:focus-visible) {
+  background: #1e070e;
+  border-color: #ff2e4c;
+  box-shadow: 0 0 24px #ff1e3c24;
+}
+
+html[data-club='faida'] .leader-entry-rank,
+html[data-club='faida'] .leader-entry-total,
+html[data-club='faida'] .leader-arrow {
+  color: #ff3853;
+}
+
+html[data-club='faida'] .leader-entry-name small,
+html[data-club='faida'] .leader-entry-breakdown {
+  color: #c2a3aa;
+}
+
+html[data-club='faida'] :is(.collector-card:hover, .collector-card:focus-visible) {
+  filter: drop-shadow(0 0 20px #ff244288);
+}
+
+html[data-club='faida'] .collector-crest {
+  width: 14%;
+  height: 14%;
+  left: 17%;
+  filter: drop-shadow(0 0 5px #ff1e3c88);
+}
+
+html[data-club='faida'] .card-dialog-backdrop {
+  background: #040103eb;
+}
+
+html[data-club='faida'] .card-dialog {
+  background: #0f0408;
+  border-color: #6e1a2c;
+  box-shadow: 0 28px 95px #000e, 0 0 40px #ff1e3c24;
+}
+
+html[data-club='faida'] .form-grade {
+  background: #1b070d;
+  border-color: #5e1928;
+}
+
+html[data-club='faida'] .form-grade small,
+html[data-club='faida'] .dialog-copy p,
+html[data-club='faida'] .dialog-copy .season-profile p,
+html[data-club='faida'] .season-profile-heading > b {
+  color: #d6bcc1;
+}
+
+html[data-club='faida'] .dialog-copy small,
+html[data-club='faida'] .season-profile,
+html[data-club='faida'] .dialog-copy .season-profile .season-profile-note {
+  border-color: #441420;
+  color: #b29299;
+}
+
+/* Lo Spogliatoio / MatchLab */
+html[data-club='faida'] .match-lab {
+  background: linear-gradient(140deg, #130509, #060204 68%);
+}
+
+html[data-club='faida'] .lab-tabs {
+  border-bottom-color: #471522;
+}
+
+html[data-club='faida'] .lab-tabs button {
+  background: #14060a;
+  border-color: #451521;
+  color: #d4b6bd;
+}
+
+html[data-club='faida'] .lab-tabs button[aria-selected='true'] {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: #160205;
+}
+
+html[data-club='faida'] .lab-panel label,
+html[data-club='faida'] .lab-note {
+  color: #c2a3aa;
+}
+
+html[data-club='faida'] .lab-panel select,
+html[data-club='faida'] .lab-panel textarea {
+  background: #120508;
+  border-color: #591826;
+  color: #f7eeef;
+}
+
+html[data-club='faida'] .lab-copy {
+  background: #21070f;
+  border-color: #6e1b2d;
+}
+
+html[data-club='faida'] .lab-scoreboard {
+  background: radial-gradient(at 100% 0, #590d2055, transparent 70%), #110508;
+  border-color: #571725;
+}
+
+html[data-club='faida'] .lab-scoreboard p,
+html[data-club='faida'] .lab-scoreboard h3 span {
+  color: #c7a8af;
+}
+
+html[data-club='faida'] .lab-scoreboard i {
+  color: #7c4450;
+}
+
+html[data-club='faida'] .lab-story {
+  background: #14060a;
+  border-left-color: var(--lime);
+}
+
+html[data-club='faida'] .lab-story p,
+html[data-club='faida'] .lab-award p,
+html[data-club='faida'] .lab-curve-head p {
+  color: #d5bcc1;
+}
+
+html[data-club='faida'] .lab-award,
+html[data-club='faida'] .lab-curve,
+html[data-club='faida'] .lab-stat-grid > div,
+html[data-club='faida'] .lab-duel-names {
+  background: #110508;
+  border-color: #3e131e;
+}
+
+html[data-club='faida'] .lab-award > span,
+html[data-club='faida'] .lab-table thead,
+html[data-club='faida'] .lab-curve-head small {
+  color: #ff6b7f;
+}
+
+html[data-club='faida'] .lab-table-scroll {
+  border-color: #461420;
+}
+
+html[data-club='faida'] .lab-table {
+  background: #0c0406;
+}
+
+html[data-club='faida'] .lab-table thead {
+  background: #1b070d;
+}
+
+html[data-club='faida'] .lab-table th,
+html[data-club='faida'] .lab-table td,
+html[data-club='faida'] .lab-duel-row {
+  border-bottom-color: #2f0e17;
+}
+
+html[data-club='faida'] .lab-table caption,
+html[data-club='faida'] .lab-table small,
+html[data-club='faida'] .lab-stat-grid span,
+html[data-club='faida'] .lab-duel-names small,
+html[data-club='faida'] .lab-duel-row > div > span {
+  color: #bfa0a7;
+}
+
+html[data-club='faida'] .lab-curve-track {
+  border-bottom-color: #6b2232;
+}
+
+html[data-club='faida'] .lab-curve-track i {
+  background: linear-gradient(0deg, #7a0f22, var(--lime));
+}
+
+html[data-club='faida'] .lab-duel-bar {
+  background: #47242c;
+}
+
+html[data-club='faida'] .lab-duel-bar i {
+  border-right-color: #110508;
+}
+
+/* Match Archive & Footer */
+html[data-club='faida'] .match {
+  background: #090305;
+}
+
+html[data-club='faida'] .match[open],
+html[data-club='faida'] .match summary:hover {
+  background: #17060b;
+}
+
+html[data-club='faida'] .match-index,
+html[data-club='faida'] .match time,
+html[data-club='faida'] .match-mini span,
+html[data-club='faida'] .match-players > div {
+  color: #b8989f;
+  border-color: #311019;
+}
+
+html[data-club='faida'] .match-mini {
+  border-top-color: #3c131e;
+}
+
+html[data-club='faida'] footer {
+  background: #040103;
+  border-top-color: #38111b;
+}
+
+html[data-club='faida'] footer p {
+  color: #9e7f86;
+}
+
+/* Pagine interne: #/statistiche e #/pro/<nome> */
+html[data-club='faida'] .pg {
+  --pg-bad: #ff9478;
+  --pg-grid: #301019;
+}
+
+html[data-club='faida'] .pg-tabs {
+  border-bottom-color: #4a1522;
+}
+
+html[data-club='faida'] .pg-tabs button {
+  background: #14060a;
+  border-color: #461521;
+  color: #d6b8bf;
+}
+
+html[data-club='faida'] .pg-tabs button[aria-selected='true'] {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: #160205;
+}
+
+html[data-club='faida'] .pg-toolbar label,
+html[data-club='faida'] .pg-key small,
+html[data-club='faida'] .pg-night-opp {
+  color: #c9abb2;
+}
+
+html[data-club='faida'] .pg select {
+  background: #120508;
+  border-color: #5c1928;
+}
+
+html[data-club='faida'] .pg-table-scroll {
+  border-color: #461420;
+}
+
+html[data-club='faida'] .pg-table th,
+html[data-club='faida'] .pg-table td,
+html[data-club='faida'] .pg-night-games li {
+  border-bottom-color: #2c0e16;
+}
+
+html[data-club='faida'] .pg-more,
+html[data-club='faida'] .pg-link {
+  border-color: #6b1a2b;
+}
+
+html[data-club='faida'] .pg-more:hover,
+html[data-club='faida'] .pg-link:hover {
+  background: #21070f;
+  border-color: var(--lime);
+}
+
+html[data-club='faida'] .pg-empty p,
+html[data-club='faida'] .pg-coach {
+  background: #14060a;
+}
+
+html[data-club='faida'] .pg-empty p,
+html[data-club='faida'] .pg-coach p,
+html[data-club='faida'] .pg-reading li,
+html[data-club='faida'] .pg-onoff p {
+  color: #dfc6cb;
+}
+
+html[data-club='faida'] .pg-key {
+  border-top-color: #4a1c27;
+}
+
+html[data-club='faida'] .pg-key-track {
+  background: #290e15;
+}
+
+html[data-club='faida'] .pg-key-track i {
+  background: #9c6a74;
+}
+
+/* Costellazione & Evoluzione in modalità FAIDA */
+html[data-club='faida'] .cx-page {
+  --cx-lime: #ff2e4c;
+  --cx-muted: #b5989e;
+  color: #f7eeef;
+}
+
+html[data-club='faida'] .cx-toolbar,
+html[data-club='faida'] .cx-replay,
+html[data-club='faida'] .cx-panel,
+html[data-club='faida'] .cx-pair-list button,
+html[data-club='faida'] .evo-panel {
+  background: radial-gradient(ellipse at 50% 0, #4a0b192e, transparent 58%), #0e0407;
+  border-color: #451420;
+}
+
+html[data-club='faida'] .cx-toolbar select,
+html[data-club='faida'] .cx-replay select,
+html[data-club='faida'] .cx-playback button {
+  background: #18060c;
+  border-color: #5c1928;
+  color: #f7eeef;
+}
+
+html[data-club='faida'] .cx-universe {
+  background: radial-gradient(ellipse at 50% 50%, #3d091644, transparent 48%), #050204;
+  border-color: #471421;
+}
+
+html[data-club='faida'] .cx-nebula {
+  background:
+    radial-gradient(ellipse at 30% 40%, #ff1e3c24, transparent 55%),
+    radial-gradient(ellipse at 75% 70%, #8a11272e, transparent 55%);
+}
+
+html[data-club='faida'] .cx-core-icon {
+  background: linear-gradient(145deg, #ff7588, #d91636 44%, #3d0813 46%, #140307);
+  border-color: #ff8a9b;
+  box-shadow: inset 0 0 0 5px #170408, 0 0 42px #ff1e3c55;
+  color: #fff5f6;
+}
+
+html[data-club='faida'] .cx-core-ring {
+  border-color: #ff2e4c66;
+}
+
+html[data-club='faida'] .cx-explore {
+  background: #ff2442;
+  color: #160205;
+}
+
+html[data-club='faida'] .cx-pair-list button.selected {
+  background: #240710;
+  border-color: #ff2e4c;
+}
+
+html[data-club='faida'] .cx-replay-match {
+  background: #080204;
+}
+
+html[data-club='faida'] .cx-replay-match b {
+  color: #ff4d65;
+}
+
+html[data-club='faida'] .cx-breakdown summary {
+  background: #1a060c;
+}
+
+/* Tabelle mobile sticky (override di mobile.css) */
+@media (max-width: 700px) {
+  html[data-club='faida'] .grades-table tbody th,
+  html[data-club='faida'] .lab-table tbody th {
+    background: #120508;
+    box-shadow: 1px 0 0 #38111b;
+  }
+  html[data-club='faida'] .grades-table thead th:first-child,
+  html[data-club='faida'] .lab-table thead th:first-child {
+    background: #1d070d;
+  }
+}

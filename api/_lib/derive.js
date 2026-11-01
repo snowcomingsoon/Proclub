@@ -1,8 +1,8 @@
-// Ricostruisce i file pubblici (summary, night, history, health) dal monolite data/data.json.
-// Serve solo come ultima rete di sicurezza (e in dev) quando data/public/ non è disponibile.
+// Ricostruisce i file pubblici (summary, night, history, health) dal monolite data.json del club.
+// Serve solo come ultima rete di sicurezza (e in dev) quando public/ non è disponibile.
 'use strict';
 
-const CLUB_ID = '70375';
+const DEFAULT_CLUB_ID = '70375';
 const SUMMARY_MATCHES = 30;
 
 const num = (value) => {
@@ -32,13 +32,13 @@ function sessionDay(timestamp, tz = 'Europe/Rome') {
   return prev.toISOString().slice(0, 10);
 }
 
-const isComplete = (m) => !!(m && m.matchId && m.clubs?.[CLUB_ID]);
+const isComplete = (m, clubId = DEFAULT_CLUB_ID) => !!(m && m.matchId && m.clubs?.[clubId]);
 
-function historyOf(data) {
+function historyOf(data, clubId = DEFAULT_CLUB_ID) {
   const byId = new Map();
   // matchHistory vince sui doppioni: i suoi record sono quelli completi dello storico
   for (const m of [...(data.matches || []), ...(data.matchHistory || [])])
-    if (isComplete(m)) byId.set(String(m.matchId), m);
+    if (isComplete(m, clubId)) byId.set(String(m.matchId), m);
   // più recente prima, come nel monolite
   return [...byId.values()].sort((a, b) => num(b.timestamp) - num(a.timestamp));
 }
@@ -56,9 +56,9 @@ function nightsOf(history) {
   return [...nights.values()].sort((a, b) => b.day.localeCompare(a.day));
 }
 
-function summaryFrom(data) {
-  const history = historyOf(data);
-  const recent = (data.matches || []).filter(isComplete);
+function summaryFrom(data, clubId = DEFAULT_CLUB_ID) {
+  const history = historyOf(data, clubId);
+  const recent = (data.matches || []).filter((m) => isComplete(m, clubId));
   return {
     version: 2,
     capturedAt: data.capturedAt,
@@ -73,13 +73,13 @@ function summaryFrom(data) {
   };
 }
 
-function nightFrom(data, day) {
-  const matches = historyOf(data).filter((m) => sessionDay(m.timestamp) === day);
+function nightFrom(data, day, clubId = DEFAULT_CLUB_ID) {
+  const matches = historyOf(data, clubId).filter((m) => sessionDay(m.timestamp) === day);
   return matches.length ? { day, matches } : null;
 }
 
-function historyFrom(data) {
-  return { version: 1, matchHistory: historyOf(data) };
+function historyFrom(data, clubId = DEFAULT_CLUB_ID) {
+  return { version: 1, matchHistory: historyOf(data, clubId) };
 }
 
 function healthFrom(data) {

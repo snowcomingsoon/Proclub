@@ -1,4 +1,4 @@
-import { CLUB_ID } from './constants.js';
+import { getActiveClubId } from './constants.js';
 
 /**
  * Adattatore tra il contratto dati pubblico (summary / history / insights / health) e la forma
@@ -25,8 +25,9 @@ const INSIGHTS_SKEW_MS = 2 * 60 * 1000;
 const isObject = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
 const time = (iso) => Date.parse(iso);
 
-/** Partita completa del BILLOCCHI CLUB (stessa regola di `groupByNight`). */
-const isClubMatch = (match) => !!(match && match.matchId && match.clubs?.[CLUB_ID]);
+/** Partita completa del club attivo (stessa regola di `groupByNight`). */
+const isClubMatch = (match, clubId = getActiveClubId()) =>
+  !!(match && match.matchId && match.clubs?.[clubId]);
 
 /** `summary.json` utilizzabile? */
 export function isValidSummary(summary) {
@@ -69,9 +70,10 @@ export function usableInsights(insights, capturedAt, engineId, playerCount) {
 }
 
 /** Più recente prima, senza doppioni e solo partite del club (ordine del monolite). */
-export function normalizeMatches(matches) {
+export function normalizeMatches(matches, clubId = getActiveClubId()) {
   const byId = new Map();
-  for (const match of matches || []) if (isClubMatch(match)) byId.set(String(match.matchId), match);
+  for (const match of matches || [])
+    if (isClubMatch(match, clubId)) byId.set(String(match.matchId), match);
   return [...byId.values()].sort((a, b) => Number(b.timestamp) - Number(a.timestamp));
 }
 
@@ -80,10 +82,13 @@ export function normalizeMatches(matches) {
  * `fresh` resta quello del summary se c'è (lettura diretta EA): la salute della raccolta
  * vive in `health`, separata, così il polling non invalida i calcoli.
  */
-export function buildLiveData({ summary, history, insights, engineId }) {
+export function buildLiveData({ summary, history, insights, engineId, clubId = getActiveClubId() }) {
   // Lo storico vince sui doppioni (record completi); le partite del summary mancanti
   // (storico in ritardo rispetto al summary) si aggiungono.
-  const matchHistory = normalizeMatches([...summary.matches, ...(history?.matchHistory || [])]);
+  const matchHistory = normalizeMatches(
+    [...summary.matches, ...(history?.matchHistory || [])],
+    clubId,
+  );
   const data = {
     club: summary.club,
     members: summary.members,

@@ -1,8 +1,10 @@
 import { useEvolution } from './Evolution.jsx';
 import { formatProOverall } from '../lib/format.js';
+import { useClub } from '../lib/useClub.js';
 
 /** Figurina da collezione di un Pro (tier e "on fire" dal profilo calcolato). */
 export function CollectorCard({ member, profile, onClick }) {
+  const { club } = useClub();
   const portrait = {we_belen: '/cards/we-belen-portrait-v2.webp', garrus92: '/cards/garrus92-portrait-v2.webp', scemo897: '/cards/scemo897-portrait.webp'}[member.name.toLowerCase()];
   const evolution=useEvolution(member.name);
   const evolved=evolution?.level>0;
@@ -30,7 +32,7 @@ export function CollectorCard({ member, profile, onClick }) {
       </span>
       <img
         className="collector-crest"
-        src="/logo-billocchi.svg"
+        src={club.logo}
         alt=""
         width="40"
         height="40"

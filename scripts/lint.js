@@ -1,11 +1,11 @@
 'use strict';
-// Lint leggero: `node --check` su tutti gli script, il motore condiviso, le API e i test (nessuna dipendenza).
+// Lint leggero: `node --check` su tutti gli script, il motore condiviso, le API locali e i test (nessuna dipendenza).
 const fs = require('node:fs');
 const path = require('node:path');
 const {spawnSync} = require('node:child_process');
 
 const ROOT = path.join(__dirname, '..');
-const DIRS = ['scripts', 'shared', 'api', 'test'];
+const DIRS = ['scripts', 'shared', 'api', 'api/_lib', 'api/_lib/endpoints', 'test'];
 const files = DIRS.flatMap((d) => (fs.existsSync(path.join(ROOT, d)) ? fs.readdirSync(path.join(ROOT, d)).filter((f) => /\.(c|m)?js$/.test(f)).map((f) => path.join(ROOT, d, f)) : []));
 let failed = 0;
 for (const file of files) {

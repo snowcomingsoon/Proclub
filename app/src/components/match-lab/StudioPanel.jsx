@@ -3,11 +3,11 @@ import {
   awardEditorial,
   matchStudioEditorial,
 } from '../../../../shared/editorial.mjs';
-import { CLUB_ID } from '../../lib/constants.js';
 import { formatNumber } from '../../lib/format.js';
 import { getOpponentName } from '../../lib/matches.js';
 import { POSITION_NAMES } from '../../lib/positions.js';
 import { percentage, toNumber } from '../../lib/stats.js';
+import { useClub } from '../../lib/useClub.js';
 
 function LabAward({ label, player, detail, icon }) {
   return (
@@ -24,7 +24,7 @@ function LabAward({ label, player, detail, icon }) {
   );
 }
 
-function Scoreboard({ dateLabel, outcome, ownClub, selectedMatch }) {
+function Scoreboard({ club, dateLabel, outcome, ownClub, selectedMatch }) {
   return (
     <div className="lab-scoreboard">
       <div>
@@ -36,10 +36,10 @@ function Scoreboard({ dateLabel, outcome, ownClub, selectedMatch }) {
             : ''}
         </p>
         <h3>
-          {'BILLOCCHI CLUB '}
+          {`${club.name} `}
           <span>
             {'vs '}
-            {getOpponentName(selectedMatch)}
+            {getOpponentName(selectedMatch, club.id)}
           </span>
         </h3>
       </div>
@@ -186,6 +186,11 @@ export function StudioPanel({
   topRated,
   topTackler,
 }) {
+  const { club } = useClub();
+  const shareHref =
+    club.key === 'faida'
+      ? `${club.shareUrl}#spogliatoio`
+      : 'https://billocchi-club.kr3n.chatgpt.site/#spogliatoio';
   return (
     <div
       className="lab-panel"
@@ -212,10 +217,10 @@ export function StudioPanel({
                   month: 'short',
                 })}
                 {' · '}
-                {sortedMatch.clubs[CLUB_ID].goals}–
-                {sortedMatch.clubs[CLUB_ID].goalsAgainst}
+                {sortedMatch.clubs?.[club.id]?.goals ?? 0}–
+                {sortedMatch.clubs?.[club.id]?.goalsAgainst ?? 0}
                 {' vs '}
-                {getOpponentName(sortedMatch)}
+                {getOpponentName(sortedMatch, club.id)}
               </option>
             ))}
           </select>
@@ -236,10 +241,11 @@ export function StudioPanel({
         <textarea
           aria-label="Riepilogo da copiare"
           readOnly
-          value={`BILLOCCHI CLUB ${ownClub.goals}–${ownClub.goalsAgainst} ${getOpponentName(selectedMatch)} · ${dateLabel}\nMiglior voto: ${topRated?.playername} (${topRated?.rating})\nhttps://billocchi-club.kr3n.chatgpt.site/#spogliatoio`}
+          value={`${club.name} ${ownClub.goals}–${ownClub.goalsAgainst} ${getOpponentName(selectedMatch, club.id)} · ${dateLabel}\nMiglior voto: ${topRated?.playername} (${topRated?.rating})\n${shareHref}`}
         />
       )}
       <Scoreboard
+        club={club}
         dateLabel={dateLabel}
         outcome={outcome}
         ownClub={ownClub}

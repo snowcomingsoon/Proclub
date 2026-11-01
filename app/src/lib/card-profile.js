@@ -1,16 +1,21 @@
-import { CLUB_ID } from './constants.js';
+import { getActiveClubId } from './constants.js';
 import { POSITION_ABBREVIATIONS } from './positions.js';
 import { toNumber } from './stats.js';
+import { isWasmReady, wasmInvoke } from './wasm-engine.js';
 
 /**
- * Indice di forma e colore della figurina: usa le gare recenti nel reparto più
- * giocato; se mancano, ripiega sui totali stagionali.
+ * Indice di forma e colore della figurina (accelerato via Rust WASM): usa le gare
+ * recenti nel reparto più giocato; se mancano, ripiega sui totali stagionali.
  */
-export function computeCardProfile(member, matches) {
+export function computeCardProfile(member, matches, clubId = getActiveClubId()) {
+  if (isWasmReady()) {
+    const res = wasmInvoke({ op: 'card_profile', member, matches: matches || [], clubId });
+    if (res && typeof res.score === 'number') return res;
+  }
   const appearances = [...matches]
     .sort((a, b) => toNumber(b.timestamp) - toNumber(a.timestamp))
     .flatMap((match) =>
-      Object.values(match.players?.[CLUB_ID] || {}).filter(
+      Object.values(match.players?.[clubId] || {}).filter(
         (appearance) =>
           appearance.playername.toLowerCase() === member.name.toLowerCase(),
       ),

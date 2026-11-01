@@ -16,17 +16,27 @@ function attempt(label, fn) {
 
 mkdirSync(pub(''), { recursive: true });
 
-// Monolite: fallback di /api/data e dei visitatori senza API.
+// BILLOCCHI CLUB
 if (existsSync(root('data/data.json')))
   attempt('data.json', () => copyFileSync(root('data/data.json'), pub('data.json')));
 else console.warn('prebuild: data/data.json assente, salto');
 
-// Archivio risultati: il sito legge prima /api/archive, poi /archive.json.
 if (existsSync(root('data/archive/index.json')))
   attempt('archive.json', () => copyFileSync(root('data/archive/index.json'), pub('archive.json')));
 else attempt('archive.json', () => writeFileSync(pub('archive.json'), '[]'));
 
-// File pubblici del contratto dati, se esistono: fallback statico sotto /data-public/.
 rmSync(pub('data-public'), { recursive: true, force: true });
 if (existsSync(root('data/public')))
   attempt('data/public', () => cpSync(root('data/public'), pub('data-public'), { recursive: true }));
+
+// FAIDA FC
+if (existsSync(root('data/clubs/faida/data.json')))
+  attempt('data-faida.json', () => copyFileSync(root('data/clubs/faida/data.json'), pub('data-faida.json')));
+
+if (existsSync(root('data/clubs/faida/archive/index.json')))
+  attempt('archive-faida.json', () => copyFileSync(root('data/clubs/faida/archive/index.json'), pub('archive-faida.json')));
+else attempt('archive-faida.json', () => writeFileSync(pub('archive-faida.json'), '[]'));
+
+rmSync(pub('data-public-faida'), { recursive: true, force: true });
+if (existsSync(root('data/clubs/faida/public')))
+  attempt('data/clubs/faida/public', () => cpSync(root('data/clubs/faida/public'), pub('data-public-faida'), { recursive: true }));

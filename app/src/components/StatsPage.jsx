@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { playerHref } from '../lib/route.js';
 import { toNumber } from '../lib/stats.js';
 import { useArchive } from '../lib/useArchive.js';
+import { useClub } from '../lib/useClub.js';
 import { Tabs } from './pages/Tabs.jsx';
 
 const COLUMNS = [
@@ -395,7 +396,8 @@ function ArchiveBlock({ archive, children }) {
 
 /** Vista `#/statistiche`: record del club, classifica Pro, testa a testa, archivio e bilancio avversari. */
 export function StatsPage({ data }) {
-  const archive = useArchive();
+  const { clubKey } = useClub();
+  const archive = useArchive(clubKey);
   const club = data.club[0];
   const rows = useMemo(
     () => data.members.members.map(toRow),

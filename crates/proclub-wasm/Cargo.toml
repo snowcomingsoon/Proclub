@@ -1,0 +1,20 @@
+[package]
+name = "proclub-wasm"
+version = "0.1.0"
+edition = "2021"
+description = "Motore calcoli WebAssembly in Rust per BILLOCCHI CLUB e FAIDA FC"
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+proclub-core = { path = "../proclub-core" }
+serde_json = "1.0"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

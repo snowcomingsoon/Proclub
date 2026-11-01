@@ -6,10 +6,10 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { signalsEditorial } from '../../../shared/editorial.mjs';
-import { CLUB_ID } from '../lib/constants.js';
 import { getEditorialContext } from '../lib/editorial-ctx.js';
 import { getOpponentName } from '../lib/matches.js';
 import { toNumber } from '../lib/stats.js';
+import { useClub } from '../lib/useClub.js';
 import { Reveal } from './Reveal.jsx';
 
 /**
@@ -17,6 +17,7 @@ import { Reveal } from './Reveal.jsx';
  * `members` è la rosa già ordinata per gol + assist, `matches` le ultime gare EA.
  */
 export function AnalysisRoom({ club, data, members, matches }) {
+  const { club: clubMeta } = useClub();
   const activeMembers = members
     .filter((member) => toNumber(member.gamesPlayed) > 0)
     .sort(
@@ -37,7 +38,7 @@ export function AnalysisRoom({ club, data, members, matches }) {
     .sort(
       (a, b) => toNumber(b.passSuccessRate) - toNumber(a.passSuccessRate),
     )[0];
-  const signals = signalsEditorial(getEditorialContext(data).club, {
+  const signals = signalsEditorial(getEditorialContext(data, clubMeta.id).club, {
     scorer: topScorer?.name,
     assister: topAssister?.name,
     passer: topPasser?.name,
@@ -47,12 +48,12 @@ export function AnalysisRoom({ club, data, members, matches }) {
     .slice()
     .reverse()
     .map((match) => {
-      const own = match.clubs[CLUB_ID];
+      const own = match.clubs?.[clubMeta.id] || {};
       return {
         id: match.matchId,
         for: toNumber(own.goals),
         against: toNumber(own.goalsAgainst),
-        name: getOpponentName(match),
+        name: getOpponentName(match, clubMeta.id),
       };
     });
   const goalsFor = recentGames.reduce(

@@ -15,6 +15,21 @@ jobs:
           node-version: '22'
       - name: Controllo sintattico degli script
         run: npm run lint
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Test motore Rust e API Vercel
+        run: |
+          cargo test --manifest-path crates/proclub-core/Cargo.toml
+          cargo test
+          cargo build --bins
+      - name: Compila motore WebAssembly (proclub-wasm)
+        run: cargo build --manifest-path crates/proclub-wasm/Cargo.toml --target wasm32-unknown-unknown --release
   test:
     runs-on: ubuntu-latest
     steps:

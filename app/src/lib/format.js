@@ -1,4 +1,4 @@
-import { CLUB_ID } from './constants.js';
+import { getActiveClubId } from './constants.js';
 import { toNumber } from './stats.js';
 
 export const formatNumber = (value, digits = 0) =>
@@ -22,8 +22,8 @@ export const formatMatchTime = (match) =>
     minute: '2-digit',
   });
 
-export const formatScore = (match) =>
-  `${match.clubs[CLUB_ID]?.goals}–${match.clubs[CLUB_ID]?.goalsAgainst}`;
+export const formatScore = (match, clubId = getActiveClubId()) =>
+  `${match.clubs?.[clubId]?.goals}–${match.clubs?.[clubId]?.goalsAgainst}`;
 
 export const formatProOverall = (member) =>
   toNumber(member.proOverall) > 0 ? String(member.proOverall) : '—';

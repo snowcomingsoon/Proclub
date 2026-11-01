@@ -64,8 +64,8 @@ export function evolutionFor(plan,matches) {
   return {plan,level,tier:EVOLUTION_TIERS[level],next:EVOLUTION_TIERS[level+1]||null,baseline,requirements:target,windowCount:window.length,
     missions:assess(window.map(e=>e.p),plan,target),earned,attempted:level===3?5:events.length-start};
 }
-export function buildEvolutions(data,campaign) {
-  const matches=constellationMatches(data),roster=constellationRoster(data,matches);
+export function buildEvolutions(data,campaign,clubId='70375') {
+  const matches=constellationMatches(data,clubId),roster=constellationRoster(data,matches);
   const byName={};
   for(const player of roster) {
     let plan=campaign.players[player.id];

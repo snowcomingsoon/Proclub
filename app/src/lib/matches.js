@@ -1,13 +1,14 @@
-import { CLUB_ID } from './constants.js';
+import { getActiveClubId } from './constants.js';
 import { toFiniteNumber, toNumber } from './stats.js';
+import { isWasmReady, wasmInvoke } from './wasm-engine.js';
 
-/** Prestazioni dei Pro del BILLOCCHI CLUB in una gara EA. */
-export const getClubPlayers = (match) =>
-  Object.values(match.players?.[CLUB_ID] || {}).filter((player) => !!player);
+/** Prestazioni dei Pro del club attivo in una gara EA. */
+export const getClubPlayers = (match, clubId = getActiveClubId()) =>
+  Object.values(match.players?.[clubId] || {}).filter((player) => !!player);
 
 /** Nome dell'avversario in una gara EA. */
-export const getOpponentName = (match) =>
-  Object.entries(match.clubs).find(([clubId]) => clubId !== CLUB_ID)?.[1]
+export const getOpponentName = (match, clubId = getActiveClubId()) =>
+  Object.entries(match.clubs || {}).find(([cid]) => cid !== clubId)?.[1]
     ?.details?.name || 'Avversario';
 
 /** Data (YYYY-MM-DD) di un timestamp in secondi, nel fuso di Roma. */
@@ -41,10 +42,10 @@ function getSessionDay(timestamp) {
 }
 
 /** Raggruppa le gare per serata, dalla più recente; dentro ogni serata dalla prima all'ultima. */
-export function groupByNight(matches) {
+export function groupByNight(matches, clubId = getActiveClubId()) {
   const matchesById = new Map(
     matches
-      .filter((match) => match.clubs?.[CLUB_ID] && match.matchId)
+      .filter((match) => match.clubs?.[clubId] && match.matchId)
       .map((match) => [String(match.matchId), match]),
   );
   const nights = new Map();
@@ -63,14 +64,18 @@ export function groupByNight(matches) {
 }
 
 /**
- * Aggrega le prestazioni dei Pro su un insieme di gare: totali per giocatore,
- * miglior media EA (`winners`), record e gol del club.
+ * Aggrega le prestazioni dei Pro su un insieme di gare (via motore Rust WASM quando attivo):
+ * totali per giocatore, miglior media EA (`winners`), record e gol del club.
  */
-export function summarizeNight(matches) {
+export function summarizeNight(matches, clubId = getActiveClubId()) {
+  if (isWasmReady()) {
+    const res = wasmInvoke({ op: 'summarize_night', matches: matches || [], clubId });
+    if (res && Array.isArray(res.players)) return res;
+  }
   const byPlayer = new Map();
   for (const match of matches)
     for (const [playerId, appearance] of Object.entries(
-      match.players?.[CLUB_ID] || {},
+      match.players?.[clubId] || {},
     )) {
       if (!appearance) continue;
       const record = byPlayer.get(playerId) || {
@@ -160,7 +165,7 @@ export function summarizeNight(matches) {
   );
   const results = matches.map((match) => ({
     match,
-    own: match.clubs[CLUB_ID],
+    own: match.clubs?.[clubId] || {},
   }));
   return {
     players,
@@ -191,8 +196,8 @@ export function summarizeNight(matches) {
 }
 
 /** Esito per il club: V (vittoria), P (pareggio), S (sconfitta). */
-export const getResultLetter = (match) => {
-  const own = match.clubs[CLUB_ID];
+export const getResultLetter = (match, clubId = getActiveClubId()) => {
+  const own = match.clubs?.[clubId] || {};
   return toFiniteNumber(own.goals) > toFiniteNumber(own.goalsAgainst)
     ? 'V'
     : toFiniteNumber(own.goals) < toFiniteNumber(own.goalsAgainst)

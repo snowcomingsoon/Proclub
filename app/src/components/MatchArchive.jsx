@@ -1,16 +1,17 @@
 import { ArrowUpRight, ChevronDown } from 'lucide-react';
-import { CLUB_ID, EA_CLUBS_URL } from '../lib/constants.js';
+import { EA_CLUBS_URL } from '../lib/constants.js';
 import { toNumber } from '../lib/stats.js';
+import { useClub } from '../lib/useClub.js';
 
-function MatchList({ matches }) {
+function MatchList({ matches, club }) {
   return (
     <div className="match-list">
       {matches.map((match, matchIndex) => {
-        const own = match.clubs[CLUB_ID];
-        const opponent = Object.entries(match.clubs).find(
-          ([clubId]) => clubId !== CLUB_ID,
+        const own = match.clubs?.[club.id] || {};
+        const opponent = Object.entries(match.clubs || {}).find(
+          ([clubId]) => clubId !== club.id,
         )?.[1];
-        const players = Object.values(match.players?.[CLUB_ID] || {});
+        const players = Object.values(match.players?.[club.id] || {});
         const outcome =
           toNumber(own.goals) > toNumber(own.goalsAgainst)
             ? 'VITTORIA'
@@ -23,7 +24,7 @@ function MatchList({ matches }) {
               <span className="match-index">0{matchIndex + 1}</span>
               <span className={'outcome ' + outcome}>{outcome}</span>
               <strong>
-                {'BILLOCCHI CLUB '}
+                {`${club.name} `}
                 <b>
                   {own.goals}
                   {' — '}
@@ -92,6 +93,7 @@ function MatchList({ matches }) {
 }
 
 export function MatchArchive({ matches }) {
+  const { club } = useClub();
   return (
     <details className="compact-appendix match-archive">
       <summary>Archivio rapido · tabellini di campionato</summary>
@@ -107,7 +109,7 @@ export function MatchArchive({ matches }) {
           </div>
           <a
             className="source"
-            href={`${EA_CLUBS_URL}/match-history?clubId=${CLUB_ID}&platform=common-gen5`}
+            href={`${EA_CLUBS_URL}/match-history?clubId=${club.id}&platform=common-gen5`}
             target="_blank"
             rel="noreferrer"
           >
@@ -115,7 +117,7 @@ export function MatchArchive({ matches }) {
             <ArrowUpRight size={16} />
           </a>
         </div>
-        <MatchList matches={matches} />
+        <MatchList matches={matches} club={club} />
       </section>
     </details>
   );

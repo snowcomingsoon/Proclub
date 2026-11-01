@@ -17,7 +17,7 @@ function apiPlugin() {
   process.env.DATA_LOCAL_ONLY = '1';
   process.env.DATA_ROOT ||= repoRoot;
   const handlers = Object.fromEntries(
-    API_NAMES.map((name) => [name, require(`../api/${name}.js`)]),
+    API_NAMES.map((name) => [name, require(`../api/_lib/endpoints/${name}.js`)]),
   );
   const handler = (req, res, next) => {
     const path = req.url?.split('?')[0];
@@ -29,14 +29,6 @@ function apiPlugin() {
     }
     const name = path?.match(/^\/api\/([a-z]+)$/)?.[1];
     if (!name || !handlers[name]) return next();
-    if (name === 'data') {
-      // monolite: stesso comportamento della funzione, ma senza cache in dev
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      res.setHeader('Cache-Control', 'no-store');
-      return res.end(
-        require('node:fs').readFileSync(`${process.env.DATA_ROOT}/data/data.json`, 'utf8'),
-      );
-    }
     Promise.resolve(handlers[name](req, res)).catch(next);
   };
   return {
@@ -69,7 +61,7 @@ export default defineConfig({
               name: 'react',
               test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
             },
-            { name: 'club-fallback', test: /fallback-data\.json/ },
+            { name: 'club-fallback', test: /(fallback-data|faida-fallback)\.json/ },
           ],
         },
       },

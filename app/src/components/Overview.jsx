@@ -1,8 +1,8 @@
 import { ArrowUpRight, RefreshCw } from 'lucide-react';
 import { clubReading } from '../../../shared/editorial.mjs';
-import { CLUB_ID } from '../lib/constants.js';
 import { getEditorialContext } from '../lib/editorial-ctx.js';
 import { ratio, toNumber } from '../lib/stats.js';
+import { useClub } from '../lib/useClub.js';
 import { AnalysisRoom } from './AnalysisRoom.jsx';
 import { CountUp } from './CountUp.jsx';
 
@@ -10,7 +10,7 @@ function RecordPanel({ club, reading }) {
   const wins = toNumber(club.wins);
   const ties = toNumber(club.ties);
   const losses = toNumber(club.losses);
-  const gamesPlayed = toNumber(club.gamesPlayed);
+  const gamesPlayed = Math.max(1, toNumber(club.gamesPlayed));
   return (
     <div className="record panel">
       <span className="label">RECORD TOTALE</span>
@@ -100,11 +100,11 @@ function MetricsPanel({ club }) {
   );
 }
 
-function FormPanel({ club, matches }) {
+function FormPanel({ club, clubId, matches }) {
   const gamesPlayed = toNumber(club.gamesPlayed);
   // V / P / S per ciascuna delle ultime gare.
   const form = matches.map((match) => {
-    const own = match.clubs[CLUB_ID];
+    const own = match.clubs?.[clubId] || {};
     return toNumber(own.goals) > toNumber(own.goalsAgainst)
       ? 'V'
       : toNumber(own.goals) < toNumber(own.goalsAgainst)
@@ -179,7 +179,8 @@ export function Overview({
   refresh,
   refreshing,
 }) {
-  const reading = clubReading(getEditorialContext(data).club);
+  const { club: clubMeta } = useClub();
+  const reading = clubReading(getEditorialContext(data, clubMeta.id).club);
   return (
     <section className="content" id="panoramica">
       <div className="section-head">
@@ -195,7 +196,7 @@ export function Overview({
       <div className="overview">
         <RecordPanel club={club} reading={reading} />
         <MetricsPanel club={club} />
-        <FormPanel club={club} matches={matches} />
+        <FormPanel club={club} clubId={clubMeta.id} matches={matches} />
       </div>
       <QuickReading club={club} reading={reading} />
       <details className="compact-appendix">

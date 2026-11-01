@@ -7,7 +7,8 @@ import {
   normalizeMatches,
   withPlayingMembers,
 } from './adapter.js';
-import { fallbackData } from './data.js';
+import { CLUBS, withClubParam } from './constants.js';
+import { fallbackForClub } from './data.js';
 import { getDataMode, safetyLevel } from './dataMode.js';
 import { ENGINE_ID } from './engine.js';
 
@@ -21,27 +22,31 @@ async function getJson(url, cache = 'no-cache') {
 }
 
 /** `?v=<capturedAt>` aggira la cache di bordo solo dopo un cambio segnalato da /api/health. */
-const versioned = (path, bust) =>
-  bust ? `${path}?v=${encodeURIComponent(bust)}` : path;
+function clubUrl(path, clubKey, bust) {
+  const base = withClubParam(path, clubKey);
+  if (!bust) return base;
+  const sep = base.includes('?') ? '&' : '?';
+  return `${base}${sep}v=${encodeURIComponent(bust)}`;
+}
 
 /** Percorso modulare: summary + history + insights (opzionali) in parallelo. */
-async function loadModular(bust) {
+async function loadModular(clubKey, clubId, bust) {
   const [summary, history, insights] = await Promise.all([
-    getJson(versioned('/api/summary', bust)),
-    getJson(versioned('/api/history', bust)),
-    getJson(versioned('/api/insights', bust)).catch(() => null),
+    getJson(clubUrl('/api/summary', clubKey, bust)),
+    getJson(clubUrl('/api/history', clubKey, bust)),
+    getJson(clubUrl('/api/insights', clubKey, bust)).catch(() => null),
   ]);
   if (!isValidSummary(summary) || !isValidHistory(history)) throw Error('shape');
-  return buildLiveData({ summary, history, insights, engineId: ENGINE_ID });
+  return buildLiveData({ summary, history, insights, engineId: ENGINE_ID, clubId });
 }
 
 /** Rete di sicurezza: il monolite /api/data (stessa forma di sempre). */
-async function loadMonolith(bust) {
-  const payload = await getJson(versioned('/api/data', bust), 'no-store');
+async function loadMonolith(clubKey, clubId, bust) {
+  const payload = await getJson(clubUrl('/api/data', clubKey, bust), 'no-store');
   if (!payload.club?.[0] || !payload.members?.members) throw Error('shape');
   return {
     ...payload,
-    matchHistory: normalizeMatches(payload.matchHistory || payload.matches),
+    matchHistory: normalizeMatches(payload.matchHistory || payload.matches, clubId),
   };
 }
 
@@ -53,101 +58,163 @@ const connectionOf = (fresh = []) =>
       : 'no';
 
 /**
- * Dati del club. Parte dal fallback incorporato; poi legge /api/summary (+ history e insights
- * in parallelo). Da lì ogni 60 secondi (e al focus) interroga solo /api/health, minuscolo, e
- * rilegge i dati se `capturedAt` è cambiato. Se le API modulari non rispondono ricade su
- * /api/data e infine sul fallback incorporato, senza errori visibili.
- *
- * `connection`: 'loading' | 'yes' (lettura EA completa) | 'partial' | 'no' (dati salvati).
- * `health`: ultimo health.json letto (o null).
+ * Dati del club selezionato (`billocchi` o `faida`). Parte dal fallback incorporato del club;
+ * poi legge /api/summary (+ history e insights in parallelo). Ogni 60 secondi (e al focus)
+ * interroga /api/health e rilegge i dati se `capturedAt` è cambiato.
  */
-export function useClubData() {
-  const [data, setData] = useState(() => withPlayingMembers(fallbackData));
-  const [connection, setConnection] = useState('loading');
-  const [freshKeys, setFreshKeys] = useState([]);
-  const [lastSync, setLastSync] = useState();
-  const [refreshing, setRefreshing] = useState(false);
-  const [health, setHealth] = useState(null);
-  const seen = useRef({ capturedAt: null, bust: null, live: false });
+export function useClubData(clubKey = 'billocchi') {
+  const spec = CLUBS[clubKey] || CLUBS.billocchi;
+  const [state, setState] = useState(() => ({
+    clubKey: spec.key,
+    data: withPlayingMembers(fallbackForClub(spec.key)),
+    connection: 'loading',
+    freshKeys: [],
+    lastSync: undefined,
+    refreshing: false,
+    health: null,
+  }));
+  const seen = useRef({ clubKey: spec.key, capturedAt: null, bust: null, live: false });
   const sequence = useRef(0);
 
-  /** Rilegge i dati (modulari, poi monolite). Ignora risposte superate da una richiesta più recente. */
+  // Cambio club istantaneo: espone subito lo snapshot del club richiesto mentre parte il fetch live.
+  if (seen.current.clubKey !== spec.key) {
+    seen.current = { clubKey: spec.key, capturedAt: null, bust: null, live: false };
+    sequence.current += 1;
+  }
+
+  const effectiveData =
+    state.clubKey === spec.key
+      ? state.data
+      : withPlayingMembers(fallbackForClub(spec.key));
+  const effectiveHealth = state.clubKey === spec.key ? state.health : null;
+  const effectiveConnection = state.clubKey === spec.key ? state.connection : 'loading';
+  const effectiveFresh = state.clubKey === spec.key ? state.freshKeys : [];
+  const effectiveSync = state.clubKey === spec.key ? state.lastSync : undefined;
+  const effectiveRefreshing = state.clubKey === spec.key ? state.refreshing : false;
+
   const load = useCallback(async (bust) => {
+    const targetKey = spec.key;
+    const targetId = spec.id;
     const mine = ++sequence.current;
     let payload;
     try {
-      if (getDataMode() !== 'new') throw Error('percorso collaudato');
-      payload = await loadModular(bust);
+      if (getDataMode() !== 'new' && targetKey === 'billocchi') throw Error('percorso collaudato');
+      payload = await loadModular(targetKey, targetId, bust);
     } catch {
       try {
-        payload = await loadMonolith(bust);
+        payload = await loadMonolith(targetKey, targetId, bust);
       } catch {
-        if (mine === sequence.current && !seen.current.live) setConnection('no');
+        if (mine === sequence.current && seen.current.clubKey === targetKey && !seen.current.live) {
+          setState((prev) => ({
+            ...(prev.clubKey === targetKey
+              ? prev
+              : {
+                  clubKey: targetKey,
+                  data: withPlayingMembers(fallbackForClub(targetKey)),
+                  freshKeys: [],
+                  lastSync: undefined,
+                  refreshing: false,
+                  health: null,
+                }),
+            connection: 'no',
+          }));
+        }
         return false;
       }
     }
-    if (mine !== sequence.current) return false;
-    // Never replace a newer snapshot with an older CDN or deployment fallback.
-    if (seen.current.live && Date.parse(payload.capturedAt) < Date.parse(seen.current.capturedAt)) return false;
+    if (mine !== sequence.current || seen.current.clubKey !== targetKey) return false;
+    if (seen.current.live && Date.parse(payload.capturedAt) < Date.parse(seen.current.capturedAt))
+      return false;
     seen.current.live = true;
-    if (seen.current.capturedAt !== payload.capturedAt) {
-      seen.current.capturedAt = payload.capturedAt;
-      setData(withPlayingMembers(payload));
-    }
-    setFreshKeys(payload.fresh || []);
-    setConnection(connectionOf(payload.fresh));
-    setLastSync(new Date().toISOString());
+    const changedCapture = seen.current.capturedAt !== payload.capturedAt;
+    seen.current.capturedAt = payload.capturedAt;
+    const nextData = changedCapture ? withPlayingMembers(payload) : null;
+    setState((prev) => ({
+      clubKey: targetKey,
+      data: nextData || (prev.clubKey === targetKey ? prev.data : withPlayingMembers(payload)),
+      connection: connectionOf(payload.fresh),
+      freshKeys: payload.fresh || [],
+      lastSync: new Date().toISOString(),
+      refreshing: prev.clubKey === targetKey ? prev.refreshing : false,
+      health: prev.clubKey === targetKey ? prev.health : null,
+    }));
     return true;
-  }, []);
+  }, [spec.key, spec.id]);
 
-  /** Un giro di polling: solo /api/health; rilegge i dati solo se è cambiato `capturedAt`. */
   const poll = useCallback(async () => {
+    const targetKey = spec.key;
     let next = null;
     try {
-      const body = await getJson('/api/health', 'no-store');
+      const body = await getJson(withClubParam('/api/health', targetKey), 'no-store');
       if (isValidHealth(body)) next = body;
     } catch {
       /* health non raggiungibile: sotto si rivalida il summary */
     }
+    if (seen.current.clubKey !== targetKey) return;
     if (next && safetyLevel() < 2) {
-      setHealth(next);
+      setState((prev) =>
+        prev.clubKey === targetKey ? { ...prev, health: next } : prev,
+      );
       const known = seen.current;
-      // Ritenta a ogni polling finché la versione annunciata non è stata effettivamente caricata.
       const changed = next.capturedAt !== known.capturedAt;
       if (!known.live || changed) {
         known.bust = next.capturedAt;
         await load(known.live ? next.capturedAt : undefined);
       } else {
-        setLastSync(new Date().toISOString());
+        setState((prev) =>
+          prev.clubKey === targetKey ? { ...prev, lastSync: new Date().toISOString() } : prev,
+        );
       }
       return;
     }
     await load();
-  }, [load]);
+  }, [load, spec.key]);
 
   const refresh = useCallback(async () => {
-    setRefreshing(true);
+    const targetKey = spec.key;
+    setState((prev) => ({ ...prev, clubKey: targetKey, refreshing: true }));
     try {
-      await load(health?.capturedAt);
+      await load(effectiveHealth?.capturedAt);
       if (safetyLevel() < 2) {
         try {
-          const body = await getJson('/api/health', 'no-store');
-          if (isValidHealth(body)) setHealth(body);
+          const body = await getJson(withClubParam('/api/health', targetKey), 'no-store');
+          if (isValidHealth(body) && seen.current.clubKey === targetKey) {
+            setState((prev) =>
+              prev.clubKey === targetKey ? { ...prev, health: body } : prev,
+            );
+          }
         } catch {
           /* nessun effetto visibile */
         }
       }
     } finally {
-      setRefreshing(false);
+      setState((prev) =>
+        prev.clubKey === targetKey ? { ...prev, refreshing: false } : prev,
+      );
     }
-  }, [load, health]);
+  }, [load, effectiveHealth?.capturedAt, spec.key]);
 
   useEffect(() => {
-    // Avvio: dati modulari subito (la salute arriva in parallelo), poi solo health.
+    const targetKey = spec.key;
+    setState({
+      clubKey: targetKey,
+      data: withPlayingMembers(fallbackForClub(targetKey)),
+      connection: 'loading',
+      freshKeys: [],
+      lastSync: undefined,
+      refreshing: false,
+      health: null,
+    });
     load();
     if (safetyLevel() < 2) {
-      getJson('/api/health', 'no-store')
-        .then((body) => isValidHealth(body) && setHealth(body))
+      getJson(withClubParam('/api/health', targetKey), 'no-store')
+        .then((body) => {
+          if (isValidHealth(body) && seen.current.clubKey === targetKey) {
+            setState((prev) =>
+              prev.clubKey === targetKey ? { ...prev, health: body } : prev,
+            );
+          }
+        })
         .catch(() => {});
     }
     const tick = () => {
@@ -159,7 +226,15 @@ export function useClubData() {
       clearInterval(interval);
       window.removeEventListener('focus', tick);
     };
-  }, [load, poll]);
+  }, [load, poll, spec.key]);
 
-  return { data, connection, freshKeys, lastSync, refreshing, refresh, health };
+  return {
+    data: effectiveData,
+    connection: effectiveConnection,
+    freshKeys: effectiveFresh,
+    lastSync: effectiveSync,
+    refreshing: effectiveRefreshing,
+    refresh,
+    health: effectiveHealth,
+  };
 }

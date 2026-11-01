@@ -25,7 +25,7 @@ function fakeRes() {
   return res;
 }
 const call = async (name, url, headers = {}, method = 'GET') => {
-  const handler = require(path.join(ROOT, 'api', `${name}.js`));
+  const handler = require(path.join(ROOT, 'api', '_lib', 'endpoints', `${name}.js`));
   const res = fakeRes();
   await handler({ method, url, headers }, res);
   return res;
@@ -255,4 +255,22 @@ test('archive e data (compatibilità) funzionano', async () => {
     Date.now = () => 120000;
     assert.equal(JSON.parse((await call('data', '/api/data')).body).capturedAt, 'new');
   } finally { Date.now = realNow; }
+});
+
+test('multi-club (?club=faida), rifiuto club non valido e presenza endpoint Rust api/*.rs', async () => {
+  process.env.DATA_ROOT = deployDir({ publicFiles: false, monolith: false });
+  const calls = mockFetch(() => jsonResponse({ version: 2, club: [{ clubId: '2039010' }] }));
+  const res = await call('summary', '/api/summary?club=faida');
+  assert.equal(res.statusCode, 200);
+  assert.equal(new URL(calls[0]).pathname, '/snowcomingsoon/Proclub/data/data/clubs/faida/public/summary.json');
+  assert.equal(res.headers['x-club'], 'faida');
+
+  const invalid = await call('summary', '/api/summary?club=../secret');
+  assert.equal(invalid.statusCode, 400);
+  assert.deepEqual(JSON.parse(invalid.body), { error: 'invalid_club' });
+
+  for (const ep of ['summary', 'history', 'insights', 'health', 'night', 'archive', 'data']) {
+    assert.ok(fs.existsSync(path.join(ROOT, 'api', `${ep}.rs`)), `api/${ep}.rs presente`);
+    assert.ok(!fs.existsSync(path.join(ROOT, 'api', `${ep}.js`)), `api/${ep}.js rimosso per evitare conflitti Vercel`);
+  }
 });

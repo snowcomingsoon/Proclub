@@ -4,6 +4,7 @@ import { computeCardProfile } from '../lib/card-profile.js';
 import { formatProOverall } from '../lib/format.js';
 import { playerHref } from '../lib/route.js';
 import { toNumber } from '../lib/stats.js';
+import { useClub } from '../lib/useClub.js';
 
 /** Dialog della figurina: chunk separato, precaricato appena il browser è libero. */
 const loadCardDialog = () => import('./CardDialog.jsx');
@@ -75,10 +76,11 @@ function LeaderList({ cards, setSelectedName }) {
  * `members` è la rosa già ordinata, `matches` le ultime gare EA.
  */
 export function Squad({ members, matches, data }) {
+  const { club } = useClub();
   const [selectedName, setSelectedName] = useState(null);
   const cards = members.map((member) => ({
     member,
-    profile: computeCardProfile(member, matches),
+    profile: computeCardProfile(member, matches, club.id),
   }));
   useEffect(() => {
     const idle =

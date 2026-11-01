@@ -1,4 +1,6 @@
+import { getActiveClubId } from './constants.js';
 import { toNumber } from './stats.js';
+import { isWasmReady, wasmInvoke } from './wasm-engine.js';
 
 const MIN_BASE_GAMES = 5;
 
@@ -7,7 +9,7 @@ const MIN_BASE_GAMES = 5;
  * le gare giocate in difesa sostituiscono i loro gol + assist con la media che il Pro
  * fa nelle altre gare (solo con almeno 5 gare fuori dalla difesa).
  */
-export function defenseProfile(matchHistory, member, clubId) {
+export function defenseProfile(matchHistory, member, clubId = getActiveClubId()) {
   const total = toNumber(member.goals) + toNumber(member.assists);
   let defGames = 0, defGA = 0, baseGames = 0, baseGA = 0;
   for (const match of matchHistory || []) {
@@ -24,8 +26,17 @@ export function defenseProfile(matchHistory, member, clubId) {
   return { defGames, defGA, baseGames, total, weighted, adjusted: weighted !== total };
 }
 
-/** Rosa con `defense` per ciascun Pro, ordinata per punteggio pesato, poi gol + assist reali, gol, presenze, nome. */
-export function rankMembers(members, matchHistory, clubId) {
+/** Rosa con `defense` per ciascun Pro, ordinata via motore Rust WASM (con fallback JS identico). */
+export function rankMembers(members, matchHistory, clubId = getActiveClubId()) {
+  if (isWasmReady()) {
+    const res = wasmInvoke({
+      op: 'rank_members',
+      members: members || [],
+      matchHistory: matchHistory || [],
+      clubId,
+    });
+    if (Array.isArray(res)) return res;
+  }
   return members
     .map((member) => ({ ...member, defense: defenseProfile(matchHistory, member, clubId) }))
     .sort(

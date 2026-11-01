@@ -1,5 +1,7 @@
+import { getActiveClubId } from './constants.js';
 import { groupByNight, summarizeNight } from './matches.js';
 import { toNumber } from './stats.js';
+import { isWasmReady, wasmInvoke } from './wasm-engine.js';
 
 /** Frasi "cosa ha portato" / "dove serve qualità" per un Pro, scelte in modo deterministico da `variant`. */
 export function buildGradeComments(stats, variant = 0) {
@@ -112,15 +114,34 @@ export function buildGradeComments(stats, variant = 0) {
   };
 }
 
-/** Voti EA per Pro: stagione, ultima serata e ultime 15 gare in archivio. */
-export function buildGradeRows(members, matches) {
+/** Voti EA per Pro: stagione, ultima serata e ultime 15 gare in archivio (via Rust WASM quando attivo). */
+export function buildGradeRows(members, matches, clubId = getActiveClubId()) {
+  if (isWasmReady()) {
+    const res = wasmInvoke({
+      op: 'grade_rows',
+      members: members || [],
+      matches: matches || [],
+      clubId,
+    });
+    if (res && Array.isArray(res.rows)) {
+      return {
+        ...res,
+        nightDate: res.nightDate ?? undefined,
+        rows: res.rows.map((r) => ({ ...r, session: r.session ?? undefined })),
+      };
+    }
+  }
   const uniqueMatches = [
-    ...new Map(matches.map((match) => [match.matchId, match])).values(),
+    ...new Map(
+      matches
+        .filter((match) => match.clubs?.[clubId] && match.matchId)
+        .map((match) => [match.matchId, match]),
+    ).values(),
   ].sort((a, b) => b.timestamp - a.timestamp);
   const recentMatches = uniqueMatches.slice(0, 15);
-  const latestNight = groupByNight(uniqueMatches)[0];
-  const recentPlayers = summarizeNight(recentMatches).players;
-  const nightPlayers = summarizeNight(latestNight?.games || []).players;
+  const latestNight = groupByNight(uniqueMatches, clubId)[0];
+  const recentPlayers = summarizeNight(recentMatches, clubId).players;
+  const nightPlayers = summarizeNight(latestNight?.games || [], clubId).players;
   const names = [
     ...new Set([
       ...members.map((member) => member.name),

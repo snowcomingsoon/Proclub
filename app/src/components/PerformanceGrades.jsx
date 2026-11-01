@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { formatRating } from '../lib/format.js';
 import { buildGradeComments, buildGradeRows } from '../lib/grades.js';
+import { useClub } from '../lib/useClub.js';
 
 /** Tabella dei voti EA (stagione, ultima serata, ultime 15 gare) con commento per Pro. */
 export function PerformanceGrades({ members, matches }) {
+  const { club } = useClub();
   const [sortKey, setSortKey] = useState('name');
   const [openName, setOpenName] = useState(null);
-  const grades = buildGradeRows(members, matches);
+  const grades = buildGradeRows(members, matches, club.id);
   const sortedRows = [...grades.rows].sort((a, b) =>
     sortKey === 'name'
       ? a.name.localeCompare(b.name)

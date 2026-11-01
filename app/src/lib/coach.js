@@ -1,17 +1,18 @@
 import { appearancesFor, buildAll } from '../../../shared/metrics.mjs';
 import { commentFor, commentForNight } from '../../../shared/commentary.mjs';
+import { getActiveClubId } from './constants.js';
 
 /**
  * Commenti da allenatore per nome Pro, calcolati su stagione e storico partite.
  * Se il backend li ha precalcolati con lo stesso motore (`data.insights.coach`) si usano quelli.
  */
-export function buildCoachComments(data) {
+export function buildCoachComments(data, clubId = getActiveClubId()) {
   const out = new Map();
   if (data.insights?.coach) {
     for (const [name, comment] of Object.entries(data.insights.coach)) out.set(name, comment);
     return out;
   }
-  for (const metrics of buildAll(data)) {
+  for (const metrics of buildAll(data, clubId)) {
     if (metrics.games > 0) out.set(metrics.name.toLowerCase(), commentFor(metrics));
   }
   return out;
@@ -23,14 +24,14 @@ export function buildCoachComments(data) {
  * Senza partite nella serata (o senza ruoli giocati) vale il commento stagionale:
  * precalcolato se disponibile, e in quel caso `all` non serve.
  */
-export function buildNightComments(data, nightGames = [], all) {
+export function buildNightComments(data, nightGames = [], all, clubId = getActiveClubId()) {
   const precomputed = data.insights?.coach;
-  if (precomputed && !nightGames.length) return buildCoachComments(data);
+  if (precomputed && !nightGames.length) return buildCoachComments(data, clubId);
   const out = new Map();
-  for (const metrics of all || buildAll(data)) {
+  for (const metrics of all || buildAll(data, clubId)) {
     if (metrics.games <= 0) continue;
     const key = metrics.name.toLowerCase();
-    const apps = appearancesFor(nightGames, metrics.name);
+    const apps = appearancesFor(nightGames, metrics.name, clubId);
     out.set(
       key,
       apps.length

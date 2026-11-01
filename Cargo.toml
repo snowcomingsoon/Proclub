@@ -1,0 +1,50 @@
+[package]
+name = "proclub-rs"
+version = "0.2.0"
+edition = "2021"
+description = "Backend API Vercel e Collector EA Pro Clubs in Rust per BILLOCCHI CLUB e FAIDA FC"
+
+[lib]
+name = "proclub_rs"
+path = "rust/lib.rs"
+
+[[bin]]
+name = "summary"
+path = "api/summary.rs"
+
+[[bin]]
+name = "history"
+path = "api/history.rs"
+
+[[bin]]
+name = "insights"
+path = "api/insights.rs"
+
+[[bin]]
+name = "health"
+path = "api/health.rs"
+
+[[bin]]
+name = "night"
+path = "api/night.rs"
+
+[[bin]]
+name = "archive"
+path = "api/archive.rs"
+
+[[bin]]
+name = "data"
+path = "api/data.rs"
+
+[[bin]]
+name = "collector"
+path = "rust/bin/collector.rs"
+
+[dependencies]
+proclub-core = { path = "crates/proclub-core" }
+tokio = { version = "1", features = ["full"] }
+vercel_runtime = "2"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+flate2 = "1.0"

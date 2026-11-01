@@ -1,6 +1,5 @@
 import { Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { CLUB_ID } from '../lib/constants.js';
 import { getEditorialContext } from '../lib/editorial-ctx.js';
 import { getClubPlayers, getOpponentName } from '../lib/matches.js';
 import {
@@ -9,6 +8,7 @@ import {
   toNumber,
   topPerformer,
 } from '../lib/stats.js';
+import { useClub } from '../lib/useClub.js';
 import { CurvePanel } from './match-lab/CurvePanel.jsx';
 import { DuelPanel } from './match-lab/DuelPanel.jsx';
 import { LabTabs } from './match-lab/LabTabs.jsx';
@@ -16,7 +16,8 @@ import { StudioPanel } from './match-lab/StudioPanel.jsx';
 
 /** "Lo spogliatoio": match studio, curva di forma e testa a testa sulle ultime gare. */
 export function MatchLab({ data, matches }) {
-  const { metricsByName } = getEditorialContext(data);
+  const { club } = useClub();
+  const { metricsByName } = getEditorialContext(data, club.id);
   const sortedMatches = [...matches].sort(
     (a, b) => toNumber(b.timestamp) - toNumber(a.timestamp),
   );
@@ -40,9 +41,9 @@ export function MatchLab({ data, matches }) {
     sortedMatches.find(
       (sortedMatch) => sortedMatch.matchId === selectedMatchId,
     ) || sortedMatches[0];
-  const matchPlayers = getClubPlayers(selectedMatch);
-  const ownClub = selectedMatch.clubs[CLUB_ID];
-  const allAppearances = sortedMatches.flatMap(getClubPlayers);
+  const matchPlayers = getClubPlayers(selectedMatch, club.id);
+  const ownClub = selectedMatch.clubs?.[club.id] || {};
+  const allAppearances = sortedMatches.flatMap((m) => getClubPlayers(m, club.id));
   const playerNames = [
     ...new Set(allAppearances.map((appearance) => appearance.playername)),
   ].sort((a, b) => a.localeCompare(b));
@@ -61,7 +62,7 @@ export function MatchLab({ data, matches }) {
     : formRoles[0];
   const formGames = [...sortedMatches].reverse().map((sortedMatch) => ({
     match: sortedMatch,
-    entry: getClubPlayers(sortedMatch).find(
+    entry: getClubPlayers(sortedMatch, club.id).find(
       (player) => player.playername === formPlayer && player.pos === formRole,
     ),
   }));
@@ -147,7 +148,11 @@ export function MatchLab({ data, matches }) {
     minute: '2-digit',
   });
   async function copySummary() {
-    const text = `BILLOCCHI CLUB ${ownClub.goals}–${ownClub.goalsAgainst} ${getOpponentName(selectedMatch)} · ${dateLabel}\n${outcome}\nMiglior voto Pro: ${topRated?.playername || '—'} (${topRated?.rating || '—'})${mvp ? `\nMVP EA: ${mvp.playername}` : ''}\n${topScorer ? `Più gol: ${topScorer.playername}, ${topScorer.goals}\n` : ''}${topAssister ? `Più assist: ${topAssister.playername}, ${topAssister.assists}\n` : ''}Passaggi dei Pro: ${matchSummary.passes}/${matchSummary.attempts}.\nhttps://billocchi-club.kr3n.chatgpt.site/#spogliatoio`;
+    const shareHref =
+      club.key === 'faida'
+        ? `${club.shareUrl}#spogliatoio`
+        : 'https://billocchi-club.kr3n.chatgpt.site/#spogliatoio';
+    const text = `${club.name} ${ownClub.goals}–${ownClub.goalsAgainst} ${getOpponentName(selectedMatch, club.id)} · ${dateLabel}\n${outcome}\nMiglior voto Pro: ${topRated?.playername || '—'} (${topRated?.rating || '—'})${mvp ? `\nMVP EA: ${mvp.playername}` : ''}\n${topScorer ? `Più gol: ${topScorer.playername}, ${topScorer.goals}\n` : ''}${topAssister ? `Più assist: ${topAssister.playername}, ${topAssister.assists}\n` : ''}Passaggi dei Pro: ${matchSummary.passes}/${matchSummary.attempts}.\n${shareHref}`;
     try {
       await navigator.clipboard.writeText(text);
       setCopyStatus('Copiato: pronto per la chat del club.');

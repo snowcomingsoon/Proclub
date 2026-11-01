@@ -578,3 +578,52 @@ test('detectGaps trova il buco di una partita non restituita e nessun falso alla
   assert.deepStrictEqual(detectGaps([base, base + 1200, base + 2400]), []);
   assert.deepStrictEqual(detectGaps([base, base + 1200, base + 2400, base + 2400 + 5 * 3600]), []);
 });
+
+test('rust wasm engine + FAIDA FC (2039010) parity', async () => {
+  const { initWasmFromBytes, isWasmReady, wasmInvoke } = await import('../app/src/lib/wasm-engine.js');
+  const { rankMembers } = await import('../app/src/lib/defense.js');
+  const { fallbackForClub } = await import('../app/src/lib/data.js');
+
+  const wasmBytes = readFileSync(new URL('../app/public/wasm/proclub_wasm.wasm', import.meta.url));
+  const ok = await initWasmFromBytes(wasmBytes);
+  assert.equal(ok, true);
+  assert.equal(isWasmReady(), true);
+
+  const faidaRaw = fallbackForClub('faida');
+  const faidaMatches = faidaRaw.matchHistory?.length ? faidaRaw.matchHistory : faidaRaw.matches;
+  const faidaMembers = faidaRaw.members?.members || [];
+
+  const ranked = rankMembers(faidaMembers, faidaMatches, '2039010');
+  assert.ok(ranked.length >= 3);
+  assert.ok(toNumber(ranked[0].gamesPlayed) > 0);
+  assert.ok(ranked[0].defense);
+
+  const nights = groupByNight(faidaMatches, '2039010');
+  assert.ok(nights.length >= 1);
+  const nightStats = summarizeNight(nights[0].games, '2039010');
+  assert.equal(
+    nightStats.wins + nightStats.draws + nightStats.losses,
+    nights[0].games.length,
+  );
+  assert.ok(nightStats.players.length >= 3);
+
+  const grades = buildGradeRows(faidaMembers, faidaMatches, '2039010');
+  assert.ok(grades.rows.length >= 3);
+
+  const card = computeCardProfile(faidaMembers[0], faidaMatches, '2039010');
+  assert.ok(card.score > 0);
+
+  const { constellationMatches, constellationRoster } = await import(
+    '../shared/constellation.mjs'
+  );
+  const scoped = constellationMatches(faidaRaw, '2039010');
+  const roster = constellationRoster(faidaRaw, scoped);
+  const pairs = wasmInvoke({
+    op: 'constellation_pairs',
+    scoped,
+    focusId: roster[0].id,
+    role: 'all',
+  });
+  assert.ok(Array.isArray(pairs));
+  assert.ok(pairs.length >= 2);
+});

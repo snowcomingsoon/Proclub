@@ -2,6 +2,8 @@ import { EvolutionPanel } from './Evolution.jsx';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { constellationMatches, constellationRoster, constellationPairs, pairTitle, replayMatches, ROLE_NAMES } from '../../../shared/constellation.mjs';
 import { groupByNight } from '../lib/matches.js';
+import { useClub } from '../lib/useClub.js';
+import { wasmInvoke } from '../lib/wasm-engine.js';
 import { chemistryDetails, replayRoster } from '../../../shared/chemistry.mjs';
 import './constellation.css';
 
@@ -34,12 +36,13 @@ function PairPanel({ pair, focus, onFocus }) {
   </aside>;
 }
 export function Constellation({ data }) {
+  const { club, wasmReady } = useClub();
   const [center,setCenter] = useState({x:50,y:50});
   const drag = useRef(null);
   const [dragging,setDragging] = useState(false);
   const moveCenter = e => { if (!drag.current) return; const r=drag.current.rect; setCenter({x:Math.max(42,Math.min(58,drag.current.x+(e.clientX-drag.current.px)/r.width*100)),y:Math.max(42,Math.min(58,drag.current.y+(e.clientY-drag.current.py)/r.height*100))}); };
   const stopDrag = () => {drag.current=null;setDragging(false);};
-  const matches = useMemo(()=>constellationMatches(data),[data]);
+  const matches = useMemo(()=>constellationMatches(data,club.id),[data,club.id]);
   const roster = useMemo(()=>constellationRoster(data,matches),[data,matches]);
   const [focusId,setFocusId] = useState(null), [partnerId,setPartnerId] = useState(null);
   const [period,setPeriod] = useState('all'), [role,setRole] = useState('all'), [paused,setPaused] = useState(false);
@@ -48,8 +51,8 @@ export function Constellation({ data }) {
   useEffect(()=>{const q=window.matchMedia('(max-width: 600px)');const update=()=>setSmall(q.matches);q.addEventListener('change',update);return()=>q.removeEventListener('change',update);},[]);
   const nights = useMemo(()=>{
     const valid=new Set(matches.map(m=>m.id));
-    return groupByNight([...(data.matches||[]),...(data.matchHistory||[])].filter(m=>valid.has(String(m.matchId))));
-  },[data,matches]);
+    return groupByNight([...(data.matches||[]),...(data.matchHistory||[])].filter(m=>valid.has(String(m.matchId))),club.id);
+  },[data,matches,club.id,wasmReady]);
   const night=nights.find(n=>n.day===nightDay)||nights[0];
   const currentFrame=Math.min(frame,Math.max(0,(night?.games.length||0)-1));
   const currentMatch=matches.find(m=>m.id===String(night?.games[currentFrame]?.matchId));
@@ -71,7 +74,13 @@ export function Constellation({ data }) {
     }
     return matches;
   },[matches,period,nights,replay,currentMatch]);
-  const pairs = useMemo(()=>constellationPairs(scoped,focus?.id,role).filter(p=>!replay||availableRoster.some(r=>r.id===p.id)).map(p=>{const analysis=chemistryDetails(p,scoped);return {...p,chemistry:analysis.score,analysis};}).sort((a,b)=>b.chemistry-a.chemistry||b.n-a.n),[scoped,focus,role,replay,availableRoster]);
+  const pairs = useMemo(()=>{
+    const wasmPairs = wasmReady && focus?.id ? wasmInvoke({ op: 'constellation_pairs', scoped, focusId: focus.id, role }) : null;
+    if (Array.isArray(wasmPairs)) {
+      return wasmPairs.filter(p=>!replay||availableRoster.some(r=>r.id===p.id));
+    }
+    return constellationPairs(scoped,focus?.id,role).filter(p=>!replay||availableRoster.some(r=>r.id===p.id)).map(p=>{const analysis=chemistryDetails(p,scoped);return {...p,chemistry:analysis.score,analysis};}).sort((a,b)=>b.chemistry-a.chemistry||b.n-a.n);
+  },[scoped,focus,role,replay,availableRoster,wasmReady]);
   const pair = pairs.find(p=>p.id===partnerId) || pairs[0];
   let visible = pairs.slice(0,small ? 6 : 12);
   if(pair && !visible.includes(pair)) visible=[...visible.slice(0,-1),pair];
@@ -84,7 +93,7 @@ export function Constellation({ data }) {
     return {...p,x:center.x+radius*Math.cos(angle),y:center.y+radius*Math.sin(angle)};
   });
   return <div className={`cx-page ${paused?'cx-paused':''} ${dragging?'cx-dragging':''} ${replay?'cx-replaying':''}`}>
-    <header className="cx-heading"><div><span className="cx-kicker">BILLOCCHI LAB / 01</span><h1>COSTELLAZIONE<span>DEL CLUB<span className="cx-star">✦</span></span></h1><p>Nessuno brilla da solo. Scopri chi entra nella tua orbita.</p></div><a href="#rosa" className="cx-back">↙ Torna al club</a></header>
+    <header className="cx-heading"><div><span className="cx-kicker">{club.short} LAB / 01</span><h1>COSTELLAZIONE<span>DEL CLUB<span className="cx-star">✦</span></span></h1><p>Nessuno brilla da solo. Scopri chi entra nella tua orbita.</p></div><a href="#rosa" className="cx-back">↙ Torna al club</a></header>
     <div className="cx-toolbar"><label>IL TUO CENTRO DI GRAVITÀ<select value={focus?.id || ''} onChange={e=>setFocus(e.target.value)}>{availableRoster.map(p=><option key={p.id} value={p.id}>{p.name}{p.games?'':' · senza storico'}</option>)}</select></label><label>PERIODO<select disabled={replay} value={period} onChange={e=>setPeriod(e.target.value)}><option value="all">Tutto lo storico disponibile</option><option value="15">Ultime 15 gare del club</option><option value="night">Ultima serata</option></select></label><label>REPARTO DEL PROTAGONISTA<select value={role} onChange={e=>setRole(e.target.value)}><option value="all">Tutti i reparti</option>{Object.entries(ROLE_NAMES).map(([key,name])=><option key={key} value={key}>{name}</option>)}</select></label><button className="cx-motion" aria-pressed={paused} onClick={()=>setPaused(p=>!p)}>{paused?'▶ Animazioni':'Ⅱ Pausa'}</button></div>
     <section className="cx-replay" aria-label="Replay della serata">
       <div className="cx-replay-heading"><div><span className="cx-kicker">LA NOTTE IN CUI CI SIAMO ACCESI</span><h2>Rivivi la serata.</h2><p>{replay?'Solo i presenti nel tabellino. L’intesa usa lo storico fino a questa gara.':'Guarda i legami evolvere, una partita alla volta.'}</p></div><button disabled={!nights.length} className="cx-explore" onClick={()=>{setReplay(r=>!r);setPlaying(false);setFrame(0);}}>{replay?'↙ Esci dal replay':'✦ Apri replay'}</button></div>
@@ -93,7 +102,7 @@ export function Constellation({ data }) {
         <label>SERATA<select value={night.day} onChange={e=>{setNightDay(e.target.value);setFrame(0);setPlaying(false);}}>{nights.map(n=><option key={n.day} value={n.day}>{new Date(n.day+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long'})} · {n.games.length} gare</option>)}</select></label>
         <div className="cx-playback"><button aria-label="Gara precedente" disabled={currentFrame===0} onClick={()=>{setFrame(currentFrame-1);setPlaying(false);}}>←</button><button disabled={night.games.length<2} onClick={()=>{if(currentFrame===night.games.length-1)setFrame(0);setPlaying(p=>!p);setPaused(false);}}>{playing?'Ⅱ Pausa replay':currentFrame===night.games.length-1?'↻ Rivedi':'▶ Riproduci'}</button><button aria-label="Gara successiva" disabled={currentFrame===night.games.length-1} onClick={()=>{setFrame(currentFrame+1);setPlaying(false);}}>→</button></div>
         <label className="cx-timeline">GARA {currentFrame+1} / {night.games.length}<input type="range" aria-label="Gara del replay" min="0" max={night.games.length-1} value={currentFrame} onChange={e=>{setFrame(Number(e.target.value));setPlaying(false);}}/></label>
-        {currentMatch&&<div className={`cx-replay-match cx-match-${currentMatch.result}`} key={currentMatch.id} aria-live="polite"><span>{date(currentMatch.timestamp)} · {new Date(currentMatch.timestamp*1000).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'})}</span><strong>BILLOCCHI <b>{currentMatch.gf}–{currentMatch.ga}</b> {currentMatch.opponent}</strong><small>{currentMatch.result==='V'?'VITTORIA':currentMatch.result==='P'?'PAREGGIO':'SCONFITTA'} · {currentFrame===night.games.length-1?'Fine serata':'Intesa aggiornata a questa gara'}</small></div>}
+        {currentMatch&&<div className={`cx-replay-match cx-match-${currentMatch.result}`} key={currentMatch.id} aria-live="polite"><span>{date(currentMatch.timestamp)} · {new Date(currentMatch.timestamp*1000).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Rome'})}</span><strong>{club.short} <b>{currentMatch.gf}–{currentMatch.ga}</b> {currentMatch.opponent}</strong><small>{currentMatch.result==='V'?'VITTORIA':currentMatch.result==='P'?'PAREGGIO':'SCONFITTA'} · {currentFrame===night.games.length-1?'Fine serata':'Intesa aggiornata a questa gara'}</small></div>}
       </div>}
     </section>
     <div className="cx-workspace"><div className="cx-left"><section className="cx-universe" aria-label="Mappa delle presenze condivise">

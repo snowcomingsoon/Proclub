@@ -2,5 +2,10 @@ node_modules/
 .env
 app/dist/
 app/public/data.json
+app/public/data-faida.json
 app/public/archive.json
+app/public/archive-faida.json
 app/public/data-public/
+app/public/data-public-faida/
+/target/
+crates/**/target/

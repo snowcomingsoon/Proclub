@@ -1,7 +1,7 @@
 import { ArrowUpRight } from 'lucide-react';
 import { collectionStatusOf } from '../lib/adapter.js';
-import { CLUB_ID, EA_CLUBS_URL } from '../lib/constants.js';
 import { lostMatchesNote, stallNotice } from '../lib/health.js';
+import { useClub } from '../lib/useClub.js';
 
 const FRESH_LABELS = {
   club: 'club',
@@ -25,6 +25,7 @@ function describeSync({ connection, freshKeys, lastSync, capturedAt }) {
 }
 
 export function SiteFooter({ connection, data, freshKeys, lastSync, health }) {
+  const { club } = useClub();
   const status = collectionStatusOf(health, data);
   const stall = stallNotice(health);
   const lost = lostMatchesNote(health);
@@ -32,14 +33,14 @@ export function SiteFooter({ connection, data, freshKeys, lastSync, health }) {
     <footer>
       <img
         className="site-logo"
-        src="/logo-billocchi.svg"
+        src={club.logo}
         alt=""
         width="40"
         height="40"
         loading="lazy"
         decoding="async"
       />
-      <strong>BILLOCCHI CLUB · FC 27</strong>
+      <strong>{club.name} · FC 27</strong>
       <p>
         Dati EA SPORTS FC Clubs. Raccolta ogni 3 minuti durante la fascia serale, ogni 10 minuti nel resto della giornata;
         verifica sul sito ogni 60 secondi durante la visita.
@@ -61,7 +62,7 @@ export function SiteFooter({ connection, data, freshKeys, lastSync, health }) {
       {lost&&<p>{lost}</p>}
       {stall&&<p role="status">{stall}</p>}
       <a
-        href={`${EA_CLUBS_URL}/overview?clubId=${CLUB_ID}&platform=common-gen5`}
+        href={club.eaUrl}
         target="_blank"
         rel="noreferrer"
       >

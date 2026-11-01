@@ -2,10 +2,13 @@ import {createContext,useContext,useMemo} from 'react';
 import {buildEvolutions,EVOLUTION_TIERS} from '../../../shared/evolution.mjs';
 import {ROLE_NAMES} from '../../../shared/constellation.mjs';
 import campaign from '../../../shared/evolution-campaign.json';
+import {useClub} from '../lib/useClub.js';
 import './evolution.css';
+const EMPTY_CAMPAIGN={version:2,activatedAt:0,players:{}};
 const EvolutionContext=createContext({});
 export function EvolutionProvider({data,children}) {
-  const evolutions=useMemo(()=>buildEvolutions(data,campaign),[data]);
+  const {club}=useClub();
+  const evolutions=useMemo(()=>buildEvolutions(data,club.key==='faida'?EMPTY_CAMPAIGN:campaign,club.id),[data,club.key,club.id]);
   return <EvolutionContext.Provider value={evolutions}>{children}</EvolutionContext.Provider>;
 }
 export const useEvolution=name=>useContext(EvolutionContext)[String(name||'').toLowerCase()];

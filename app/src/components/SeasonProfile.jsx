@@ -2,10 +2,12 @@ import { AdaniComment } from './AdaniComment.jsx';
 import { assignQuotes, toQuotePlayer } from '../lib/adani-quotes.js';
 import { getEditorialContext } from '../lib/editorial-ctx.js';
 import { buildSeasonProfile } from '../lib/season-profile.js';
+import { useClub } from '../lib/useClub.js';
 
 /** Ritratto della stagione di un Pro dentro la finestra della figurina. */
 export function SeasonProfile({ member, players, recent, data }) {
-  const ctx = data ? getEditorialContext(data) : null;
+  const { club } = useClub();
+  const ctx = data ? getEditorialContext(data, club.id) : null;
   const profile = buildSeasonProfile(
     member,
     players,

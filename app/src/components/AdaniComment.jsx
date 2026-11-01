@@ -1,8 +1,10 @@
 import { AdaniMini } from './AdaniMini.jsx';
 import { adaniNote } from '../lib/adani-quotes.js';
+import { useClub } from '../lib/useClub.js';
 
 /** Commento "della redazione" con la citazione abbinata e il riepilogo del Pro. */
 export function AdaniComment({ player, quote }) {
+  const { club } = useClub();
   const summary = adaniNote(player);
   return (
     <aside
@@ -24,7 +26,7 @@ export function AdaniComment({ player, quote }) {
           </p>
           <small>
             Citazione di Lele Adani. L’abbinamento e il commento sul giocatore
-            sono della redazione BILLOCCHI.
+            sono della redazione {club.short}.
           </small>
         </details>
       </div>

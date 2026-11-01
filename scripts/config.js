@@ -1,5 +1,5 @@
 'use strict';
-// Configurazione del club: config/club.json, con variabili d'ambiente come override.
+// Configurazione del club: config/club.json (default) e config/clubs.json (multi-club), con variabili d'ambiente come override.
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -18,4 +18,9 @@ function loadConfig(env = process.env, file = path.join(ROOT, 'config', 'club.js
   };
 }
 
-module.exports = {ROOT, loadConfig};
+function loadClubs(file = path.join(ROOT, 'config', 'clubs.json')) {
+  if (!fs.existsSync(file)) return [{key: 'billocchi', dataDir: 'data', useUnlistedSeed: true, ...loadConfig()}];
+  return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+
+module.exports = {ROOT, loadConfig, loadClubs};

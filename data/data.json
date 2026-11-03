@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-03T23:31:18.000Z",
+  "capturedAt": "2026-11-03T23:34:22.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-03T23:31:18.000Z",
+    "checkedAt": "2026-11-03T23:34:22.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -576,7 +576,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 25,
         "unit": "minutes"
       },
       "timestamp": 1793747338
@@ -1179,7 +1179,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 31,
+        "number": 38,
         "unit": "minutes"
       },
       "timestamp": 1793746580
@@ -1823,7 +1823,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 52,
+        "number": 59,
         "unit": "minutes"
       },
       "timestamp": 1793745316
@@ -2906,7 +2906,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 1,
+        "number": 2,
         "unit": "hours"
       },
       "timestamp": 1793741596
@@ -38671,7 +38671,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 25,
         "unit": "minutes"
       },
       "timestamp": 1793747338
@@ -39274,7 +39274,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 31,
+        "number": 38,
         "unit": "minutes"
       },
       "timestamp": 1793746580
@@ -39918,7 +39918,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 52,
+        "number": 59,
         "unit": "minutes"
       },
       "timestamp": 1793745316
@@ -41001,7 +41001,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 1,
+        "number": 2,
         "unit": "hours"
       },
       "timestamp": 1793741596

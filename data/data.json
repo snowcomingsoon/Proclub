@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-03T23:25:07.000Z",
+  "capturedAt": "2026-11-03T23:28:12.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-03T23:25:07.000Z",
+    "checkedAt": "2026-11-03T23:28:12.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -576,7 +576,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 13,
+        "number": 19,
         "unit": "minutes"
       },
       "timestamp": 1793747338
@@ -1179,7 +1179,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 25,
+        "number": 31,
         "unit": "minutes"
       },
       "timestamp": 1793746580
@@ -1823,7 +1823,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 46,
+        "number": 52,
         "unit": "minutes"
       },
       "timestamp": 1793745316
@@ -3408,7 +3408,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 6,
+        "number": 7,
         "unit": "days"
       },
       "timestamp": 1793143625
@@ -38671,7 +38671,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 13,
+        "number": 19,
         "unit": "minutes"
       },
       "timestamp": 1793747338
@@ -39274,7 +39274,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 25,
+        "number": 31,
         "unit": "minutes"
       },
       "timestamp": 1793746580
@@ -39918,7 +39918,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 46,
+        "number": 52,
         "unit": "minutes"
       },
       "timestamp": 1793745316
@@ -41503,7 +41503,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 6,
+        "number": 7,
         "unit": "days"
       },
       "timestamp": 1793143625

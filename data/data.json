@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-03T22:22:38.000Z",
+  "capturedAt": "2026-11-03T22:25:44.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -11,45 +11,45 @@
       "finishesInDivision4Group1": "0",
       "finishesInDivision5Group1": "0",
       "finishesInDivision6Group1": "0",
-      "gamesPlayed": "100",
+      "gamesPlayed": "101",
       "gamesPlayedPlayoff": "15",
-      "goals": "286",
-      "goalsAgainst": "240",
-      "lastMatch0": "2",
-      "lastMatch1": "1",
-      "lastMatch2": "2",
+      "goals": "291",
+      "goalsAgainst": "244",
+      "lastMatch0": "1",
+      "lastMatch1": "2",
+      "lastMatch2": "1",
       "lastMatch3": "2",
-      "lastMatch4": "1",
+      "lastMatch4": "2",
       "lastMatch5": "-1",
       "lastMatch6": "-1",
       "lastMatch7": "-1",
       "lastMatch8": "-1",
       "lastMatch9": "-1",
-      "lastOpponent0": "690729",
-      "lastOpponent1": "23058",
-      "lastOpponent2": "18762",
-      "lastOpponent3": "1346374",
-      "lastOpponent4": "371992",
-      "lastOpponent5": "24400",
-      "lastOpponent6": "715256",
-      "lastOpponent7": "518904",
-      "lastOpponent8": "247506",
-      "lastOpponent9": "937088",
-      "leagueAppearances": "85",
+      "lastOpponent0": "327100",
+      "lastOpponent1": "690729",
+      "lastOpponent2": "23058",
+      "lastOpponent3": "18762",
+      "lastOpponent4": "1346374",
+      "lastOpponent5": "371992",
+      "lastOpponent6": "24400",
+      "lastOpponent7": "715256",
+      "lastOpponent8": "518904",
+      "lastOpponent9": "247506",
+      "leagueAppearances": "86",
       "losses": "37",
       "promotions": "4",
       "relegations": "0",
       "reputationtier": "1",
-      "skillRating": "1698",
+      "skillRating": "1717",
       "ties": "13",
-      "unbeatenstreak": "0",
-      "wins": "50",
-      "wstreak": "0"
+      "unbeatenstreak": "1",
+      "wins": "51",
+      "wstreak": "1"
     }
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-03T22:22:38.000Z",
+    "checkedAt": "2026-11-03T22:25:44.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -617,7 +617,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 26,
+        "number": 33,
         "unit": "minutes"
       },
       "timestamp": 1793742758
@@ -1138,7 +1138,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 45,
+        "number": 52,
         "unit": "minutes"
       },
       "timestamp": 1793741596
@@ -3022,7 +3022,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 6,
+        "number": 7,
         "unit": "days"
       },
       "timestamp": 1793139852
@@ -36944,7 +36944,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 26,
+        "number": 33,
         "unit": "minutes"
       },
       "timestamp": 1793742758
@@ -37465,7 +37465,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 45,
+        "number": 52,
         "unit": "minutes"
       },
       "timestamp": 1793741596
@@ -39349,7 +39349,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 6,
+        "number": 7,
         "unit": "days"
       },
       "timestamp": 1793139852

@@ -4,6 +4,7 @@ import { toNumber } from '../lib/stats.js';
 import { useArchive } from '../lib/useArchive.js';
 import { useClub } from '../lib/useClub.js';
 import { Tabs } from './pages/Tabs.jsx';
+import { HonorsBoard } from './Honors.jsx';
 
 const COLUMNS = [
   { key: 'name', label: 'Pro', tab: 'Nome' },
@@ -396,7 +397,8 @@ function ArchiveBlock({ archive, children }) {
 
 /** Vista `#/statistiche`: record del club, classifica Pro, testa a testa, archivio e bilancio avversari. */
 export function StatsPage({ data }) {
-  const { clubKey } = useClub();
+  const { clubKey, club: clubMeta } = useClub();
+  const clubId = clubMeta.id;
   const archive = useArchive(clubKey);
   const club = data.club[0];
   const rows = useMemo(
@@ -435,10 +437,22 @@ export function StatsPage({ data }) {
         </div>
         <Leaderboard rows={rows} />
       </section>
+      <section className="content pg-section" aria-labelledby="st-honors">
+        <div className="section-head">
+          <div>
+            <span className="overline">03 / MENZIONI D’ONORE</span>
+            <h2 id="st-honors">La bacheca.</h2>
+            <p className="sub">
+              Traguardi di carriera nel club, in cinque livelli sempre più rari. Apri un Pro per vedere tutte le sue menzioni.
+            </p>
+          </div>
+        </div>
+        <HonorsBoard data={data} clubId={clubId} />
+      </section>
       <section className="content pg-section" aria-labelledby="st-h2h">
         <div className="section-head">
           <div>
-            <span className="overline">03 / CONFRONTO</span>
+            <span className="overline">04 / CONFRONTO</span>
             <h2 id="st-h2h">Testa a testa.</h2>
           </div>
         </div>
@@ -447,7 +461,7 @@ export function StatsPage({ data }) {
       <section className="content pg-section" aria-labelledby="st-archive">
         <div className="section-head">
           <div>
-            <span className="overline">04 / ARCHIVIO</span>
+            <span className="overline">05 / ARCHIVIO</span>
             <h2 id="st-archive">Archivio partite.</h2>
           </div>
         </div>
@@ -458,7 +472,7 @@ export function StatsPage({ data }) {
       <section className="content pg-section" aria-labelledby="st-opps">
         <div className="section-head">
           <div>
-            <span className="overline">05 / AVVERSARI</span>
+            <span className="overline">06 / AVVERSARI</span>
             <h2 id="st-opps">Bilancio contro gli avversari.</h2>
           </div>
         </div>

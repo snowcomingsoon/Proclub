@@ -9,6 +9,7 @@ import { toNumber } from '../lib/stats.js';
 import { useClub } from '../lib/useClub.js';
 import { CollectorCard } from './CollectorCard.jsx';
 import { FormChart } from './pages/FormChart.jsx';
+import { HonorsSection } from './Honors.jsx';
 
 const median = (values) => {
   if (!values.length) return null;
@@ -471,6 +472,8 @@ export function PlayerPage({ data, name }) {
           </ul>
         </section>
       )}
+
+      <HonorsSection member={member} appearances={appearances} family={metrics.roleFamily} />
 
       {enough && (strengths.length > 0 || weaknesses.length > 0) && (
         <section className="content pg-section" aria-labelledby="pl-reading">

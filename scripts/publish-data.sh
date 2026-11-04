@@ -27,6 +27,8 @@ publish() {
     fi
     rm -rf "$tmp/data"
     cp -a data "$tmp/data"
+    # vercel.json deve stare anche nel branch data, altrimenti Vercel non sa di non dover pubblicare i commit dei dati
+    [ -f vercel.json ] && cp vercel.json "$tmp/vercel.json"
     git -C "$tmp" add -A data
     if git -C "$tmp" diff --cached --quiet; then
       [ "$fresh" = 1 ] || { git worktree remove -f "$tmp"; return 0; }

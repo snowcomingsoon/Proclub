@@ -822,3 +822,111 @@
 .constellation-entry{display:flex;align-items:center;gap:18px;margin:20px auto;padding:19px 24px;max-width:1480px;border:1px solid #4c623b;border-radius:14px;background:radial-gradient(ellipse at 10% 50%,#537b262a,transparent 65%),#101c16;color:#d4f497;text-decoration:none}.constellation-entry-symbol{font-size:35px;color:#c9f779}.constellation-entry>span:nth-child(2){flex:1}.constellation-entry b{font:700 22px/1.2 "Barlow Condensed",sans-serif;letter-spacing:.035em}.constellation-entry small{display:block;font-size:11px;color:#a0b396;margin-top:5px}.constellation-entry>strong{font-size:27px}.constellation-entry:hover{border-color:#cefc70;background-color:#1b2d1a}.constellation-entry:focus-visible{outline:2px solid #cefc70;outline-offset:4px}@media(max-width:600px){.constellation-entry{margin:14px 12px;padding:15px;gap:12px}.constellation-entry b{font-size:18px}.constellation-entry small{font-size:10px;line-height:1.5}.constellation-entry-symbol{font-size:28px}}
 
 .paper-gap-note { margin: 12px 0 0; font-size: 13px; line-height: 1.5; opacity: 0.8; border-left: 3px solid currentColor; padding-left: 12px; }
+
+/* Menzioni d'onore */
+.honors {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.honors-sub {
+  margin: 28px 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.honor {
+  --tier: #8aa17a;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--tier);
+}
+.honor.tier-bronze,
+.honor-dots .tier-bronze { --tier: #c58a5b; }
+.honor.tier-silver,
+.honor-dots .tier-silver { --tier: #c9d3d6; }
+.honor.tier-gold,
+.honor-dots .tier-gold { --tier: #e9c45c; }
+.honor.tier-platinum,
+.honor-dots .tier-platinum { --tier: #7fe0d4; }
+.honor.tier-legend,
+.honor-dots .tier-legend { --tier: #d98cff; }
+.honor.is-goal { --tier: #3a5242; border-style: dashed; border-top-style: solid; }
+.honor-tier {
+  color: var(--tier);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.honor b {
+  font: 800 clamp(24px, 2.4vw, 30px) / 1.05 'Barlow Condensed', sans-serif;
+}
+.honor small {
+  color: #a8bbaa;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.honor-track {
+  height: 6px;
+  margin-top: 8px;
+  background: #223629;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.honor-track i {
+  display: block;
+  height: 100%;
+  background: var(--tier);
+  border-radius: 4px;
+}
+.honor-board {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.honor-row {
+  display: grid;
+  grid-template-columns: 48px minmax(120px, 1fr) auto auto;
+  align-items: center;
+  gap: 4px 16px;
+  padding: 14px 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.honor-rank { color: var(--muted); font-weight: 800; }
+.honor-row a { font: 800 24px / 1 'Barlow Condensed', sans-serif; color: inherit; text-decoration: none; }
+.honor-row a:hover { text-decoration: underline; }
+.honor-count { color: #a8bbaa; font-size: 13px; }
+.honor-count b { color: var(--lime); font-size: 18px; }
+.honor-dots { display: flex; gap: 6px; }
+.honor-dots i {
+  --tier: #8aa17a;
+  min-width: 26px;
+  padding: 2px 7px;
+  text-align: center;
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 800;
+  color: #10170f;
+  background: var(--tier);
+  border-radius: 999px;
+}
+.honor-best { grid-column: 2 / -1; color: var(--muted); font-size: 13px; }
+@media (max-width: 1000px) { .honors { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .honors { grid-template-columns: 1fr; }
+  .honor-row { grid-template-columns: 40px 1fr; }
+  .honor-count, .honor-dots, .honor-best { grid-column: 1 / -1; }
+}

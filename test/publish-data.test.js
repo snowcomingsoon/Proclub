@@ -17,9 +17,11 @@ test('publish-data: i dati vanno nel branch data senza toccare main, restore li 
     sh('git config user.email a@b.c && git config user.name t && git checkout -q -b main', w);
     fs.mkdirSync(path.join(w, 'data'));
     fs.writeFileSync(path.join(w, 'data', 'a.json'), '{"v":1}');
+    fs.writeFileSync(path.join(w, 'vercel.json'), '{"git":{}}');
     sh('git add -A && git commit -q -m init && git push -q origin main', w);
     sh(`bash ${script} publish`, w);
     assert.match(sh('git ls-tree -r --name-only data', bare), /data\/a\.json/);
+    assert.match(sh('git ls-tree -r --name-only data', bare), /vercel\.json/);
     fs.writeFileSync(path.join(w, 'data', 'a.json'), '{"v":2}');
     sh(`bash ${script} publish`, w);
     assert.equal(sh('git show data:data/a.json', bare), '{"v":2}');

@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-04T16:13:12.000Z",
+  "capturedAt": "2026-11-04T16:44:00.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-04T16:13:12.000Z",
+    "checkedAt": "2026-11-04T16:44:00.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -165,7 +165,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "915054592",
+              "kitId": "922730496",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -177,7 +177,7 @@
             },
             "name": "Os Mano Peppa",
             "regionId": 5457237,
-            "teamId": 111701
+            "teamId": 112638
           },
           "gameNumber": "0",
           "goals": "3",
@@ -1823,7 +1823,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 17,
+        "number": 18,
         "unit": "hours"
       },
       "timestamp": 1793745316
@@ -2906,7 +2906,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 18,
+        "number": 19,
         "unit": "hours"
       },
       "timestamp": 1793741596
@@ -38260,7 +38260,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "915054592",
+              "kitId": "922730496",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -38272,7 +38272,7 @@
             },
             "name": "Os Mano Peppa",
             "regionId": 5457237,
-            "teamId": 111701
+            "teamId": 112638
           },
           "gameNumber": "0",
           "goals": "3",
@@ -39918,7 +39918,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 17,
+        "number": 18,
         "unit": "hours"
       },
       "timestamp": 1793745316
@@ -41001,7 +41001,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 18,
+        "number": 19,
         "unit": "hours"
       },
       "timestamp": 1793741596

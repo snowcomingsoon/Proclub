@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-04T22:58:15.000Z",
+  "capturedAt": "2026-11-04T23:04:24.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-04T22:58:15.000Z",
+    "checkedAt": "2026-11-04T23:04:24.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -164,7 +164,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -176,7 +176,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -575,7 +575,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 1,
+        "number": 7,
         "unit": "minutes"
       },
       "timestamp": 1793832997
@@ -732,7 +732,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -744,7 +744,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "7",
@@ -1137,7 +1137,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 25,
         "unit": "minutes"
       },
       "timestamp": 1793831913
@@ -1294,7 +1294,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -1306,7 +1306,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "0",
@@ -1699,7 +1699,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 43,
+        "number": 49,
         "unit": "minutes"
       },
       "timestamp": 1793830506
@@ -1809,7 +1809,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -1821,7 +1821,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "9",
@@ -2336,7 +2336,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -2348,7 +2348,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "1",
@@ -2816,7 +2816,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -2828,7 +2828,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "2",
@@ -3419,7 +3419,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -3431,7 +3431,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -3858,7 +3858,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -3870,7 +3870,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -4215,7 +4215,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -4227,7 +4227,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -4525,7 +4525,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -4537,7 +4537,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "5",
@@ -4884,7 +4884,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -4896,7 +4896,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -5295,7 +5295,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 1,
+        "number": 7,
         "unit": "minutes"
       },
       "timestamp": 1793832997
@@ -5452,7 +5452,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -5464,7 +5464,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "7",
@@ -5857,7 +5857,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 25,
         "unit": "minutes"
       },
       "timestamp": 1793831913
@@ -6014,7 +6014,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -6026,7 +6026,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "0",
@@ -6419,7 +6419,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 43,
+        "number": 49,
         "unit": "minutes"
       },
       "timestamp": 1793830506
@@ -6529,7 +6529,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -6541,7 +6541,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "9",
@@ -7056,7 +7056,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -7068,7 +7068,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "1",
@@ -7536,7 +7536,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -7548,7 +7548,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "2",
@@ -8139,7 +8139,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -8151,7 +8151,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -8578,7 +8578,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -8590,7 +8590,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -8935,7 +8935,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -8947,7 +8947,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -9245,7 +9245,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "450560",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -9257,7 +9257,7 @@
             },
             "name": "Faida FC",
             "regionId": 1397052722,
-            "teamId": 55
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "5",

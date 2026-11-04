@@ -3,6 +3,9 @@
 # restore: porta in data/ lo stato del branch data. publish: ci pubblica data/ (commit solo se cambia qualcosa).
 set -u
 BRANCH="${DATA_BRANCH:-data}"
+# Se cambiano solo orari/tentativi, si ripubblica al massimo ogni HEARTBEAT secondi (il sito segnala ritardi oltre 45 minuti).
+HEARTBEAT="${DATA_HEARTBEAT:-1800}"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 restore() {
   git fetch -q origin "$BRANCH" 2>/dev/null || return 0
@@ -33,6 +36,10 @@ publish() {
     if git -C "$tmp" diff --cached --quiet; then
       [ "$fresh" = 1 ] || { git worktree remove -f "$tmp"; return 0; }
     else
+      if [ "$fresh" = 0 ] && node "$HERE/data-delta.js" "$tmp"; then
+        age=$(( $(date +%s) - $(git -C "$tmp" log -1 --format=%ct) ))
+        if [ "$age" -lt "$HEARTBEAT" ]; then git worktree remove -f "$tmp"; return 0; fi
+      fi
       git -C "$tmp" commit -q -m "chore: aggiorna dati EA"
     fi
     if git -C "$tmp" push -q origin "HEAD:$BRANCH"; then git worktree remove -f "$tmp"; return 0; fi

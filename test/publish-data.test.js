@@ -31,5 +31,15 @@ test('publish-data: i dati vanno nel branch data senza toccare main, restore li 
     fs.writeFileSync(path.join(w, 'data', 'a.json'), '{"v":0}');
     sh(`bash ${script} restore`, w);
     assert.equal(fs.readFileSync(path.join(w, 'data', 'a.json'), 'utf8'), '{"v":2}');
+    // solo orari che cambiano: niente commit prima dell heartbeat, commit con heartbeat scaduto
+    fs.writeFileSync(path.join(w, 'data', 'a.json'), '{"v":2,"checkedAt":"2026-01-01T00:00:00Z"}');
+    sh(`bash ${script} publish`, w);
+    assert.equal(sh('git rev-list --count data', bare).trim(), '2', 'solo orologio: niente commit');
+    fs.writeFileSync(path.join(w, 'data', 'a.json'), '{"v":3,"checkedAt":"2026-01-01T00:20:00Z"}');
+    sh(`bash ${script} publish`, w);
+    assert.equal(sh('git rev-list --count data', bare).trim(), '3', 'novità reale: commit subito');
+    fs.writeFileSync(path.join(w, 'data', 'a.json'), '{"v":3,"checkedAt":"2026-01-01T00:30:00Z"}');
+    execSync(`DATA_HEARTBEAT=0 bash ${script} publish`, {cwd: w});
+    assert.equal(sh('git rev-list --count data', bare).trim(), '4', 'heartbeat scaduto: commit');
   } finally { fs.rmSync(dir, {recursive: true, force: true}); }
 });

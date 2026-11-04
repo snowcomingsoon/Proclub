@@ -1,6 +1,15 @@
 [
   {
     "goalsAgainst": 2,
+    "goalsFor": 3,
+    "matchId": "167238809850269",
+    "month": "2026-11",
+    "opponent": "Fond du Trou",
+    "result": "1",
+    "timestamp": 1793832997
+  },
+  {
+    "goalsAgainst": 2,
     "goalsFor": 7,
     "matchId": "167392416980276",
     "month": "2026-11",

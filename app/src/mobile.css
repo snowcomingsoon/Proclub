@@ -4,10 +4,10 @@
  */
 
 /* contrasti appena sotto soglia */
-.paper-proof-matches time { color: #55694a; }
-.paper-chapters summary > span { color: #566f45; }
-.paper-trend > small { color: #4f6642; }
-.paper-story-no { color: #72905c; }
+.paper-proof-matches time { color: oklch(from #55694a l c calc(var(--ha,125) + (h - 125) * var(--hk,1))); }
+.paper-chapters summary > span { color: oklch(from #566f45 l c calc(var(--ha,125) + (h - 125) * var(--hk,1))); }
+.paper-trend > small { color: oklch(from #4f6642 l c calc(var(--ha,125) + (h - 125) * var(--hk,1))); }
+.paper-story-no { color: oklch(from #72905c l c calc(var(--ha,125) + (h - 125) * var(--hk,1))); }
 
 /* bersaglio di tocco del pulsante di chiusura del dialog */
 .dialog-close { min-width: 44px; min-height: 44px; line-height: 1; }
@@ -61,17 +61,17 @@
     position: sticky;
     left: 0;
     z-index: 1;
-    background: #0f2118;
-    box-shadow: 1px 0 0 #2d4434;
+    background: oklch(from #0f2118 l c calc(var(--ha,125) + (h - 125) * var(--hk,1)));
+    box-shadow: 1px 0 0 oklch(from #2d4434 l c calc(var(--ha,125) + (h - 125) * var(--hk,1)));
   }
   .grades-table thead th:first-child,
   .lab-table thead th:first-child {
     position: sticky;
     left: 0;
     z-index: 2;
-    background: #20341f;
+    background: oklch(from #20341f l c calc(var(--ha,125) + (h - 125) * var(--hk,1)));
   }
-  .lab-table thead th:first-child { background: #1c3122; }
+  .lab-table thead th:first-child { background: oklch(from #1c3122 l c calc(var(--ha,125) + (h - 125) * var(--hk,1))); }
   .lab-table caption {
     position: sticky;
     left: 0;

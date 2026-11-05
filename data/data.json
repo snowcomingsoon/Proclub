@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-05T22:28:09.000Z",
+  "capturedAt": "2026-11-05T22:34:16.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-05T22:28:09.000Z",
+    "checkedAt": "2026-11-05T22:34:16.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -1927,7 +1927,7 @@
               "dCustomKit": "1",
               "kitAColor1": "592653",
               "kitAColor2": "15166736",
-              "kitAColor3": "15166736",
+              "kitAColor3": "15921906",
               "kitAColor4": "15921906",
               "kitColor1": "592653",
               "kitColor2": "16687883",
@@ -40022,7 +40022,7 @@
               "dCustomKit": "1",
               "kitAColor1": "592653",
               "kitAColor2": "15166736",
-              "kitAColor3": "15166736",
+              "kitAColor3": "15921906",
               "kitAColor4": "15921906",
               "kitColor1": "592653",
               "kitColor2": "16687883",

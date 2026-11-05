@@ -1441,3 +1441,22 @@ html[data-club='faida'] .cx-breakdown summary {
     background: #1d070d;
   }
 }
+
+/* Tonalità delle pagine con palette propria (costellazione, evoluzione): lime → rosso sangue in FAIDA. */
+:root {
+  --ha: 125;
+  --hk: 1;
+}
+html[data-club='faida'] {
+  --ha: 20;
+  --hk: 0.35;
+}
+html[data-club='faida'] .adani-loading {
+  color: var(--lime);
+}
+
+/* Il nome del club nel footer non va a capo e non si schiaccia. */
+footer > strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}

@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-05T19:53:06.000Z",
+  "capturedAt": "2026-11-05T20:17:35.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-05T19:53:06.000Z",
+    "checkedAt": "2026-11-05T20:17:35.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -1276,10 +1276,10 @@
             "customKit": {
               "crestAssetId": "99160122",
               "crestColor": "0",
-              "customAwayKitId": "7525",
+              "customAwayKitId": "7641",
               "customKeeperKitId": "5021",
-              "customKitId": "7800",
-              "customThirdKitId": "7710",
+              "customKitId": "7647",
+              "customThirdKitId": "7573",
               "dCustomKit": "0",
               "kitAColor1": "592653",
               "kitAColor2": "10066329",
@@ -39371,10 +39371,10 @@
             "customKit": {
               "crestAssetId": "99160122",
               "crestColor": "0",
-              "customAwayKitId": "7525",
+              "customAwayKitId": "7641",
               "customKeeperKitId": "5021",
-              "customKitId": "7800",
-              "customThirdKitId": "7710",
+              "customKitId": "7647",
+              "customThirdKitId": "7573",
               "dCustomKit": "0",
               "kitAColor1": "592653",
               "kitAColor2": "10066329",

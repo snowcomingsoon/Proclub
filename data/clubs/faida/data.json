@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-05T11:55:15.000Z",
+  "capturedAt": "2026-11-05T12:05:22.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,11 +49,16 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-05T11:55:15.000Z",
-    "complete": true,
-    "endpointFailures": {},
+    "checkedAt": "2026-11-05T12:15:30.000Z",
+    "complete": false,
+    "endpointFailures": {
+      "club": "EA clubs/overallStats HTTP 403 (HTTP 404)",
+      "leagueMatch": "EA clubs/matches HTTP 403 (HTTP 404)",
+      "members": "EA members/stats HTTP 403 (HTTP 404)",
+      "playoffMatch": "EA clubs/matches HTTP 403 (HTTP 404)"
+    },
     "engine": "rust-collector",
-    "healthy": true,
+    "healthy": false,
     "issues": [],
     "stale": {},
     "startedAt": "2026-11-01T20:34:53.000Z"
@@ -616,7 +621,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 11,
+        "number": 12,
         "unit": "hours"
       },
       "timestamp": 1793836650
@@ -2179,7 +2184,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 12,
+        "number": 13,
         "unit": "hours"
       },
       "timestamp": 1793832997
@@ -6940,7 +6945,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 11,
+        "number": 12,
         "unit": "hours"
       },
       "timestamp": 1793836650
@@ -8503,7 +8508,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 12,
+        "number": 13,
         "unit": "hours"
       },
       "timestamp": 1793832997

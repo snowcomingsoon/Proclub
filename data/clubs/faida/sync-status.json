@@ -1,7 +1,12 @@
 {
-  "checkedAt": "2026-11-05T11:55:15.000Z",
-  "complete": true,
+  "checkedAt": "2026-11-05T12:15:30.000Z",
+  "complete": false,
   "engine": "rust-collector",
-  "failures": {},
+  "failures": {
+    "club": "EA clubs/overallStats HTTP 403 (HTTP 404)",
+    "leagueMatch": "EA clubs/matches HTTP 403 (HTTP 404)",
+    "members": "EA members/stats HTTP 403 (HTTP 404)",
+    "playoffMatch": "EA clubs/matches HTTP 403 (HTTP 404)"
+  },
   "stale": {}
 }

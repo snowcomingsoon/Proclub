@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-05T23:05:17.000Z",
+  "capturedAt": "2026-11-05T23:17:31.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-05T23:05:17.000Z",
+    "checkedAt": "2026-11-05T23:17:31.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -576,7 +576,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 1,
+        "number": 2,
         "unit": "days"
       },
       "timestamp": 1793747338
@@ -1923,7 +1923,7 @@
               "customAwayKitId": "7629",
               "customKeeperKitId": "5007",
               "customKitId": "7634",
-              "customThirdKitId": "7572",
+              "customThirdKitId": "7853",
               "dCustomKit": "1",
               "kitAColor1": "592653",
               "kitAColor2": "15166736",
@@ -1934,10 +1934,10 @@
               "kitColor3": "16773120",
               "kitColor4": "15921906",
               "kitId": "524288",
-              "kitThrdColor1": "7122142",
-              "kitThrdColor2": "22436",
-              "kitThrdColor3": "396864",
-              "kitThrdColor4": "15921906",
+              "kitThrdColor1": "592653",
+              "kitThrdColor2": "16687883",
+              "kitThrdColor3": "12702174",
+              "kitThrdColor4": "16687883",
               "seasonalKitId": "1076404224",
               "seasonalTeamId": "131397",
               "selectedKitType": "1",
@@ -38671,7 +38671,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 1,
+        "number": 2,
         "unit": "days"
       },
       "timestamp": 1793747338
@@ -40018,7 +40018,7 @@
               "customAwayKitId": "7629",
               "customKeeperKitId": "5007",
               "customKitId": "7634",
-              "customThirdKitId": "7572",
+              "customThirdKitId": "7853",
               "dCustomKit": "1",
               "kitAColor1": "592653",
               "kitAColor2": "15166736",
@@ -40029,10 +40029,10 @@
               "kitColor3": "16773120",
               "kitColor4": "15921906",
               "kitId": "524288",
-              "kitThrdColor1": "7122142",
-              "kitThrdColor2": "22436",
-              "kitThrdColor3": "396864",
-              "kitThrdColor4": "15921906",
+              "kitThrdColor1": "592653",
+              "kitThrdColor2": "16687883",
+              "kitThrdColor3": "12702174",
+              "kitThrdColor4": "16687883",
               "seasonalKitId": "1076404224",
               "seasonalTeamId": "131397",
               "selectedKitType": "1",

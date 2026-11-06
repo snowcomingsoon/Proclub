@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-06T15:20:41.000Z",
+  "capturedAt": "2026-11-06T15:30:48.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-06T15:20:41.000Z",
+    "checkedAt": "2026-11-06T15:30:48.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -5554,7 +5554,7 @@
               "kitColor2": "10066329",
               "kitColor3": "15921906",
               "kitColor4": "10066329",
-              "kitId": "540672",
+              "kitId": "262145",
               "kitThrdColor1": "4133724",
               "kitThrdColor2": "14655653",
               "kitThrdColor3": "13914459",
@@ -5566,7 +5566,7 @@
             },
             "name": "Fc 100 Pitié",
             "regionId": 5457237,
-            "teamId": 66
+            "teamId": 32
           },
           "gameNumber": "0",
           "goals": "4",
@@ -43649,7 +43649,7 @@
               "kitColor2": "10066329",
               "kitColor3": "15921906",
               "kitColor4": "10066329",
-              "kitId": "540672",
+              "kitId": "262145",
               "kitThrdColor1": "4133724",
               "kitThrdColor2": "14655653",
               "kitThrdColor3": "13914459",
@@ -43661,7 +43661,7 @@
             },
             "name": "Fc 100 Pitié",
             "regionId": 5457237,
-            "teamId": 66
+            "teamId": 32
           },
           "gameNumber": "0",
           "goals": "4",

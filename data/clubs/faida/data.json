@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-08T15:50:11.000Z",
+  "capturedAt": "2026-11-08T16:20:54.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-08T15:50:11.000Z",
+    "checkedAt": "2026-11-08T16:20:54.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -411,7 +411,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 7,
+        "number": 38,
         "unit": "minutes"
       },
       "timestamp": 1794152573
@@ -891,7 +891,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 20,
+        "number": 51,
         "unit": "minutes"
       },
       "timestamp": 1794151789
@@ -1289,8 +1289,8 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 37,
-        "unit": "minutes"
+        "number": 1,
+        "unit": "hours"
       },
       "timestamp": 1794150744
     },
@@ -1687,8 +1687,8 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 54,
-        "unit": "minutes"
+        "number": 1,
+        "unit": "hours"
       },
       "timestamp": 1794149744
     },
@@ -10604,7 +10604,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 7,
+        "number": 38,
         "unit": "minutes"
       },
       "timestamp": 1794152573
@@ -11084,7 +11084,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 20,
+        "number": 51,
         "unit": "minutes"
       },
       "timestamp": 1794151789
@@ -11482,8 +11482,8 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 37,
-        "unit": "minutes"
+        "number": 1,
+        "unit": "hours"
       },
       "timestamp": 1794150744
     },
@@ -11880,8 +11880,8 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 54,
-        "unit": "minutes"
+        "number": 1,
+        "unit": "hours"
       },
       "timestamp": 1794149744
     },

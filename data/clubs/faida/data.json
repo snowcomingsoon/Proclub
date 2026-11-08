@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-08T21:29:27.000Z",
+  "capturedAt": "2026-11-08T22:00:31.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-08T21:29:27.000Z",
+    "checkedAt": "2026-11-08T22:00:31.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -411,7 +411,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 5,
+        "number": 6,
         "unit": "hours"
       },
       "timestamp": 1794152573
@@ -891,7 +891,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 5,
+        "number": 6,
         "unit": "hours"
       },
       "timestamp": 1794151789
@@ -1687,7 +1687,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 6,
+        "number": 7,
         "unit": "hours"
       },
       "timestamp": 1794149744
@@ -2249,7 +2249,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 2,
+        "number": 3,
         "unit": "days"
       },
       "timestamp": 1793915617
@@ -2688,7 +2688,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 2,
+        "number": 3,
         "unit": "days"
       },
       "timestamp": 1793914407
@@ -10604,7 +10604,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 5,
+        "number": 6,
         "unit": "hours"
       },
       "timestamp": 1794152573
@@ -11084,7 +11084,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 5,
+        "number": 6,
         "unit": "hours"
       },
       "timestamp": 1794151789
@@ -11880,7 +11880,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 6,
+        "number": 7,
         "unit": "hours"
       },
       "timestamp": 1794149744
@@ -12442,7 +12442,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 2,
+        "number": 3,
         "unit": "days"
       },
       "timestamp": 1793915617
@@ -12881,7 +12881,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 2,
+        "number": 3,
         "unit": "days"
       },
       "timestamp": 1793914407

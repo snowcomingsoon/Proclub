@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-09T23:29:39.000Z",
+  "capturedAt": "2026-11-09T23:35:47.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-09T23:29:39.000Z",
+    "checkedAt": "2026-11-09T23:35:47.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -1933,19 +1933,19 @@
               "kitColor2": "16687883",
               "kitColor3": "16773120",
               "kitColor4": "15921906",
-              "kitId": "524288",
+              "kitId": "3547136",
               "kitThrdColor1": "592653",
               "kitThrdColor2": "16687883",
               "kitThrdColor3": "12702174",
               "kitThrdColor4": "16687883",
               "seasonalKitId": "1076404224",
               "seasonalTeamId": "131397",
-              "selectedKitType": "1",
+              "selectedKitType": "0",
               "stadName": "Estadio José Z"
             },
             "name": "FC touilla",
             "regionId": 5457237,
-            "teamId": 64
+            "teamId": 433
           },
           "gameNumber": "0",
           "goals": "7",
@@ -40028,19 +40028,19 @@
               "kitColor2": "16687883",
               "kitColor3": "16773120",
               "kitColor4": "15921906",
-              "kitId": "524288",
+              "kitId": "3547136",
               "kitThrdColor1": "592653",
               "kitThrdColor2": "16687883",
               "kitThrdColor3": "12702174",
               "kitThrdColor4": "16687883",
               "seasonalKitId": "1076404224",
               "seasonalTeamId": "131397",
-              "selectedKitType": "1",
+              "selectedKitType": "0",
               "stadName": "Estadio José Z"
             },
             "name": "FC touilla",
             "regionId": 5457237,
-            "teamId": 64
+            "teamId": 433
           },
           "gameNumber": "0",
           "goals": "7",

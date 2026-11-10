@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-10T21:38:09.000Z",
+  "capturedAt": "2026-11-10T22:08:46.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-10T21:38:09.000Z",
+    "checkedAt": "2026-11-10T22:08:46.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -2385,7 +2385,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 6,
+        "number": 7,
         "unit": "days"
       },
       "timestamp": 1793742758
@@ -5444,7 +5444,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 13,
+        "number": 14,
         "unit": "days"
       },
       "timestamp": 1793138203
@@ -40480,7 +40480,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 6,
+        "number": 7,
         "unit": "days"
       },
       "timestamp": 1793742758
@@ -43539,7 +43539,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 13,
+        "number": 14,
         "unit": "days"
       },
       "timestamp": 1793138203

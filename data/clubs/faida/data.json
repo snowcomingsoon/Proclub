@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-11T04:25:09.000Z",
+  "capturedAt": "2026-11-11T04:56:04.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-11T04:25:09.000Z",
+    "checkedAt": "2026-11-11T04:56:04.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",

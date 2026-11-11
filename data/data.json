@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-11T23:29:03.000Z",
+  "capturedAt": "2026-11-11T23:35:53.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-11T23:29:03.000Z",
+    "checkedAt": "2026-11-11T23:35:53.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -165,7 +165,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "368640",
+              "kitId": "2678784",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -177,7 +177,7 @@
             },
             "name": "Os Mano Peppa",
             "regionId": 5457237,
-            "teamId": 45
+            "teamId": 327
           },
           "gameNumber": "0",
           "goals": "3",
@@ -38260,7 +38260,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "368640",
+              "kitId": "2678784",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -38272,7 +38272,7 @@
             },
             "name": "Os Mano Peppa",
             "regionId": 5457237,
-            "teamId": 45
+            "teamId": 327
           },
           "gameNumber": "0",
           "goals": "3",

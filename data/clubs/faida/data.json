@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-16T22:40:16.000Z",
+  "capturedAt": "2026-11-16T22:59:14.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-16T22:40:16.000Z",
+    "checkedAt": "2026-11-16T22:59:14.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -575,7 +575,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 27,
+        "number": 46,
         "unit": "minutes"
       },
       "timestamp": 1794867144
@@ -1178,8 +1178,8 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 50,
-        "unit": "minutes"
+        "number": 1,
+        "unit": "hours"
       },
       "timestamp": 1794865804
     },
@@ -3397,7 +3397,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 1,
+        "number": 2,
         "unit": "hours"
       },
       "timestamp": 1794862035
@@ -3918,7 +3918,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 3,
+        "number": 4,
         "unit": "days"
       },
       "timestamp": 1794523328
@@ -16388,7 +16388,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 27,
+        "number": 46,
         "unit": "minutes"
       },
       "timestamp": 1794867144
@@ -16991,8 +16991,8 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 50,
-        "unit": "minutes"
+        "number": 1,
+        "unit": "hours"
       },
       "timestamp": 1794865804
     },
@@ -19210,7 +19210,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 1,
+        "number": 2,
         "unit": "hours"
       },
       "timestamp": 1794862035
@@ -19731,7 +19731,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 3,
+        "number": 4,
         "unit": "days"
       },
       "timestamp": 1794523328

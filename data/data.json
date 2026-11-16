@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-16T21:50:13.000Z",
+  "capturedAt": "2026-11-16T22:14:45.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-16T21:50:13.000Z",
+    "checkedAt": "2026-11-16T22:14:45.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -219,7 +219,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -740,7 +740,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -1343,7 +1343,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -1987,7 +1987,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -2385,7 +2385,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 12,
+        "number": 13,
         "unit": "days"
       },
       "timestamp": 1793742758
@@ -2549,7 +2549,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -3070,7 +3070,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -3572,7 +3572,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -4187,7 +4187,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -4907,7 +4907,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -5444,7 +5444,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 20,
         "unit": "days"
       },
       "timestamp": 1793138203
@@ -5608,7 +5608,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -38314,7 +38314,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -38835,7 +38835,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -39438,7 +39438,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -40082,7 +40082,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -40480,7 +40480,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 12,
+        "number": 13,
         "unit": "days"
       },
       "timestamp": 1793742758
@@ -40644,7 +40644,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -41165,7 +41165,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -41667,7 +41667,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -42282,7 +42282,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -43002,7 +43002,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",
@@ -43539,7 +43539,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 20,
         "unit": "days"
       },
       "timestamp": 1793138203
@@ -43703,7 +43703,7 @@
               "kitThrdColor4": "15921906",
               "seasonalKitId": "1085726720",
               "seasonalTeamId": "132535",
-              "selectedKitType": "1",
+              "selectedKitType": "2",
               "stadName": "Stadio livello "
             },
             "name": "BILLOCCHI CLUB",

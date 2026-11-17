@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-17T17:46:14.000Z",
+  "capturedAt": "2026-11-17T18:17:46.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-17T17:46:14.000Z",
+    "checkedAt": "2026-11-17T18:17:46.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -575,7 +575,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 20,
         "unit": "hours"
       },
       "timestamp": 1794867144
@@ -1178,7 +1178,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 20,
         "unit": "hours"
       },
       "timestamp": 1794865804
@@ -2589,7 +2589,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 20,
+        "number": 21,
         "unit": "hours"
       },
       "timestamp": 1794863167
@@ -3397,7 +3397,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 20,
+        "number": 21,
         "unit": "hours"
       },
       "timestamp": 1794862035
@@ -16388,7 +16388,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 20,
         "unit": "hours"
       },
       "timestamp": 1794867144
@@ -16991,7 +16991,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 19,
+        "number": 20,
         "unit": "hours"
       },
       "timestamp": 1794865804
@@ -18402,7 +18402,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 20,
+        "number": 21,
         "unit": "hours"
       },
       "timestamp": 1794863167
@@ -19210,7 +19210,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 20,
+        "number": 21,
         "unit": "hours"
       },
       "timestamp": 1794862035

@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-17T12:38:41.000Z",
+  "capturedAt": "2026-11-17T13:09:42.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-17T12:38:41.000Z",
+    "checkedAt": "2026-11-17T13:09:42.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -1178,7 +1178,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 14,
+        "number": 15,
         "unit": "hours"
       },
       "timestamp": 1794865804
@@ -2589,7 +2589,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 15,
+        "number": 16,
         "unit": "hours"
       },
       "timestamp": 1794863167
@@ -3397,7 +3397,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 15,
+        "number": 16,
         "unit": "hours"
       },
       "timestamp": 1794862035
@@ -4467,7 +4467,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "827875328",
+              "kitId": "1933312",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -4479,7 +4479,7 @@
             },
             "name": "white feet team",
             "regionId": 1397052722,
-            "teamId": 101059
+            "teamId": 236
           },
           "gameNumber": "0",
           "goals": "3",
@@ -16991,7 +16991,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 14,
+        "number": 15,
         "unit": "hours"
       },
       "timestamp": 1794865804
@@ -18402,7 +18402,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 15,
+        "number": 16,
         "unit": "hours"
       },
       "timestamp": 1794863167
@@ -19210,7 +19210,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 15,
+        "number": 16,
         "unit": "hours"
       },
       "timestamp": 1794862035
@@ -20280,7 +20280,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "827875328",
+              "kitId": "1933312",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -20292,7 +20292,7 @@
             },
             "name": "white feet team",
             "regionId": 1397052722,
-            "teamId": 101059
+            "teamId": 236
           },
           "gameNumber": "0",
           "goals": "3",

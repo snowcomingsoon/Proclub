@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-18T13:30:55.000Z",
+  "capturedAt": "2026-11-18T14:01:51.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-18T13:30:55.000Z",
+    "checkedAt": "2026-11-18T14:01:51.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -1782,7 +1782,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 15,
+        "number": 16,
         "unit": "hours"
       },
       "timestamp": 1794952054
@@ -3263,7 +3263,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 16,
+        "number": 17,
         "unit": "hours"
       },
       "timestamp": 1794949254
@@ -3661,7 +3661,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 16,
+        "number": 17,
         "unit": "hours"
       },
       "timestamp": 1794948110
@@ -4100,7 +4100,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 16,
+        "number": 17,
         "unit": "hours"
       },
       "timestamp": 1794947831
@@ -46568,7 +46568,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 15,
+        "number": 16,
         "unit": "hours"
       },
       "timestamp": 1794952054
@@ -48049,7 +48049,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 16,
+        "number": 17,
         "unit": "hours"
       },
       "timestamp": 1794949254
@@ -48447,7 +48447,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 16,
+        "number": 17,
         "unit": "hours"
       },
       "timestamp": 1794948110
@@ -48886,7 +48886,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 16,
+        "number": 17,
         "unit": "hours"
       },
       "timestamp": 1794947831

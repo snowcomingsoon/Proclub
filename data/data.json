@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-22T23:12:15.000Z",
+  "capturedAt": "2026-11-22T23:24:30.000Z",
   "club": [
     {
       "bestDivision": "3",
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-22T23:12:15.000Z",
+    "checkedAt": "2026-11-22T23:24:30.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -4210,7 +4210,7 @@
               "kitColor2": "592653",
               "kitColor3": "592653",
               "kitColor4": "592653",
-              "kitId": "1974272",
+              "kitId": "81920",
               "kitThrdColor1": "592653",
               "kitThrdColor2": "4000545",
               "kitThrdColor3": "15921906",
@@ -4222,7 +4222,7 @@
             },
             "name": "Noryx FC",
             "regionId": 5457237,
-            "teamId": 241
+            "teamId": 10
           },
           "gameNumber": "0",
           "goals": "3",
@@ -48996,7 +48996,7 @@
               "kitColor2": "592653",
               "kitColor3": "592653",
               "kitColor4": "592653",
-              "kitId": "1974272",
+              "kitId": "81920",
               "kitThrdColor1": "592653",
               "kitThrdColor2": "4000545",
               "kitThrdColor3": "15921906",
@@ -49008,7 +49008,7 @@
             },
             "name": "Noryx FC",
             "regionId": 5457237,
-            "teamId": 241
+            "teamId": 10
           },
           "gameNumber": "0",
           "goals": "3",

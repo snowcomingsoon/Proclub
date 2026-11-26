@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-11-26T21:16:24.000Z",
+  "capturedAt": "2026-11-26T21:41:38.000Z",
   "club": [
     {
       "bestDivision": null,
@@ -49,7 +49,7 @@
   ],
   "collectionStatus": {
     "attempts": 1,
-    "checkedAt": "2026-11-26T21:16:24.000Z",
+    "checkedAt": "2026-11-26T21:41:38.000Z",
     "complete": true,
     "endpointFailures": {},
     "engine": "rust-collector",
@@ -1335,7 +1335,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "11075584",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -1347,7 +1347,7 @@
             },
             "name": "Mur Maria",
             "regionId": 1397052722,
-            "teamId": 1352
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -1945,7 +1945,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 9,
+        "number": 10,
         "unit": "days"
       },
       "timestamp": 1794864266
@@ -5674,7 +5674,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 13,
+        "number": 14,
         "unit": "days"
       },
       "timestamp": 1794518496
@@ -17148,7 +17148,7 @@
               "kitColor2": "5775459",
               "kitColor3": "5775459",
               "kitColor4": "5775459",
-              "kitId": "11075584",
+              "kitId": "1990656",
               "kitThrdColor1": "12706617",
               "kitThrdColor2": "33627",
               "kitThrdColor3": "396864",
@@ -17160,7 +17160,7 @@
             },
             "name": "Mur Maria",
             "regionId": 1397052722,
-            "teamId": 1352
+            "teamId": 243
           },
           "gameNumber": "0",
           "goals": "3",
@@ -17758,7 +17758,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 9,
+        "number": 10,
         "unit": "days"
       },
       "timestamp": 1794864266
@@ -21487,7 +21487,7 @@
       },
       "sourceMatchType": "leagueMatch",
       "timeAgo": {
-        "number": 13,
+        "number": 14,
         "unit": "days"
       },
       "timestamp": 1794518496
